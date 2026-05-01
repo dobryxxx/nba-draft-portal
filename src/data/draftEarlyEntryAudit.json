@@ -1,0 +1,551 @@
+{
+  "source": {
+    "title": "NBA announces early entry candidates for NBA Draft 2026",
+    "url": "https://www.nba.com/news/2026-nba-draft-early-entry-candidates",
+    "published": "2026-04-27",
+    "checkedAt": "2026-04-30",
+    "officialCandidateCount": 71
+  },
+  "summary": {
+    "beforeDbCount": 56,
+    "afterDbCount": 45,
+    "removedCount": 18,
+    "missingOfficialCount": 29,
+    "matchedAliasCount": 3,
+    "restoredAutomaticEligibleCount": 3,
+    "note": "Early entry list nao inclui necessariamente jogadores automaticamente elegiveis por idade. Sete nomes oficiais foram adicionados manualmente em 2026-04-30.",
+    "addedOfficialCount": 7
+  },
+  "removedFromDb": [
+    {
+      "id": 19,
+      "name": "Dwayne Aristode",
+      "rank": 19,
+      "team": "Arizona",
+      "tier": "STARTER"
+    },
+    {
+      "id": 23,
+      "name": "Cayden Boozer",
+      "rank": 23,
+      "team": "Duke",
+      "tier": "STARTER"
+    },
+    {
+      "id": 36,
+      "name": "Eric Reibe",
+      "rank": 36,
+      "team": "UConn",
+      "tier": "SLEEPER"
+    },
+    {
+      "id": 38,
+      "name": "Braden Smith",
+      "rank": 38,
+      "team": "Purdue",
+      "tier": "SLEEPER"
+    },
+    {
+      "id": 39,
+      "name": "Miles Byrd",
+      "rank": 39,
+      "team": "San Diego State",
+      "tier": "SLEEPER"
+    },
+    {
+      "id": 40,
+      "name": "Zuby Ejiofor",
+      "rank": 40,
+      "team": "St. John's",
+      "tier": "SLEEPER"
+    },
+    {
+      "id": 41,
+      "name": "Nikolas Khamenia",
+      "rank": 41,
+      "team": "Duke",
+      "tier": "SLEEPER"
+    },
+    {
+      "id": 43,
+      "name": "Alex Karaban",
+      "rank": 43,
+      "team": "UConn",
+      "tier": "SLEEPER"
+    },
+    {
+      "id": 44,
+      "name": "Joseph Tugler",
+      "rank": 44,
+      "team": "Houston",
+      "tier": "SLEEPER"
+    },
+    {
+      "id": 47,
+      "name": "Tomislav Ivisic",
+      "rank": 47,
+      "team": "Illinois",
+      "tier": "SLEEPER"
+    },
+    {
+      "id": 48,
+      "name": "Richie Saunders",
+      "rank": 48,
+      "team": "BYU",
+      "tier": "SLEEPER"
+    },
+    {
+      "id": 50,
+      "name": "Milos Uzan",
+      "rank": 50,
+      "team": "Houston",
+      "tier": "SLEEPER"
+    },
+    {
+      "id": 51,
+      "name": "Mouhamed Sylla",
+      "rank": 51,
+      "team": "Georgia Tech",
+      "tier": "SLEEPER"
+    },
+    {
+      "id": 52,
+      "name": "Tamin Lipsey",
+      "rank": 52,
+      "team": "Iowa State",
+      "tier": "SLEEPER"
+    },
+    {
+      "id": 53,
+      "name": "Paul McNeil Jr.",
+      "rank": 53,
+      "team": "NC State",
+      "tier": "SLEEPER"
+    },
+    {
+      "id": 54,
+      "name": "Tahaad Pettiford",
+      "rank": 54,
+      "team": "Auburn",
+      "tier": "SLEEPER"
+    },
+    {
+      "id": 55,
+      "name": "Karter Knox",
+      "rank": 55,
+      "team": "Arkansas",
+      "tier": "SLEEPER"
+    },
+    {
+      "id": 56,
+      "name": "Wesley Yates",
+      "rank": 56,
+      "team": "Washington",
+      "tier": "SLEEPER"
+    }
+  ],
+  "existingOfficialMatches": [
+    {
+      "id": 1,
+      "name": "AJ Dybantsa",
+      "officialName": "AJ Dybantsa",
+      "rank": 1,
+      "team": "BYU",
+      "tier": "ELITE"
+    },
+    {
+      "id": 2,
+      "name": "Darryn Peterson",
+      "officialName": "Darryn Peterson",
+      "rank": 2,
+      "team": "Kansas",
+      "tier": "ELITE"
+    },
+    {
+      "id": 3,
+      "name": "Cameron Boozer",
+      "officialName": "Cameron Boozer",
+      "rank": 3,
+      "team": "Duke",
+      "tier": "ELITE"
+    },
+    {
+      "id": 4,
+      "name": "Caleb Wilson",
+      "officialName": "Caleb Wilson",
+      "rank": 4,
+      "team": "North Carolina",
+      "tier": "ALL_STAR"
+    },
+    {
+      "id": 5,
+      "name": "Keaton Wagler",
+      "officialName": "Keaton Wagler",
+      "rank": 5,
+      "team": "Illinois",
+      "tier": "ALL_STAR"
+    },
+    {
+      "id": 6,
+      "name": "Kingston Flemings",
+      "officialName": "Kingston Flemings",
+      "rank": 6,
+      "team": "Houston",
+      "tier": "ALL_STAR"
+    },
+    {
+      "id": 7,
+      "name": "Mikel Brown Jr.",
+      "officialName": "Mikel Brown Jr.",
+      "rank": 7,
+      "team": "Louisville",
+      "tier": "ALL_STAR"
+    },
+    {
+      "id": 8,
+      "name": "Jayden Quaintance",
+      "officialName": "Jayden Quaintance",
+      "rank": 20,
+      "team": "Kentucky",
+      "tier": "LOTTERY"
+    },
+    {
+      "id": 9,
+      "name": "Nate Ament",
+      "officialName": "Nate Ament",
+      "rank": 9,
+      "team": "Tennessee",
+      "tier": "ALL_STAR"
+    },
+    {
+      "id": 11,
+      "name": "Labaron Philon",
+      "officialName": "Labaron Philon Jr.",
+      "rank": 11,
+      "team": "Alabama",
+      "tier": "ALL_STAR"
+    },
+    {
+      "id": 12,
+      "name": "Allen Graves",
+      "officialName": "Allen Graves",
+      "rank": 12,
+      "team": "Santa Clara",
+      "tier": "LOTTERY"
+    },
+    {
+      "id": 13,
+      "name": "Hannes Steinbach",
+      "officialName": "Hannes Steinbach",
+      "rank": 13,
+      "team": "Washington",
+      "tier": "LOTTERY"
+    },
+    {
+      "id": 14,
+      "name": "Darius Acuff Jr.",
+      "officialName": "Darius Acuff Jr.",
+      "rank": 6,
+      "team": "Arkansas",
+      "tier": "STARTER"
+    },
+    {
+      "id": 15,
+      "name": "Chris Cenac Jr.",
+      "officialName": "Chris Cenac Jr.",
+      "rank": 29,
+      "team": "Houston",
+      "tier": "SLEEPER"
+    },
+    {
+      "id": 17,
+      "name": "Tounde Yessoufou",
+      "officialName": "Tounde Yessoufou",
+      "rank": 17,
+      "team": "Baylor",
+      "tier": "FRINGE"
+    },
+    {
+      "id": 18,
+      "name": "Cameron Carr",
+      "officialName": "Cameron Carr",
+      "rank": 18,
+      "team": "Baylor",
+      "tier": "LOTTERY"
+    },
+    {
+      "id": 20,
+      "name": "Karim Lopez",
+      "officialName": "Karim Lopez",
+      "rank": 20,
+      "team": "Mexico",
+      "tier": "LOTTERY"
+    },
+    {
+      "id": 21,
+      "name": "Malachi Moreno",
+      "officialName": "Malachi Moreno",
+      "rank": 21,
+      "team": "Kentucky",
+      "tier": "STARTER"
+    },
+    {
+      "id": 22,
+      "name": "Amari Allen",
+      "officialName": "Amari Allen",
+      "rank": 22,
+      "team": "Alabama",
+      "tier": "FRINGE"
+    },
+    {
+      "id": 24,
+      "name": "Isaiah Evans",
+      "officialName": "Isaiah Evans",
+      "rank": 24,
+      "team": "Duke",
+      "tier": "STARTER"
+    },
+    {
+      "id": 25,
+      "name": "Aday Mara",
+      "officialName": "Aday Mara",
+      "rank": 10,
+      "team": "Michigan",
+      "tier": "ALL_STAR"
+    },
+    {
+      "id": 26,
+      "name": "Christian Anderson",
+      "officialName": "Christian Anderson Jr.",
+      "rank": 26,
+      "team": "Texas Tech",
+      "tier": "STARTER"
+    },
+    {
+      "id": 27,
+      "name": "Koa Peat",
+      "officialName": "Koa Peat",
+      "rank": 27,
+      "team": "Arizona",
+      "tier": "STARTER"
+    },
+    {
+      "id": 28,
+      "name": "Brayden Burries",
+      "officialName": "Brayden Burries",
+      "rank": 28,
+      "team": "Arizona",
+      "tier": "LOTTERY"
+    },
+    {
+      "id": 29,
+      "name": "Meleek Thomas",
+      "officialName": "Meleek Thomas",
+      "rank": 29,
+      "team": "Arkansas",
+      "tier": "SLEEPER"
+    },
+    {
+      "id": 30,
+      "name": "Milan Momcilovic",
+      "officialName": "Milan Momcilovic",
+      "rank": 30,
+      "team": "Iowa St.",
+      "tier": "STARTER"
+    },
+    {
+      "id": 32,
+      "name": "Ebuka Okorie",
+      "officialName": "Ebuka Okorie",
+      "rank": 32,
+      "team": "Stanford",
+      "tier": "SLEEPER"
+    },
+    {
+      "id": 33,
+      "name": "Isiah Harwell",
+      "officialName": "Isiah Harwell",
+      "rank": 33,
+      "team": "Houston",
+      "tier": "SLEEPER"
+    },
+    {
+      "id": 34,
+      "name": "Tyler Tanner",
+      "officialName": "Tyler Tanner",
+      "rank": 34,
+      "team": "Vanderbilt",
+      "tier": "SLEEPER"
+    },
+    {
+      "id": 35,
+      "name": "Henri Veesaar",
+      "officialName": "Henri Veesaar",
+      "rank": 35,
+      "team": "North Carolina",
+      "tier": "SLEEPER"
+    },
+    {
+      "id": 37,
+      "name": "Dailyn Swain",
+      "officialName": "Dailyn Swain",
+      "rank": 37,
+      "team": "Texas",
+      "tier": "SLEEPER"
+    },
+    {
+      "id": 42,
+      "name": "Juke Harris",
+      "officialName": "Juke Harris",
+      "rank": 42,
+      "team": "Wake Forest",
+      "tier": "SLEEPER"
+    },
+    {
+      "id": 45,
+      "name": "Matthew Able",
+      "officialName": "Matt Able",
+      "rank": 45,
+      "team": "NC State",
+      "tier": "SLEEPER"
+    },
+    {
+      "id": 46,
+      "name": "Flory Bidunga",
+      "officialName": "Flory Bidunga",
+      "rank": 46,
+      "team": "Kansas",
+      "tier": "SLEEPER"
+    },
+    {
+      "id": 49,
+      "name": "Morez Johnson Jr.",
+      "officialName": "Morez Johnson Jr.",
+      "rank": 49,
+      "team": "Michigan",
+      "tier": "FRINGE"
+    }
+  ],
+  "officialNamesMissingFromDb": [
+    "Alijah Arenas",
+    "Finley Bizjack",
+    "John Blackwell",
+    "Shane Blakeney",
+    "Anton Bonke",
+    "Rowan Brumbaugh",
+    "Rueben Chinyelu",
+    "Jacob Cofie",
+    "Cruz Davis",
+    "Kennard Davis Jr.",
+    "Keanu Dawes",
+    "Gabe Dynes",
+    "Eian Elmer",
+    "Colby Garland",
+    "Lou Hutchinson",
+    "Acaden Lewis",
+    "Paulius Murauskas",
+    "Dennis Parker Jr.",
+    "Sebastian Rancik",
+    "Aiden Tobiason",
+    "Bryson Tucker",
+    "LeJuan Watts",
+    "Mohammad Amini",
+    "Pavle Backo",
+    "Bassala Bagayoko",
+    "Francesco Ferrari",
+    "Marc-Owen Fodzo Dada",
+    "Vsevolod Ishchenko",
+    "Jack Kayil"
+  ],
+  "matchedAliases": [
+    {
+      "dbName": "Labaron Philon",
+      "officialName": "Labaron Philon Jr."
+    },
+    {
+      "dbName": "Christian Anderson",
+      "officialName": "Christian Anderson Jr."
+    },
+    {
+      "dbName": "Matthew Able",
+      "officialName": "Matt Able"
+    }
+  ],
+  "restoredAutomaticEligible": [
+    {
+      "id": 10,
+      "name": "Yaxel Lendeborg",
+      "rank": 10,
+      "team": "Michigan",
+      "tier": "LOTTERY",
+      "reason": "Eleg?vel automaticamente por idade; n?o depende da lista early entry."
+    },
+    {
+      "id": 16,
+      "name": "Bennett Stirtz",
+      "rank": 16,
+      "team": "Iowa",
+      "tier": "STARTER",
+      "reason": "Eleg?vel automaticamente por idade; n?o depende da lista early entry."
+    },
+    {
+      "id": 31,
+      "name": "Joshua Jefferson",
+      "rank": 31,
+      "team": "Iowa State",
+      "tier": "SLEEPER",
+      "reason": "Eleg?vel automaticamente por idade; n?o depende da lista early entry."
+    }
+  ],
+  "addedFromOfficialList": [
+    {
+      "id": 57,
+      "name": "Elliot Cadeau",
+      "rank": 50,
+      "team": "Michigan",
+      "tier": "SLEEPER"
+    },
+    {
+      "id": 58,
+      "name": "Jeremy Fears Jr.",
+      "rank": 51,
+      "team": "Michigan State",
+      "tier": "SLEEPER"
+    },
+    {
+      "id": 59,
+      "name": "Billy Richmond III",
+      "rank": 52,
+      "team": "Arkansas",
+      "tier": "SLEEPER"
+    },
+    {
+      "id": 60,
+      "name": "Andrej Stojakovic",
+      "rank": 53,
+      "team": "Illinois",
+      "tier": "SLEEPER"
+    },
+    {
+      "id": 61,
+      "name": "Sergio de Larrea",
+      "rank": 54,
+      "team": "Valencia",
+      "tier": "SLEEPER"
+    },
+    {
+      "id": 62,
+      "name": "Alexandros Samodurov",
+      "rank": 55,
+      "team": "Panathinaikos",
+      "tier": "SLEEPER"
+    },
+    {
+      "id": 63,
+      "name": "Luigi Suigo",
+      "rank": 56,
+      "team": "Mega Basket",
+      "tier": "SLEEPER"
+    }
+  ]
+}

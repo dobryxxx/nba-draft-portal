@@ -1,0 +1,1327 @@
+{
+  "generatedAt": "2026-04-29T02:06:04.997Z",
+  "sourceFile": "C:/Users/Cliente/Desktop/prospects_stats.json",
+  "policy": "Validation/complement only. Current prospects database is not automatically overwritten.",
+  "counts": {
+    "currentProspects": 56,
+    "externalRawRecords": 100,
+    "externalNBARecords": 86,
+    "matchedByName": 20,
+    "externalOnly": 66,
+    "conflicts": 20,
+    "fillablePlayers": 2
+  },
+  "conflicts": [
+    {
+      "name": "Cameron Boozer",
+      "team": "Duke",
+      "externalTeam": "Duke",
+      "diffs": [
+        {
+          "stat": "usg",
+          "current": 30.6,
+          "external": 29.9
+        },
+        {
+          "stat": "per",
+          "current": 31.4,
+          "external": 33.7
+        }
+      ]
+    },
+    {
+      "name": "Caleb Wilson",
+      "team": "North Carolina",
+      "externalTeam": "UNC",
+      "diffs": [
+        {
+          "stat": "ftp",
+          "current": 72.1,
+          "external": 71.3
+        },
+        {
+          "stat": "per",
+          "current": 25.3,
+          "external": 31.4
+        }
+      ]
+    },
+    {
+      "name": "Keaton Wagler",
+      "team": "Illinois",
+      "externalTeam": "Illinois",
+      "diffs": [
+        {
+          "stat": "per",
+          "current": 22.8,
+          "external": 23.9
+        }
+      ]
+    },
+    {
+      "name": "Kingston Flemings",
+      "team": "Houston",
+      "externalTeam": "Houston",
+      "diffs": [
+        {
+          "stat": "ppg",
+          "current": 17.3,
+          "external": 16.1
+        },
+        {
+          "stat": "apg",
+          "current": 5.8,
+          "external": 5.2
+        },
+        {
+          "stat": "fgp",
+          "current": 46.2,
+          "external": 47.6
+        },
+        {
+          "stat": "threep",
+          "current": 40,
+          "external": 38.7
+        },
+        {
+          "stat": "ftp",
+          "current": 81.3,
+          "external": 84.5
+        }
+      ]
+    },
+    {
+      "name": "Mikel Brown Jr.",
+      "team": "Louisville",
+      "externalTeam": "Louisville",
+      "diffs": [
+        {
+          "stat": "ftp",
+          "current": 83.1,
+          "external": 84.4
+        },
+        {
+          "stat": "per",
+          "current": 21.4,
+          "external": 20.5
+        }
+      ]
+    },
+    {
+      "name": "Hannes Steinbach",
+      "team": "Washington",
+      "externalTeam": "Washington",
+      "diffs": [
+        {
+          "stat": "ppg",
+          "current": 16.4,
+          "external": 18.5
+        },
+        {
+          "stat": "rpg",
+          "current": 5.2,
+          "external": 11.8
+        },
+        {
+          "stat": "apg",
+          "current": 2.8,
+          "external": 1.6
+        },
+        {
+          "stat": "fgp",
+          "current": 46.9,
+          "external": 57.7
+        },
+        {
+          "stat": "threep",
+          "current": 38.1,
+          "external": 34
+        },
+        {
+          "stat": "ftp",
+          "current": 80.2,
+          "external": 75.9
+        },
+        {
+          "stat": "per",
+          "current": 21.3,
+          "external": 28
+        }
+      ]
+    },
+    {
+      "name": "Dwayne Aristode",
+      "team": "Arizona",
+      "externalTeam": "Arizona",
+      "diffs": [
+        {
+          "stat": "ppg",
+          "current": 13.2,
+          "external": 3.8
+        },
+        {
+          "stat": "rpg",
+          "current": 5.8,
+          "external": 1.7
+        },
+        {
+          "stat": "apg",
+          "current": 1.9,
+          "external": 0.7
+        },
+        {
+          "stat": "fgp",
+          "current": 49.6,
+          "external": 49
+        },
+        {
+          "stat": "threep",
+          "current": 34.5,
+          "external": 46.2
+        },
+        {
+          "stat": "ftp",
+          "current": 72.1,
+          "external": 50
+        },
+        {
+          "stat": "ts",
+          "current": 58.2,
+          "external": 63.5
+        },
+        {
+          "stat": "usg",
+          "current": 20.4,
+          "external": 12.3
+        },
+        {
+          "stat": "per",
+          "current": 18.9,
+          "external": 13.2
+        }
+      ]
+    },
+    {
+      "name": "Cayden Boozer",
+      "team": "Duke",
+      "externalTeam": "Duke",
+      "diffs": [
+        {
+          "stat": "ppg",
+          "current": 10.4,
+          "external": 7.7
+        },
+        {
+          "stat": "rpg",
+          "current": 3.6,
+          "external": 2.3
+        },
+        {
+          "stat": "apg",
+          "current": 6.2,
+          "external": 3
+        },
+        {
+          "stat": "fgp",
+          "current": 45.1,
+          "external": 50
+        },
+        {
+          "stat": "threep",
+          "current": 36.8,
+          "external": 30.3
+        },
+        {
+          "stat": "ftp",
+          "current": 82.3,
+          "external": 81.3
+        },
+        {
+          "stat": "usg",
+          "current": 18,
+          "external": 17.3
+        },
+        {
+          "stat": "per",
+          "current": 18.9,
+          "external": 15.2
+        }
+      ]
+    },
+    {
+      "name": "Christian Anderson",
+      "team": "Texas Tech",
+      "externalTeam": "Texas Tech",
+      "diffs": [
+        {
+          "stat": "ppg",
+          "current": 18.9,
+          "external": 18.5
+        },
+        {
+          "stat": "rpg",
+          "current": 4.7,
+          "external": 3.6
+        },
+        {
+          "stat": "apg",
+          "current": 2.8,
+          "external": 7.4
+        },
+        {
+          "stat": "threep",
+          "current": 42.5,
+          "external": 41.5
+        },
+        {
+          "stat": "ftp",
+          "current": 83.4,
+          "external": 80.5
+        },
+        {
+          "stat": "usg",
+          "current": 25.2,
+          "external": 23.8
+        },
+        {
+          "stat": "per",
+          "current": 22.1,
+          "external": 20.9
+        }
+      ]
+    },
+    {
+      "name": "Koa Peat",
+      "team": "Arizona",
+      "externalTeam": "Arizona",
+      "diffs": [
+        {
+          "stat": "rpg",
+          "current": 7.3,
+          "external": 5.6
+        },
+        {
+          "stat": "apg",
+          "current": 2.1,
+          "external": 2.6
+        },
+        {
+          "stat": "fgp",
+          "current": 53.6,
+          "external": 52.8
+        },
+        {
+          "stat": "threep",
+          "current": 0,
+          "external": 35
+        },
+        {
+          "stat": "ftp",
+          "current": 72.4,
+          "external": 62.3
+        },
+        {
+          "stat": "per",
+          "current": 19.8,
+          "external": 20.5
+        }
+      ]
+    },
+    {
+      "name": "Meleek Thomas",
+      "team": "Arkansas",
+      "externalTeam": "Arkansas",
+      "diffs": [
+        {
+          "stat": "ppg",
+          "current": 13.8,
+          "external": 15.6
+        },
+        {
+          "stat": "rpg",
+          "current": 4.4,
+          "external": 3.8
+        },
+        {
+          "stat": "fgp",
+          "current": 46.1,
+          "external": 43.5
+        },
+        {
+          "stat": "ftp",
+          "current": 78.9,
+          "external": 84.3
+        },
+        {
+          "stat": "usg",
+          "current": 22.1,
+          "external": 23.6
+        }
+      ]
+    },
+    {
+      "name": "Milan Momcilovic",
+      "team": "Iowa St.",
+      "externalTeam": "Iowa St.",
+      "diffs": [
+        {
+          "stat": "usg",
+          "current": 18.1,
+          "external": 21.2
+        }
+      ]
+    },
+    {
+      "name": "Eric Reibe",
+      "team": "UConn",
+      "externalTeam": "UConn",
+      "diffs": [
+        {
+          "stat": "ppg",
+          "current": 11.8,
+          "external": 5.9
+        },
+        {
+          "stat": "rpg",
+          "current": 6.8,
+          "external": 3.3
+        },
+        {
+          "stat": "apg",
+          "current": 1.2,
+          "external": 0.5
+        },
+        {
+          "stat": "fgp",
+          "current": 56.1,
+          "external": 65.8
+        },
+        {
+          "stat": "threep",
+          "current": 0,
+          "external": 30.8
+        },
+        {
+          "stat": "ftp",
+          "current": 68.5,
+          "external": 52.1
+        },
+        {
+          "stat": "usg",
+          "current": 18.2,
+          "external": 19.1
+        },
+        {
+          "stat": "per",
+          "current": 18.6,
+          "external": 20.6
+        }
+      ]
+    },
+    {
+      "name": "Dailyn Swain",
+      "team": "Texas",
+      "externalTeam": "Texas",
+      "diffs": [
+        {
+          "stat": "ppg",
+          "current": 15.3,
+          "external": 17.3
+        },
+        {
+          "stat": "rpg",
+          "current": 6.2,
+          "external": 7.5
+        },
+        {
+          "stat": "apg",
+          "current": 2.4,
+          "external": 3.6
+        },
+        {
+          "stat": "fgp",
+          "current": 48.1,
+          "external": 54.2
+        },
+        {
+          "stat": "threep",
+          "current": 36.4,
+          "external": 34.4
+        },
+        {
+          "stat": "ftp",
+          "current": 76.2,
+          "external": 81.5
+        },
+        {
+          "stat": "usg",
+          "current": 25.5,
+          "external": 24.6
+        },
+        {
+          "stat": "per",
+          "current": 19.8,
+          "external": 25
+        },
+        {
+          "stat": "games",
+          "current": 35,
+          "external": 36
+        }
+      ]
+    },
+    {
+      "name": "Zuby Ejiofor",
+      "team": "St. John's",
+      "externalTeam": "St. John's (NY)",
+      "diffs": [
+        {
+          "stat": "ppg",
+          "current": 14.2,
+          "external": 16.3
+        },
+        {
+          "stat": "rpg",
+          "current": 8.4,
+          "external": 7.3
+        },
+        {
+          "stat": "apg",
+          "current": 1.5,
+          "external": 3.5
+        },
+        {
+          "stat": "fgp",
+          "current": 55.8,
+          "external": 53.6
+        },
+        {
+          "stat": "threep",
+          "current": 0,
+          "external": 30.5
+        },
+        {
+          "stat": "ftp",
+          "current": 66.4,
+          "external": 71.8
+        },
+        {
+          "stat": "usg",
+          "current": 26.4,
+          "external": 24.8
+        },
+        {
+          "stat": "per",
+          "current": 20.1,
+          "external": 27.7
+        }
+      ]
+    },
+    {
+      "name": "Juke Harris",
+      "team": "Wake Forest",
+      "externalTeam": "Wake Forest",
+      "diffs": [
+        {
+          "stat": "ppg",
+          "current": 15.8,
+          "external": 21.4
+        },
+        {
+          "stat": "rpg",
+          "current": 6.7,
+          "external": 6.5
+        },
+        {
+          "stat": "apg",
+          "current": 2.1,
+          "external": 1.9
+        },
+        {
+          "stat": "fgp",
+          "current": 48.3,
+          "external": 44.4
+        },
+        {
+          "stat": "threep",
+          "current": 34.9,
+          "external": 33.2
+        },
+        {
+          "stat": "ftp",
+          "current": 75.8,
+          "external": 78.3
+        },
+        {
+          "stat": "usg",
+          "current": 27.3,
+          "external": 28.8
+        },
+        {
+          "stat": "per",
+          "current": 20.4,
+          "external": 22.6
+        }
+      ]
+    },
+    {
+      "name": "Flory Bidunga",
+      "team": "Kansas",
+      "externalTeam": "Kansas",
+      "diffs": [
+        {
+          "stat": "ppg",
+          "current": 10.8,
+          "external": 13.3
+        },
+        {
+          "stat": "rpg",
+          "current": 7.8,
+          "external": 9
+        },
+        {
+          "stat": "apg",
+          "current": 1.1,
+          "external": 1.5
+        },
+        {
+          "stat": "fgp",
+          "current": 58.3,
+          "external": 64
+        },
+        {
+          "stat": "ftp",
+          "current": 62.5,
+          "external": 65.4
+        },
+        {
+          "stat": "per",
+          "current": 18.2,
+          "external": 24.4
+        }
+      ]
+    },
+    {
+      "name": "Richie Saunders",
+      "team": "BYU",
+      "externalTeam": "BYU",
+      "diffs": [
+        {
+          "stat": "ppg",
+          "current": 14.8,
+          "external": 18
+        },
+        {
+          "stat": "rpg",
+          "current": 5.2,
+          "external": 5.8
+        },
+        {
+          "stat": "apg",
+          "current": 2.5,
+          "external": 2.1
+        },
+        {
+          "stat": "fgp",
+          "current": 47.3,
+          "external": 48.9
+        },
+        {
+          "stat": "threep",
+          "current": 39.8,
+          "external": 37.6
+        },
+        {
+          "stat": "ftp",
+          "current": 82.6,
+          "external": 81.7
+        },
+        {
+          "stat": "usg",
+          "current": 23.8,
+          "external": 24.5
+        },
+        {
+          "stat": "per",
+          "current": 18.8,
+          "external": 25
+        }
+      ]
+    },
+    {
+      "name": "Paul McNeil Jr.",
+      "team": "NC State",
+      "externalTeam": "NC State",
+      "diffs": [
+        {
+          "stat": "ppg",
+          "current": 14.2,
+          "external": 13.8
+        },
+        {
+          "stat": "rpg",
+          "current": 4.8,
+          "external": 3.6
+        },
+        {
+          "stat": "apg",
+          "current": 2.1,
+          "external": 0.8
+        },
+        {
+          "stat": "fgp",
+          "current": 46.4,
+          "external": 43.3
+        },
+        {
+          "stat": "threep",
+          "current": 37.9,
+          "external": 42.7
+        },
+        {
+          "stat": "ftp",
+          "current": 78.6,
+          "external": 82.4
+        },
+        {
+          "stat": "usg",
+          "current": 18.2,
+          "external": 20
+        }
+      ]
+    },
+    {
+      "name": "Karter Knox",
+      "team": "Arkansas",
+      "externalTeam": "Arkansas",
+      "diffs": [
+        {
+          "stat": "ppg",
+          "current": 11.4,
+          "external": 8.1
+        },
+        {
+          "stat": "rpg",
+          "current": 4.2,
+          "external": 4.5
+        },
+        {
+          "stat": "apg",
+          "current": 1.5,
+          "external": 1.2
+        },
+        {
+          "stat": "threep",
+          "current": 36.1,
+          "external": 37.7
+        },
+        {
+          "stat": "ftp",
+          "current": 77.3,
+          "external": 72.7
+        },
+        {
+          "stat": "per",
+          "current": 17.2,
+          "external": 15.1
+        }
+      ]
+    }
+  ],
+  "fillableMissingFields": [
+    {
+      "name": "Dwayne Aristode",
+      "team": "Arizona",
+      "fillable": [
+        {
+          "stat": "efg",
+          "external": 64.6
+        },
+        {
+          "stat": "astTo",
+          "external": 1.7
+        },
+        {
+          "stat": "blkPct",
+          "external": 0.7
+        },
+        {
+          "stat": "stlPct",
+          "external": 1.9
+        },
+        {
+          "stat": "games",
+          "external": 35
+        },
+        {
+          "stat": "fgm",
+          "external": 1.3
+        },
+        {
+          "stat": "fga",
+          "external": 2.7
+        },
+        {
+          "stat": "threepm",
+          "external": 0.9
+        },
+        {
+          "stat": "threepa",
+          "external": 1.9
+        }
+      ]
+    },
+    {
+      "name": "Milan Momcilovic",
+      "team": "Iowa St.",
+      "fillable": [
+        {
+          "stat": "per",
+          "external": 21.2
+        }
+      ]
+    }
+  ],
+  "externalOnlySample": [
+    {
+      "name": "Dewayne Brown",
+      "team": "Tennessee",
+      "league": "NCAA",
+      "ppg": 4.8,
+      "rpg": 3.6,
+      "apg": 0.9,
+      "games": 35
+    },
+    {
+      "name": "Xaivian Lee",
+      "team": "Florida",
+      "league": "NCAA",
+      "ppg": 11.6,
+      "rpg": 3.7,
+      "apg": 4.2,
+      "games": 35
+    },
+    {
+      "name": "Amari Evans",
+      "team": "Tennessee",
+      "league": "NCAA",
+      "ppg": 4.1,
+      "rpg": 3.2,
+      "apg": 0.8,
+      "games": 35
+    },
+    {
+      "name": "Lazar Djokovic",
+      "team": "VCU",
+      "league": "NCAA",
+      "ppg": 13.2,
+      "rpg": 5.2,
+      "apg": 1.1,
+      "games": 35
+    },
+    {
+      "name": "Adam Atamna",
+      "team": "ASVEL Basket",
+      "league": "Jeep Elite",
+      "ppg": 8.1,
+      "rpg": 1.5,
+      "apg": 2.1,
+      "games": 22
+    },
+    {
+      "name": "Jeremiah Green",
+      "team": "Texas A&M",
+      "league": "NCAA",
+      "ppg": 0.9,
+      "rpg": 0.1,
+      "apg": 0.5,
+      "games": 8
+    },
+    {
+      "name": "Anton Bonke",
+      "team": "Charlotte",
+      "league": "NCAA",
+      "ppg": 10.6,
+      "rpg": 8.3,
+      "apg": 1,
+      "games": 34
+    },
+    {
+      "name": "Luigi Suigo",
+      "team": "KK Mega Bemax",
+      "league": "Liga ABA",
+      "ppg": 7.9,
+      "rpg": 5.1,
+      "apg": 0.7,
+      "games": 22
+    },
+    {
+      "name": "Dorian Jones",
+      "team": "Brewster Academy (NH)",
+      "league": null,
+      "ppg": null,
+      "rpg": null,
+      "apg": null,
+      "games": null
+    },
+    {
+      "name": "Boogie Fland",
+      "team": "Florida",
+      "league": "NCAA",
+      "ppg": 11.6,
+      "rpg": 2.5,
+      "apg": 3.5,
+      "games": 35
+    },
+    {
+      "name": "Ryder Frost",
+      "team": "Notre Dame",
+      "league": "NCAA",
+      "ppg": 2.7,
+      "rpg": 0.8,
+      "apg": 0.2,
+      "games": 26
+    },
+    {
+      "name": "Nigel Walls",
+      "team": "SMU",
+      "league": "NCAA",
+      "ppg": 0,
+      "rpg": 0.2,
+      "apg": 0.2,
+      "games": 9
+    },
+    {
+      "name": "Braylon Mullins",
+      "team": "UConn",
+      "league": "NCAA",
+      "ppg": 12,
+      "rpg": 3.5,
+      "apg": 1.4,
+      "games": 33
+    },
+    {
+      "name": "Hudson Greer",
+      "team": "Creighton",
+      "league": "NCAA",
+      "ppg": 4.7,
+      "rpg": 2,
+      "apg": 0.4,
+      "games": 22
+    },
+    {
+      "name": "Zvonimir Ivisic",
+      "team": "Illinois",
+      "league": "NCAA",
+      "ppg": 6.4,
+      "rpg": 4.5,
+      "apg": 0.3,
+      "games": 37
+    },
+    {
+      "name": "Nigel James",
+      "team": "Marquette",
+      "league": "NCAA",
+      "ppg": 16.4,
+      "rpg": 3.4,
+      "apg": 4.9,
+      "games": 32
+    },
+    {
+      "name": "Antione West",
+      "team": "Wasatch Academy (UT)",
+      "league": null,
+      "ppg": null,
+      "rpg": null,
+      "apg": null,
+      "games": null
+    },
+    {
+      "name": "Derek Dixon",
+      "team": "UNC",
+      "league": "NCAA",
+      "ppg": 6.5,
+      "rpg": 2.3,
+      "apg": 2.7,
+      "games": 33
+    },
+    {
+      "name": "John Blackwell",
+      "team": "Hardin-Simmons",
+      "league": "NCAA",
+      "ppg": 4.9,
+      "rpg": 5.6,
+      "apg": 0,
+      "games": 14
+    },
+    {
+      "name": "Michael Ruzic",
+      "team": null,
+      "league": "ACB",
+      "ppg": 4.7,
+      "rpg": 3.1,
+      "apg": 0.4,
+      "games": 18
+    },
+    {
+      "name": "Kiyan Anthony",
+      "team": "Syracuse",
+      "league": "NCAA",
+      "ppg": 8,
+      "rpg": 1.4,
+      "apg": 0.9,
+      "games": 29
+    },
+    {
+      "name": "Sebastian Wilkins",
+      "team": "Montverde Academy (FL)",
+      "league": null,
+      "ppg": null,
+      "rpg": null,
+      "apg": null,
+      "games": null
+    },
+    {
+      "name": "Davis Fogle",
+      "team": "Gonzaga",
+      "league": "NCAA",
+      "ppg": 8.6,
+      "rpg": 3.1,
+      "apg": 1.3,
+      "games": 30
+    },
+    {
+      "name": "Elzie Harrington",
+      "team": "Prolific Prep (CA)",
+      "league": null,
+      "ppg": null,
+      "rpg": null,
+      "apg": null,
+      "games": null
+    },
+    {
+      "name": "Acaden Lewis",
+      "team": "Villanova",
+      "league": "NCAA",
+      "ppg": 12.2,
+      "rpg": 3,
+      "apg": 5.3,
+      "games": 33
+    },
+    {
+      "name": "Darianna Littlepage Buggs",
+      "team": "Baylor",
+      "league": "NCAA",
+      "ppg": 10.6,
+      "rpg": 10.1,
+      "apg": 1.9,
+      "games": 34
+    },
+    {
+      "name": "Braydon Hawthorne",
+      "team": "Oak Hill Academy (VA)",
+      "league": null,
+      "ppg": null,
+      "rpg": null,
+      "apg": null,
+      "games": null
+    },
+    {
+      "name": "Samis Calderon",
+      "team": "Kansas",
+      "league": "NCAA",
+      "ppg": 0.4,
+      "rpg": 0.8,
+      "apg": 0.3,
+      "games": 16
+    },
+    {
+      "name": "Alexander Lloyd",
+      "team": "Florida",
+      "league": "NCAA",
+      "ppg": 2.3,
+      "rpg": 2.3,
+      "apg": 0.7,
+      "games": 3
+    },
+    {
+      "name": "Matt Able",
+      "team": "NC State",
+      "league": "NCAA",
+      "ppg": 8.8,
+      "rpg": 3.4,
+      "apg": 0.9,
+      "games": 34
+    },
+    {
+      "name": "Dame Sarr",
+      "team": "Duke",
+      "league": "NCAA",
+      "ppg": 6.4,
+      "rpg": 3.8,
+      "apg": 1.1,
+      "games": 38
+    },
+    {
+      "name": "Reynan Santos",
+      "team": "Mexico City Capitanes",
+      "league": "NBB",
+      "ppg": 14.6,
+      "rpg": 4.8,
+      "apg": 2.1,
+      "games": 40
+    },
+    {
+      "name": "Roman Domon",
+      "team": "Murray St.",
+      "league": "NCAA",
+      "ppg": 14.2,
+      "rpg": 5.2,
+      "apg": 1.6,
+      "games": 33
+    },
+    {
+      "name": "Tarris Reed Jr",
+      "team": "UConn",
+      "league": "NCAA",
+      "ppg": 14.7,
+      "rpg": 9,
+      "apg": 2.3,
+      "games": 35
+    },
+    {
+      "name": "Mario Saint Supery",
+      "team": "Gonzaga",
+      "league": "NCAA",
+      "ppg": 8.6,
+      "rpg": 2.8,
+      "apg": 3.8,
+      "games": 35
+    },
+    {
+      "name": "Coen Carr",
+      "team": "Michigan St.",
+      "league": "NCAA",
+      "ppg": 12,
+      "rpg": 5.4,
+      "apg": 1.2,
+      "games": 35
+    },
+    {
+      "name": "Darrell Harrington",
+      "team": "San Diego St.",
+      "league": "NCAA",
+      "ppg": 8,
+      "rpg": 1.6,
+      "apg": 2.3,
+      "games": 23
+    },
+    {
+      "name": "Jack McCaffery",
+      "team": "Butler",
+      "league": "NCAA",
+      "ppg": 2.8,
+      "rpg": 1.6,
+      "apg": 0.4,
+      "games": 9
+    },
+    {
+      "name": "Gabriel Landeira",
+      "team": "Paulistano",
+      "league": "NBB",
+      "ppg": 7.1,
+      "rpg": 2.6,
+      "apg": 2.7,
+      "games": 39
+    },
+    {
+      "name": "Lucas Atauri",
+      "team": "Paulistano",
+      "league": "NBB",
+      "ppg": 6.5,
+      "rpg": 1.7,
+      "apg": 1,
+      "games": 39
+    },
+    {
+      "name": "Jamarion Batemon",
+      "team": "Iowa St.",
+      "league": "NCAA",
+      "ppg": 6.6,
+      "rpg": 1.2,
+      "apg": 0.4,
+      "games": 37
+    },
+    {
+      "name": "Noa Kouakou-Heugue",
+      "team": "Perth",
+      "league": "AUS NBL",
+      "ppg": 1.6,
+      "rpg": 1,
+      "apg": 0.1,
+      "games": 17
+    },
+    {
+      "name": "Brady Koehler",
+      "team": "Notre Dame",
+      "league": "NCAA",
+      "ppg": 5.6,
+      "rpg": 3.2,
+      "apg": 0.3,
+      "games": 30
+    },
+    {
+      "name": "Anthony Robinson II",
+      "team": "Missouri",
+      "league": "NCAA",
+      "ppg": 8.9,
+      "rpg": 3.1,
+      "apg": 3,
+      "games": 33
+    },
+    {
+      "name": "Jamarion Davis-Fleming",
+      "team": "Miss. St.",
+      "league": "NCAA",
+      "ppg": 3.7,
+      "rpg": 4.8,
+      "apg": 0.7,
+      "games": 32
+    },
+    {
+      "name": "Kanon Catchings",
+      "team": "Georgia",
+      "league": "NCAA",
+      "ppg": 11.6,
+      "rpg": 4.8,
+      "apg": 1.2,
+      "games": 32
+    },
+    {
+      "name": "Kayden Mingo",
+      "team": "Penn St.",
+      "league": "NCAA",
+      "ppg": 13.7,
+      "rpg": 3.5,
+      "apg": 4.3,
+      "games": 28
+    },
+    {
+      "name": "Tyrone Riley Iv",
+      "team": "San Francisco",
+      "league": "NCAA",
+      "ppg": 12.2,
+      "rpg": 4.8,
+      "apg": 1.2,
+      "games": 31
+    },
+    {
+      "name": "Jordan Scott",
+      "team": "Michigan St.",
+      "league": "NCAA",
+      "ppg": 5.8,
+      "rpg": 3.1,
+      "apg": 1.2,
+      "games": 35
+    },
+    {
+      "name": "Jalil Bethea",
+      "team": "Alabama",
+      "league": "NCAA",
+      "ppg": 3.9,
+      "rpg": 1.7,
+      "apg": 0.5,
+      "games": 26
+    },
+    {
+      "name": "Winters Grady",
+      "team": "Michigan",
+      "league": "NCAA",
+      "ppg": 2.9,
+      "rpg": 1.1,
+      "apg": 0.2,
+      "games": 9
+    },
+    {
+      "name": "Donnie Freeman",
+      "team": "Syracuse",
+      "league": "NCAA",
+      "ppg": 16.5,
+      "rpg": 7.2,
+      "apg": 1.3,
+      "games": 23
+    },
+    {
+      "name": "Sebastian Williams-Adams",
+      "team": "Auburn",
+      "league": "NCAA",
+      "ppg": 7,
+      "rpg": 3.5,
+      "apg": 1.5,
+      "games": 38
+    },
+    {
+      "name": "Kam Williams",
+      "team": "Ohio St.",
+      "league": "NCAA",
+      "ppg": 9,
+      "rpg": 2.1,
+      "apg": 0.8,
+      "games": 31
+    },
+    {
+      "name": "Andrej Stojakovic",
+      "team": "Illinois",
+      "league": "NCAA",
+      "ppg": 13.5,
+      "rpg": 4.5,
+      "apg": 1,
+      "games": 34
+    },
+    {
+      "name": "Adrian Wooley",
+      "team": "Louisville",
+      "league": "NCAA",
+      "ppg": 8.7,
+      "rpg": 3.9,
+      "apg": 1.8,
+      "games": 35
+    },
+    {
+      "name": "Kohl Rosario",
+      "team": "Kansas",
+      "league": "NCAA",
+      "ppg": 3.4,
+      "rpg": 1.3,
+      "apg": 0.4,
+      "games": 29
+    },
+    {
+      "name": "King Grace",
+      "team": "Miss. St.",
+      "league": "NCAA",
+      "ppg": 5.1,
+      "rpg": 1.3,
+      "apg": 0.4,
+      "games": 24
+    },
+    {
+      "name": "Trevon Brazile",
+      "team": "Arkansas",
+      "league": "NCAA",
+      "ppg": 13,
+      "rpg": 7.3,
+      "apg": 1.6,
+      "games": 36
+    },
+    {
+      "name": "Jaden Toombs",
+      "team": "SMU",
+      "league": "NCAA",
+      "ppg": 8.3,
+      "rpg": 4.6,
+      "apg": 1.1,
+      "games": 27
+    }
+  ]
+}

@@ -1,0 +1,426 @@
+0 verbose cli C:\Program Files\nodejs\node.exe C:\Program Files\nodejs\node_modules\npm\bin\npm-cli.js
+1 info using npm@11.12.1
+2 info using node@v24.15.0
+3 silly config load:file:C:\Program Files\nodejs\node_modules\npm\npmrc
+4 silly config load:file:C:\Users\Cliente\Desktop\nba-draft-portal\.npmrc
+5 silly config load:file:C:\Users\Cliente\.npmrc
+6 silly config load:file:C:\Users\Cliente\AppData\Roaming\npm\etc\npmrc
+7 verbose title npm install
+8 verbose argv "install" "--cache" ".\\.npm-cache"
+9 verbose logfile logs-max:10 dir:C:\Users\Cliente\Desktop\nba-draft-portal\.npm-cache\_logs\2026-04-28T01_23_20_227Z-
+10 verbose logfile C:\Users\Cliente\Desktop\nba-draft-portal\.npm-cache\_logs\2026-04-28T01_23_20_227Z-debug-0.log
+11 silly logfile done cleaning log files
+12 silly packumentCache heap:4496293888 maxSize:1124073472 maxEntrySize:562036736
+13 silly idealTree buildDeps
+14 silly reify mark retired [
+14 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\@babel\\runtime'
+14 silly reify ]
+15 silly reify mark retired [
+15 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\@types\\d3-array'
+15 silly reify ]
+16 silly reify mark retired [
+16 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\@types\\d3-color'
+16 silly reify ]
+17 silly reify mark retired [
+17 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\@types\\d3-ease'
+17 silly reify ]
+18 silly reify mark retired [
+18 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\@types\\d3-interpolate'
+18 silly reify ]
+19 silly reify mark retired [
+19 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\@types\\d3-path'
+19 silly reify ]
+20 silly reify mark retired [
+20 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\@types\\d3-scale'
+20 silly reify ]
+21 silly reify mark retired [
+21 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\@types\\d3-shape'
+21 silly reify ]
+22 silly reify mark retired [
+22 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\@types\\d3-time'
+22 silly reify ]
+23 silly reify mark retired [
+23 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\@types\\d3-timer'
+23 silly reify ]
+24 silly reify mark retired [ 'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\clsx' ]
+25 silly reify mark retired [
+25 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\csstype'
+25 silly reify ]
+26 silly reify mark retired [
+26 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\d3-array'
+26 silly reify ]
+27 silly reify mark retired [
+27 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\d3-color'
+27 silly reify ]
+28 silly reify mark retired [
+28 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\d3-ease'
+28 silly reify ]
+29 silly reify mark retired [
+29 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\d3-format'
+29 silly reify ]
+30 silly reify mark retired [
+30 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\d3-interpolate'
+30 silly reify ]
+31 silly reify mark retired [
+31 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\d3-path'
+31 silly reify ]
+32 silly reify mark retired [
+32 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\d3-scale'
+32 silly reify ]
+33 silly reify mark retired [
+33 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\d3-shape'
+33 silly reify ]
+34 silly reify mark retired [
+34 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\d3-time'
+34 silly reify ]
+35 silly reify mark retired [
+35 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\d3-time-format'
+35 silly reify ]
+36 silly reify mark retired [
+36 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\d3-timer'
+36 silly reify ]
+37 silly reify mark retired [
+37 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\decimal.js-light'
+37 silly reify ]
+38 silly reify mark retired [
+38 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\dom-helpers'
+38 silly reify ]
+39 silly reify mark retired [
+39 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\eventemitter3'
+39 silly reify ]
+40 silly reify mark retired [
+40 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\fast-equals'
+40 silly reify ]
+41 silly reify mark retired [
+41 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\internmap'
+41 silly reify ]
+42 silly reify mark retired [
+42 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\lodash'
+42 silly reify ]
+43 silly reify mark retired [
+43 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\prop-types'
+43 silly reify ]
+44 silly reify mark retired [
+44 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\react-is'
+44 silly reify ]
+45 silly reify mark retired [
+45 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\react-smooth'
+45 silly reify ]
+46 silly reify mark retired [
+46 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\react-transition-group'
+46 silly reify ]
+47 silly reify mark retired [
+47 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\recharts'
+47 silly reify ]
+48 silly reify mark retired [
+48 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\recharts-scale'
+48 silly reify ]
+49 silly reify mark retired [
+49 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\tiny-invariant'
+49 silly reify ]
+50 silly reify mark retired [
+50 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\victory-vendor'
+50 silly reify ]
+51 silly reify moves {
+51 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\@babel\\runtime': 'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\@babel\\.runtime-1FaWqZO1',
+51 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\@types\\d3-array': 'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\@types\\.d3-array-tUAa9NMX',
+51 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\@types\\d3-color': 'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\@types\\.d3-color-C3mH3tHN',
+51 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\@types\\d3-ease': 'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\@types\\.d3-ease-2c9ntXxU',
+51 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\@types\\d3-interpolate': 'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\@types\\.d3-interpolate-W7GYhHH6',
+51 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\@types\\d3-path': 'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\@types\\.d3-path-tUztqlJs',
+51 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\@types\\d3-scale': 'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\@types\\.d3-scale-xuJqf2is',
+51 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\@types\\d3-shape': 'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\@types\\.d3-shape-L7q1RV5C',
+51 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\@types\\d3-time': 'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\@types\\.d3-time-BLnAfTu8',
+51 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\@types\\d3-timer': 'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\@types\\.d3-timer-0wsjvoHp',
+51 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\clsx': 'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\.clsx-8fMek5AN',
+51 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\csstype': 'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\.csstype-TnKuXO6h',
+51 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\d3-array': 'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\.d3-array-W0SiGxSS',
+51 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\d3-color': 'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\.d3-color-nJ0sVcak',
+51 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\d3-ease': 'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\.d3-ease-2LZLkGOz',
+51 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\d3-format': 'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\.d3-format-rpfbV8nb',
+51 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\d3-interpolate': 'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\.d3-interpolate-1RPzEOSV',
+51 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\d3-path': 'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\.d3-path-aQXVi0cV',
+51 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\d3-scale': 'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\.d3-scale-lFkYiuwT',
+51 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\d3-shape': 'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\.d3-shape-Gp6fDgYn',
+51 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\d3-time': 'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\.d3-time-ldW0YsQy',
+51 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\d3-time-format': 'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\.d3-time-format-Wugjs2Z5',
+51 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\d3-timer': 'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\.d3-timer-NVI26InZ',
+51 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\decimal.js-light': 'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\.decimal.js-light-KKNv8RTr',
+51 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\dom-helpers': 'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\.dom-helpers-Sm5XGKlY',
+51 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\eventemitter3': 'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\.eventemitter3-t14tN9Sm',
+51 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\fast-equals': 'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\.fast-equals-afe0HVx1',
+51 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\internmap': 'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\.internmap-gjSMZJe5',
+51 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\lodash': 'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\.lodash-rzWVYghA',
+51 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\prop-types': 'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\.prop-types-AjUvxJKh',
+51 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\react-is': 'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\.react-is-HSTTsBsc',
+51 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\react-smooth': 'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\.react-smooth-scvH8DCu',
+51 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\react-transition-group': 'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\.react-transition-group-ySCJGZD2',
+51 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\recharts': 'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\.recharts-Fu9KTWDN',
+51 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\recharts-scale': 'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\.recharts-scale-QiNPG1BZ',
+51 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\tiny-invariant': 'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\.tiny-invariant-h9311Y3a',
+51 silly reify   'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\victory-vendor': 'C:\\Users\\Cliente\\Desktop\\nba-draft-portal\\node_modules\\.victory-vendor-NDWhBIVS'
+51 silly reify }
+52 silly audit bulk request {
+52 silly audit   '@alloc/quick-lru': [ '5.2.0' ],
+52 silly audit   '@babel/code-frame': [ '7.29.0' ],
+52 silly audit   '@babel/compat-data': [ '7.29.0' ],
+52 silly audit   '@babel/core': [ '7.29.0' ],
+52 silly audit   '@babel/generator': [ '7.29.1' ],
+52 silly audit   '@babel/helper-annotate-as-pure': [ '7.27.3' ],
+52 silly audit   '@babel/helper-compilation-targets': [ '7.28.6' ],
+52 silly audit   '@babel/helper-globals': [ '7.28.0' ],
+52 silly audit   '@babel/helper-module-imports': [ '7.28.6' ],
+52 silly audit   '@babel/helper-module-transforms': [ '7.28.6' ],
+52 silly audit   '@babel/helper-plugin-utils': [ '7.28.6' ],
+52 silly audit   '@babel/helper-string-parser': [ '7.27.1' ],
+52 silly audit   '@babel/helper-validator-identifier': [ '7.28.5' ],
+52 silly audit   '@babel/helper-validator-option': [ '7.27.1' ],
+52 silly audit   '@babel/helpers': [ '7.29.2' ],
+52 silly audit   '@babel/parser': [ '7.29.2' ],
+52 silly audit   '@babel/plugin-syntax-jsx': [ '7.28.6' ],
+52 silly audit   '@babel/plugin-transform-react-jsx': [ '7.28.6' ],
+52 silly audit   '@babel/plugin-transform-react-jsx-self': [ '7.27.1' ],
+52 silly audit   '@babel/plugin-transform-react-jsx-source': [ '7.27.1' ],
+52 silly audit   '@babel/template': [ '7.28.6' ],
+52 silly audit   '@babel/traverse': [ '7.29.0' ],
+52 silly audit   '@babel/types': [ '7.29.0' ],
+52 silly audit   '@dnd-kit/accessibility': [ '3.1.1' ],
+52 silly audit   '@dnd-kit/core': [ '6.3.1' ],
+52 silly audit   '@dnd-kit/sortable': [ '10.0.0' ],
+52 silly audit   '@dnd-kit/utilities': [ '3.2.2' ],
+52 silly audit   '@esbuild/aix-ppc64': [ '0.25.12' ],
+52 silly audit   '@esbuild/android-arm': [ '0.25.12' ],
+52 silly audit   '@esbuild/android-arm64': [ '0.25.12' ],
+52 silly audit   '@esbuild/android-x64': [ '0.25.12' ],
+52 silly audit   '@esbuild/darwin-arm64': [ '0.25.12' ],
+52 silly audit   '@esbuild/darwin-x64': [ '0.25.12' ],
+52 silly audit   '@esbuild/freebsd-arm64': [ '0.25.12' ],
+52 silly audit   '@esbuild/freebsd-x64': [ '0.25.12' ],
+52 silly audit   '@esbuild/linux-arm': [ '0.25.12' ],
+52 silly audit   '@esbuild/linux-arm64': [ '0.25.12' ],
+52 silly audit   '@esbuild/linux-ia32': [ '0.25.12' ],
+52 silly audit   '@esbuild/linux-loong64': [ '0.25.12' ],
+52 silly audit   '@esbuild/linux-mips64el': [ '0.25.12' ],
+52 silly audit   '@esbuild/linux-ppc64': [ '0.25.12' ],
+52 silly audit   '@esbuild/linux-riscv64': [ '0.25.12' ],
+52 silly audit   '@esbuild/linux-s390x': [ '0.25.12' ],
+52 silly audit   '@esbuild/linux-x64': [ '0.25.12' ],
+52 silly audit   '@esbuild/netbsd-arm64': [ '0.25.12' ],
+52 silly audit   '@esbuild/netbsd-x64': [ '0.25.12' ],
+52 silly audit   '@esbuild/openbsd-arm64': [ '0.25.12' ],
+52 silly audit   '@esbuild/openbsd-x64': [ '0.25.12' ],
+52 silly audit   '@esbuild/openharmony-arm64': [ '0.25.12' ],
+52 silly audit   '@esbuild/sunos-x64': [ '0.25.12' ],
+52 silly audit   '@esbuild/win32-arm64': [ '0.25.12' ],
+52 silly audit   '@esbuild/win32-ia32': [ '0.25.12' ],
+52 silly audit   '@esbuild/win32-x64': [ '0.25.12' ],
+52 silly audit   '@jridgewell/gen-mapping': [ '0.3.13' ],
+52 silly audit   '@jridgewell/remapping': [ '2.3.5' ],
+52 silly audit   '@jridgewell/resolve-uri': [ '3.1.2' ],
+52 silly audit   '@jridgewell/sourcemap-codec': [ '1.5.5' ],
+52 silly audit   '@jridgewell/trace-mapping': [ '0.3.31' ],
+52 silly audit   '@nodelib/fs.scandir': [ '2.1.5' ],
+52 silly audit   '@nodelib/fs.stat': [ '2.0.5' ],
+52 silly audit   '@nodelib/fs.walk': [ '1.2.8' ],
+52 silly audit   '@rolldown/pluginutils': [ '1.0.0-beta.27' ],
+52 silly audit   '@rollup/rollup-android-arm-eabi': [ '4.60.2' ],
+52 silly audit   '@rollup/rollup-android-arm64': [ '4.60.2' ],
+52 silly audit   '@rollup/rollup-darwin-arm64': [ '4.60.2' ],
+52 silly audit   '@rollup/rollup-darwin-x64': [ '4.60.2' ],
+52 silly audit   '@rollup/rollup-freebsd-arm64': [ '4.60.2' ],
+52 silly audit   '@rollup/rollup-freebsd-x64': [ '4.60.2' ],
+52 silly audit   '@rollup/rollup-linux-arm-gnueabihf': [ '4.60.2' ],
+52 silly audit   '@rollup/rollup-linux-arm-musleabihf': [ '4.60.2' ],
+52 silly audit   '@rollup/rollup-linux-arm64-gnu': [ '4.60.2' ],
+52 silly audit   '@rollup/rollup-linux-arm64-musl': [ '4.60.2' ],
+52 silly audit   '@rollup/rollup-linux-loong64-gnu': [ '4.60.2' ],
+52 silly audit   '@rollup/rollup-linux-loong64-musl': [ '4.60.2' ],
+52 silly audit   '@rollup/rollup-linux-ppc64-gnu': [ '4.60.2' ],
+52 silly audit   '@rollup/rollup-linux-ppc64-musl': [ '4.60.2' ],
+52 silly audit   '@rollup/rollup-linux-riscv64-gnu': [ '4.60.2' ],
+52 silly audit   '@rollup/rollup-linux-riscv64-musl': [ '4.60.2' ],
+52 silly audit   '@rollup/rollup-linux-s390x-gnu': [ '4.60.2' ],
+52 silly audit   '@rollup/rollup-linux-x64-gnu': [ '4.60.2' ],
+52 silly audit   '@rollup/rollup-linux-x64-musl': [ '4.60.2' ],
+52 silly audit   '@rollup/rollup-openbsd-x64': [ '4.60.2' ],
+52 silly audit   '@rollup/rollup-openharmony-arm64': [ '4.60.2' ],
+52 silly audit   '@rollup/rollup-win32-arm64-msvc': [ '4.60.2' ],
+52 silly audit   '@rollup/rollup-win32-ia32-msvc': [ '4.60.2' ],
+52 silly audit   '@rollup/rollup-win32-x64-gnu': [ '4.60.2' ],
+52 silly audit   '@rollup/rollup-win32-x64-msvc': [ '4.60.2' ],
+52 silly audit   '@types/babel__core': [ '7.20.5' ],
+52 silly audit   '@types/babel__generator': [ '7.27.0' ],
+52 silly audit   '@types/babel__template': [ '7.4.4' ],
+52 silly audit   '@types/babel__traverse': [ '7.28.0' ],
+52 silly audit   '@types/estree': [ '1.0.8' ],
+52 silly audit   '@vitejs/plugin-react': [ '4.7.0' ],
+52 silly audit   'any-promise': [ '1.3.0' ],
+52 silly audit   anymatch: [ '3.1.3' ],
+52 silly audit   arg: [ '5.0.2' ],
+52 silly audit   'array-union': [ '2.1.0' ],
+52 silly audit   async: [ '3.2.6' ],
+52 silly audit   autoprefixer: [ '10.5.0' ],
+52 silly audit   'baseline-browser-mapping': [ '2.10.23' ],
+52 silly audit   'binary-extensions': [ '2.3.0' ],
+52 silly audit   braces: [ '3.0.3' ],
+52 silly audit   browserslist: [ '4.28.2' ],
+52 silly audit   'camelcase-css': [ '2.0.1' ],
+52 silly audit   'caniuse-lite': [ '1.0.30001791' ],
+52 silly audit   chokidar: [ '3.6.0' ],
+52 silly audit   commander: [ '13.1.0', '4.1.1' ],
+52 silly audit   commondir: [ '1.0.1' ],
+52 silly audit   'convert-source-map': [ '2.0.0' ],
+52 silly audit   cssesc: [ '3.0.0' ],
+52 silly audit   debug: [ '4.4.3' ],
+52 silly audit   didyoumean: [ '1.2.2' ],
+52 silly audit   'dir-glob': [ '3.0.1' ],
+52 silly audit   dlv: [ '1.1.3' ],
+52 silly audit   'electron-to-chromium': [ '1.5.344' ],
+52 silly audit   'email-addresses': [ '5.0.0' ],
+52 silly audit   'es-errors': [ '1.3.0' ],
+52 silly audit   esbuild: [ '0.25.12' ],
+52 silly audit   escalade: [ '3.2.0' ],
+52 silly audit   'escape-string-regexp': [ '1.0.5' ],
+52 silly audit   'fast-glob': [ '3.3.3' ],
+52 silly audit   fastq: [ '1.20.1' ],
+52 silly audit   'filename-reserved-regex': [ '2.0.0' ],
+52 silly audit   filenamify: [ '4.3.0' ],
+52 silly audit   'fill-range': [ '7.1.1' ],
+52 silly audit   'find-cache-dir': [ '3.3.2' ],
+52 silly audit   'find-up': [ '4.1.0' ],
+52 silly audit   'fraction.js': [ '5.3.4' ],
+52 silly audit   'framer-motion': [ '12.38.0' ],
+52 silly audit   'fs-extra': [ '11.3.4' ],
+52 silly audit   fsevents: [ '2.3.3' ],
+52 silly audit   'function-bind': [ '1.1.2' ],
+52 silly audit   gensync: [ '1.0.0-beta.2' ],
+52 silly audit   'gh-pages': [ '6.3.0' ],
+52 silly audit   'glob-parent': [ '5.1.2', '6.0.2' ],
+52 silly audit   globby: [ '11.1.0' ],
+52 silly audit   'graceful-fs': [ '4.2.11' ],
+52 silly audit   hasown: [ '2.0.3' ],
+52 silly audit   ignore: [ '5.3.2' ],
+52 silly audit   'is-binary-path': [ '2.1.0' ],
+52 silly audit   'is-core-module': [ '2.16.1' ],
+52 silly audit   'is-extglob': [ '2.1.1' ],
+52 silly audit   'is-glob': [ '4.0.3' ],
+52 silly audit   'is-number': [ '7.0.0' ],
+52 silly audit   jiti: [ '1.21.7' ],
+52 silly audit   'js-tokens': [ '4.0.0' ],
+52 silly audit   jsesc: [ '3.1.0' ],
+52 silly audit   json5: [ '2.2.3' ],
+52 silly audit   jsonfile: [ '6.2.1' ],
+52 silly audit   lilconfig: [ '3.1.3' ],
+52 silly audit   'lines-and-columns': [ '1.2.4' ],
+52 silly audit   'locate-path': [ '5.0.0' ],
+52 silly audit   'loose-envify': [ '1.4.0' ],
+52 silly audit   'lru-cache': [ '5.1.1' ],
+52 silly audit   'lucide-react': [ '1.11.0' ],
+52 silly audit   'make-dir': [ '3.1.0' ],
+52 silly audit   merge2: [ '1.4.1' ],
+52 silly audit   micromatch: [ '4.0.8' ],
+52 silly audit   'motion-dom': [ '12.38.0' ],
+52 silly audit   'motion-utils': [ '12.36.0' ],
+52 silly audit   ms: [ '2.1.3' ],
+52 silly audit   mz: [ '2.7.0' ],
+52 silly audit   nanoid: [ '3.3.11' ],
+52 silly audit   'node-releases': [ '2.0.38' ],
+52 silly audit   'normalize-path': [ '3.0.0' ],
+52 silly audit   'object-assign': [ '4.1.1' ],
+52 silly audit   'object-hash': [ '3.0.0' ],
+52 silly audit   'p-limit': [ '2.3.0' ],
+52 silly audit   'p-locate': [ '4.1.0' ],
+52 silly audit   'p-try': [ '2.2.0' ],
+52 silly audit   'path-exists': [ '4.0.0' ],
+52 silly audit   'path-parse': [ '1.0.7' ],
+52 silly audit   'path-type': [ '4.0.0' ],
+52 silly audit   picocolors: [ '1.1.1' ],
+52 silly audit   picomatch: [ '2.3.2', '4.0.4' ],
+52 silly audit   pify: [ '2.3.0' ],
+52 silly audit   pirates: [ '4.0.7' ],
+52 silly audit   'pkg-dir': [ '4.2.0' ],
+52 silly audit   postcss: [ '8.5.12' ],
+52 silly audit   'postcss-import': [ '15.1.0' ],
+52 silly audit   'postcss-js': [ '4.1.0' ],
+52 silly audit   'postcss-load-config': [ '6.0.1' ],
+52 silly audit   'postcss-nested': [ '6.2.0' ],
+52 silly audit   'postcss-selector-parser': [ '6.1.2' ],
+52 silly audit   'postcss-value-parser': [ '4.2.0' ],
+52 silly audit   'queue-microtask': [ '1.2.3' ],
+52 silly audit   react: [ '18.3.1' ],
+52 silly audit   'react-dom': [ '18.3.1' ],
+52 silly audit   'react-refresh': [ '0.17.0' ],
+52 silly audit   'read-cache': [ '1.0.0' ],
+52 silly audit   readdirp: [ '3.6.0' ],
+52 silly audit   resolve: [ '1.22.12' ],
+52 silly audit   reusify: [ '1.1.0' ],
+52 silly audit   rollup: [ '4.60.2' ],
+52 silly audit   'run-parallel': [ '1.2.0' ],
+52 silly audit   scheduler: [ '0.23.2' ],
+52 silly audit   semver: [ '6.3.1' ],
+52 silly audit   slash: [ '3.0.0' ],
+52 silly audit   'source-map-js': [ '1.2.1' ],
+52 silly audit   'strip-outer': [ '1.0.1' ],
+52 silly audit   sucrase: [ '3.35.1' ],
+52 silly audit   'supports-preserve-symlinks-flag': [ '1.0.0' ],
+52 silly audit   tailwindcss: [ '3.4.19' ],
+52 silly audit   thenify: [ '3.3.1' ],
+52 silly audit   'thenify-all': [ '1.6.0' ],
+52 silly audit   tinyglobby: [ '0.2.16' ],
+52 silly audit   fdir: [ '6.5.0' ],
+52 silly audit   'to-regex-range': [ '5.0.1' ],
+52 silly audit   'trim-repeated': [ '1.0.0' ],
+52 silly audit   'ts-interface-checker': [ '0.1.13' ],
+52 silly audit   tslib: [ '2.8.1' ],
+52 silly audit   universalify: [ '2.0.1' ],
+52 silly audit   'update-browserslist-db': [ '1.2.3' ],
+52 silly audit   'util-deprecate': [ '1.0.2' ],
+52 silly audit   vite: [ '6.4.2' ],
+52 silly audit   yallist: [ '3.1.1' ]
+52 silly audit }
+53 http fetch POST 200 https://registry.npmjs.org/-/npm/v1/security/advisories/bulk 327ms
+54 silly audit report {}
+55 silly REMOVE node_modules/victory-vendor
+56 silly REMOVE node_modules/tiny-invariant
+57 silly REMOVE node_modules/recharts-scale
+58 silly REMOVE node_modules/recharts
+59 silly REMOVE node_modules/react-transition-group
+60 silly REMOVE node_modules/react-smooth
+61 silly REMOVE node_modules/react-is
+62 silly REMOVE node_modules/prop-types
+63 silly REMOVE node_modules/prop-types/node_modules/react-is
+64 silly REMOVE node_modules/lodash
+65 silly REMOVE node_modules/internmap
+66 silly REMOVE node_modules/fast-equals
+67 silly REMOVE node_modules/eventemitter3
+68 silly REMOVE node_modules/dom-helpers
+69 silly REMOVE node_modules/decimal.js-light
+70 silly REMOVE node_modules/d3-timer
+71 silly REMOVE node_modules/d3-time-format
+72 silly REMOVE node_modules/d3-time
+73 silly REMOVE node_modules/d3-shape
+74 silly REMOVE node_modules/d3-scale
+75 silly REMOVE node_modules/d3-path
+76 silly REMOVE node_modules/d3-interpolate
+77 silly REMOVE node_modules/d3-format
+78 silly REMOVE node_modules/d3-ease
+79 silly REMOVE node_modules/d3-color
+80 silly REMOVE node_modules/d3-array
+81 silly REMOVE node_modules/csstype
+82 silly REMOVE node_modules/clsx
+83 silly REMOVE node_modules/@types/d3-timer
+84 silly REMOVE node_modules/@types/d3-time
+85 silly REMOVE node_modules/@types/d3-shape
+86 silly REMOVE node_modules/@types/d3-scale
+87 silly REMOVE node_modules/@types/d3-path
+88 silly REMOVE node_modules/@types/d3-interpolate
+89 silly REMOVE node_modules/@types/d3-ease
+90 silly REMOVE node_modules/@types/d3-color
+91 silly REMOVE node_modules/@types/d3-array
+92 silly REMOVE node_modules/@babel/runtime
+93 verbose cwd C:\Users\Cliente\Desktop\nba-draft-portal
+94 verbose os Windows_NT 10.0.26200
+95 verbose node v24.15.0
+96 verbose npm  v11.12.1
+97 verbose exit 0
+98 info ok

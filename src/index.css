@@ -1,0 +1,269 @@
+﻿@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* â”€â”€ Reset & Base â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body, #root {
+  height: 100%;
+  background-color: #edeae4;
+  color: #2c2a27;
+  font-family: 'DM Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* â”€â”€ Scrollbar suave â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+::-webkit-scrollbar          { width: 4px; height: 4px; }
+::-webkit-scrollbar-track    { background: #e0ddd7; }
+::-webkit-scrollbar-thumb    { background: #c5bfb5; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #b5ada0; }
+
+/* â”€â”€ Sistema Neumorphism â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* Superfície elevada â€” parece sair da tela */
+.neu-raised {
+  background: #edeae4;
+  border-radius: 16px;
+  box-shadow:
+    6px 6px 14px #d4d0ca,
+    -6px -6px 14px #ffffff;
+}
+
+/* Superfície afundada â€” parece entrar na tela */
+.neu-inset {
+  background: #edeae4;
+  border-radius: 12px;
+  box-shadow:
+    inset 4px 4px 10px #d4d0ca,
+    inset -4px -4px 10px #ffffff;
+}
+
+/* Superfície flat â€” card leve */
+.neu-flat {
+  background: #f2efe9;
+  border-radius: 12px;
+  box-shadow:
+    3px 3px 8px #d4d0ca,
+    -3px -3px 8px #ffffff;
+}
+
+/* â”€â”€ Pill / Badge â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.neu-pill {
+  border-radius: 999px;
+  box-shadow:
+    2px 2px 5px #d4d0ca,
+    -2px -2px 5px #ffffff;
+}
+
+/* â”€â”€ Botão ativo (pressionado) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.neu-btn {
+  background: #edeae4;
+  border-radius: 12px;
+  box-shadow:
+    4px 4px 10px #d4d0ca,
+    -4px -4px 10px #ffffff;
+  transition: all 0.18s ease;
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+.neu-btn:hover {
+  box-shadow:
+    5px 5px 12px #ccc8c2,
+    -5px -5px 12px #ffffff;
+}
+.neu-btn:active,
+.neu-btn.active {
+  box-shadow:
+    inset 3px 3px 8px #d4d0ca,
+    inset -3px -3px 8px #ffffff;
+}
+
+/* â”€â”€ Stat bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.stat-bar {
+  height: 5px;
+  background: #e0ddd7;
+  border-radius: 999px;
+  overflow: hidden;
+  box-shadow: inset 1px 1px 3px #ccc9c2, inset -1px -1px 2px #f5f2ec;
+}
+.stat-bar__fill {
+  height: 100%;
+  border-radius: 999px;
+  animation: barFill 1.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  width: 0%;
+}
+@keyframes barFill {
+  to { width: var(--target-width); }
+}
+
+/* â”€â”€ Tier cores pastéis â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.tier-ELITE   { color: #7c6fbf; background: #eeedf8; }
+.tier-LOTTERY { color: #c47c4a; background: #faf0e8; }
+.tier-FRINGE  { color: #a08b2e; background: #f8f4e3; }
+.tier-SLEEPER { color: #3a8a8a; background: #e5f4f4; }
+
+/* Input estilizado â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.neu-input {
+  background: #edeae4;
+  border: none;
+  border-radius: 10px;
+  box-shadow:
+    inset 3px 3px 7px #d4d0ca,
+    inset -3px -3px 7px #ffffff;
+  color: #2c2a27;
+  outline: none;
+  transition: box-shadow 0.2s;
+}
+.neu-input:focus {
+  box-shadow:
+    inset 4px 4px 9px #ccc8c2,
+    inset -4px -4px 9px #ffffff;
+}
+.neu-input::placeholder { color: #a09891; }
+
+select.neu-input { cursor: pointer; }
+
+/* â”€â”€ Aliases extras â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.text-violet { color: #7c6fbf; }
+.animate-pulse { animation: pulse 1.5s cubic-bezier(0.4,0,0.6,1) infinite; }
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+/* Soft UI motion --------------------------------------------------------- */
+.soft-page-enter {
+  animation: softPageEnter 420ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  transform-origin: center top;
+}
+
+.soft-panel-enter {
+  animation: softPanelEnter 520ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.soft-panel-enter-delay-1 { animation-delay: 70ms; }
+.soft-panel-enter-delay-2 { animation-delay: 130ms; }
+.soft-panel-enter-delay-3 { animation-delay: 190ms; }
+
+.soft-pressable {
+  transition:
+    transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    filter 220ms ease;
+}
+
+.soft-pressable:hover {
+  transform: translateY(-3px) scale(1.006);
+  filter: saturate(1.02);
+}
+
+.soft-pressable:active {
+  transform: translateY(1px) scale(0.992);
+}
+
+.soft-reveal {
+  animation: softReveal 260ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  transform-origin: top center;
+}
+
+@keyframes softPageEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(14px) scale(0.982);
+    filter: blur(5px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes softPanelEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes softReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(-6px) scaleY(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .soft-page-enter,
+  .soft-panel-enter,
+  .soft-reveal {
+    animation: none;
+  }
+
+  .soft-pressable,
+  .soft-pressable:hover,
+  .soft-pressable:active {
+    transition: none;
+    transform: none;
+  }
+}
+
+
+/* Player images ---------------------------------------------------------- */
+.player-photo {
+  image-rendering: auto;
+  transform: translateZ(0) scale(1.015);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  filter: saturate(0.96) contrast(0.99) brightness(1.01);
+  will-change: transform;
+}
+
+.player-photo-soft-mask {
+  overflow: hidden;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+
+.player-cutout {
+  image-rendering: auto;
+  transform: translateZ(0);
+  transform-origin: center bottom;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  filter: drop-shadow(0 12px 12px rgba(178, 171, 162, 0.48)) saturate(0.97) contrast(0.99);
+  will-change: transform;
+}
+
+.player-profile-cutout {
+  mix-blend-mode: multiply;
+  object-fit: contain;
+  object-position: center bottom;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+
+.profile-photo-stage {
+  position: relative;
+  isolation: isolate;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.player-profile-cutout {
+  position: relative;
+  z-index: 1;
+  transform: translateY(4px);
+}
