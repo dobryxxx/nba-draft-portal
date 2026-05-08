@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { getPlayerImage } from '../utils/playerImages'
+import { getPlayerCutoutImage } from '../utils/playerImages'
 
 const TIER_STYLES = {
   ELITE: { label: 'ELITE', color: '#7c5ccf', bg: '#eee9fb', text: '#5d46a3', glow: 'rgba(124,92,207,.24)', wash: 'rgba(124,92,207,.13)', accent: 'rgba(183,166,232,.26)' },
@@ -19,8 +19,8 @@ const ADVANCED_SNAPSHOT = [
 ]
 
 const clamp = value => Math.min(100, Math.max(0, value))
-const normalize = (value, min, max) => (typeof value === 'number' ? clamp(((value - min) / (max - min)) * 100) : 0)
-const formatNumber = (value, digits = 1) => (typeof value === 'number' ? value.toFixed(digits) : '-')
+const normalize = (value, min, max) => (typeof value === 'number' ?clamp(((value - min) / (max - min)) * 100) : 0)
+const formatNumber = (value, digits = 1) => (typeof value === 'number' ?value.toFixed(digits) : '-')
 
 function getTierStyles(tier) {
   return TIER_STYLES[normalizeTierKey(tier)] || TIER_STYLES.SLEEPER
@@ -64,7 +64,7 @@ const getInitials = (name = '') => name.split(' ').filter(Boolean).slice(0, 2).m
 function getScoutingTeaser(prospect) {
   const scouting = prospect.scouting || {}
   const text = scouting.notes || scouting.strengths?.[0] || 'Perfil completo disponível com leitura de scout, forças, riscos e contexto estatístico.'
-  return text.length > 150 ? text.slice(0, 147).trim() + '...' : text
+  return text.length > 150 ?text.slice(0, 147).trim() + '...' : text
 }
 
 function PhysicalChip({ label, value, color }) {
@@ -81,7 +81,7 @@ function CoreStat({ label, value, suffix = '' }) {
     <div className="rounded-[20px] bg-white/42 px-3 py-3 text-center backdrop-blur-sm">
       <div className="font-mono text-[10px] font-bold uppercase tracking-[.16em] text-lo">{label}</div>
       <div className="mt-1 font-sans text-2xl font-black leading-none tabular-nums text-slate-800">
-        {formatNumber(value)}{typeof value === 'number' ? suffix : ''}
+        {formatNumber(value)}{typeof value === 'number' ?suffix : ''}
       </div>
     </div>
   )
@@ -89,7 +89,7 @@ function CoreStat({ label, value, suffix = '' }) {
 
 function AdvancedMetric({ stat, value, color }) {
   const pct = getStatBarValue(stat, value)
-  const shown = typeof value === 'number' ? formatNumber(value) + (stat.suffix || '') : '-'
+  const shown = typeof value === 'number' ?formatNumber(value) + (stat.suffix || '') : '-'
 
   return (
     <div className="rounded-2xl bg-white/28 px-3 py-2 backdrop-blur-sm">
@@ -109,21 +109,22 @@ function AdvancedMetric({ stat, value, color }) {
 
 export default function ProspectCard({ prospect, onClick, onTierChange, dragHandleProps, isDragging = false, animateOnMount = true }) {
   const tier = getTierStyles(prospect.tier)
+  const tierKey = normalizeTierKey(prospect.tier)
   const accent = tier.color
   const stats = prospect.stats || {}
-  const playerImage = getPlayerImage(prospect)
+  const playerImage = getPlayerCutoutImage(prospect)
   const teaser = getScoutingTeaser(prospect)
   const cardBackground = prospect.tier === 'ELITE'
-    ? 'radial-gradient(circle at 18% 16%, rgba(124,92,207,.20), transparent 25%), radial-gradient(circle at 82% 22%, rgba(80,62,150,.13), transparent 24%), radial-gradient(circle at 55% 84%, rgba(183,166,232,.22), transparent 31%), linear-gradient(145deg, rgba(255,255,255,.76), ' + tier.bg + 'e6)'
+    ?'radial-gradient(circle at 18% 16%, rgba(124,92,207,.20), transparent 25%), radial-gradient(circle at 82% 22%, rgba(80,62,150,.13), transparent 24%), radial-gradient(circle at 55% 84%, rgba(183,166,232,.22), transparent 31%), linear-gradient(145deg, rgba(255,255,255,.76), ' + tier.bg + 'e6)'
     : 'radial-gradient(circle at 18% 18%, ' + tier.wash + ', transparent 28%), radial-gradient(circle at 86% 80%, ' + tier.accent + ', transparent 30%), linear-gradient(145deg, rgba(255,255,255,.74), ' + tier.bg + 'dd)'
 
   return (
     <motion.article
       layout
-      onClick={onClick ? () => onClick(prospect) : undefined}
-      className="group relative flex cursor-pointer flex-col overflow-hidden rounded-[32px] border border-white/60 bg-white/50 backdrop-blur-md"
-      initial={animateOnMount ? { opacity: 0, y: 10, scale: 0.99 } : false}
-      animate={{ opacity: 1, y: 0, scale: isDragging ? 1.018 : 1 }}
+      onClick={onClick ?() => onClick(prospect) : undefined}
+      className={`prospect-card-shell prospect-tier-${tierKey} group relative flex cursor-pointer flex-col overflow-hidden rounded-[32px] border border-white/60 bg-white/50 backdrop-blur-md`}
+      initial={animateOnMount ?{ opacity: 0, y: 10, scale: 0.99 } : false}
+      animate={{ opacity: 1, y: 0, scale: isDragging ?1.018 : 1 }}
       exit={{ opacity: 0, y: 8, scale: 0.975 }}
       whileHover={{ y: -6, scale: 1.012 }}
       whileTap={{ scale: 0.985 }}
@@ -131,7 +132,7 @@ export default function ProspectCard({ prospect, onClick, onTierChange, dragHand
       style={{
         background: cardBackground,
         boxShadow: isDragging
-          ? '0 24px 48px rgba(120,112,102,.18), 0 0 0 1px ' + tier.glow + ', inset 1px 1px 0 rgba(255,255,255,.9)'
+          ?'0 24px 48px rgba(120,112,102,.18), 0 0 0 1px ' + tier.glow + ', inset 1px 1px 0 rgba(255,255,255,.9)'
           : '0 8px 30px rgba(0,0,0,.04), inset 1px 1px 0 rgba(255,255,255,.86)',
       }}
     >
@@ -144,18 +145,18 @@ export default function ProspectCard({ prospect, onClick, onTierChange, dragHand
           whileHover={{ scale: 1.06, rotate: -1 }}
           whileTap={{ scale: 0.94 }}
           transition={{ type: 'spring', stiffness: 340, damping: 18 }}
-          className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full transition-transform active:scale-95"
+          className="prospect-photo-frame flex h-20 w-16 shrink-0 items-end justify-center overflow-hidden rounded-[24px] transition-transform active:scale-95"
           style={{
             background: '#edeae4',
             color: accent,
-            boxShadow: isDragging ? '8px 8px 16px #c9c4bd, -8px -8px 16px #ffffff' : 'inset 3px 3px 7px #d4d0ca, inset -3px -3px 7px #ffffff',
+            boxShadow: isDragging ?'8px 8px 16px #c9c4bd, -8px -8px 16px #ffffff' : 'inset 3px 3px 7px #d4d0ca, inset -3px -3px 7px #ffffff',
             cursor: 'grab',
           }}
           onClick={e => e.stopPropagation()}
           {...dragHandleProps}
         >
-          {playerImage ? (
-            <img src={playerImage} alt={prospect.name} className="player-photo h-full w-full rounded-full object-contain object-bottom scale-[1.18] translate-y-1 transition-transform duration-300 group-hover:scale-[1.24]" draggable="false" />
+          {playerImage ?(
+            <img src={playerImage} alt={prospect.name} className="player-cutout h-full w-full object-contain object-bottom transition-transform duration-300 group-hover:scale-[1.04]" draggable="false" />
           ) : (
             <span className="font-display text-xl font-bold leading-none">{getInitials(prospect.name)}</span>
           )}
@@ -163,17 +164,17 @@ export default function ProspectCard({ prospect, onClick, onTierChange, dragHand
 
         <div className="min-w-0 flex-1">
           <div className="mb-2 flex flex-wrap items-center gap-2">
-            <span className="rounded-full px-3 py-1 font-mono text-[11px] font-black tabular-nums" style={{ color: accent, background: '#edeae4', boxShadow: '2px 2px 5px #d4d0ca, -2px -2px 5px #ffffff' }}>
+            <span className="prospect-soft-chip rounded-full px-3 py-1 font-mono text-[11px] font-black tabular-nums" style={{ color: accent, background: '#edeae4', boxShadow: '2px 2px 5px #d4d0ca, -2px -2px 5px #ffffff' }}>
               #{String(prospect.rank).padStart(2, '0')}
             </span>
 
-            {onTierChange ? (
+            {onTierChange ?(
               <select
                 value={prospect.tier}
                 onClick={e => e.stopPropagation()}
                 onPointerDown={e => e.stopPropagation()}
                 onChange={e => onTierChange(prospect.id, e.target.value)}
-                className="rounded-full px-3 py-1 font-mono text-[9px] font-black uppercase tracking-[.16em] outline-none"
+                className="prospect-tier-select rounded-full px-3 py-1 font-mono text-[9px] font-black uppercase tracking-[.16em] outline-none"
                 style={{ background: tier.bg, color: tier.text, boxShadow: '2px 2px 5px #d4d0ca, -2px -2px 5px #ffffff' }}
               >
                 {Object.keys(TIER_STYLES).map(tierKey => (

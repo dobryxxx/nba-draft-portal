@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
 import {
   DndContext,
@@ -16,8 +16,8 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { TIER_CONFIG } from '../data/prospects'
 import ProspectCard from '../components/ProspectCard'
-import { Eye, Plus } from 'lucide-react'
-import { getPlayerImage } from '../utils/playerImages'
+import { Eye, LayoutGrid, List as ListIcon, Moon, Plus, Search, SlidersHorizontal, Sun } from 'lucide-react'
+import { getPlayerCutoutImage } from '../utils/playerImages'
 
 const SORT_OPTIONS = [
   { value: 'rank', label: 'Rank' },
@@ -127,11 +127,11 @@ function MiniBar({ value, min, max, color }) {
 }
 
 function PlayerAvatar({ prospect, accent, isDragging }) {
-  const image = getPlayerImage(prospect)
+  const image = getPlayerCutoutImage(prospect)
 
   return (
     <div
-      className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full"
+      className="prospect-photo-frame flex h-16 w-12 shrink-0 items-end justify-center overflow-hidden rounded-[20px]"
       style={{
         background: '#edeae4',
         color: accent,
@@ -141,7 +141,7 @@ function PlayerAvatar({ prospect, accent, isDragging }) {
       }}
     >
       {image ? (
-        <img src={image} alt={prospect.name} className="player-photo h-full w-full object-cover" draggable="false" />
+        <img src={image} alt={prospect.name} className="player-cutout h-full w-full object-contain object-bottom" draggable="false" />
       ) : (
         <span className="font-display text-lg font-bold leading-none">{getInitials(prospect.name)}</span>
       )}
@@ -230,6 +230,7 @@ function AdvancedMini({ stat, value, color }) {
 function SortableListRow({ prospect, index, introActive, onTierChange, onSelectProspect, onOpenBoard }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: prospect.id })
   const tier = getTierStyles(prospect.tier)
+  const tierKey = normalizeTierKey(prospect.tier)
   const stats = prospect.stats || {}
   const rowBackground = prospect.tier === 'ELITE'
     ? 'radial-gradient(circle at 3% 18%, rgba(124,92,207,.16), transparent 22%), radial-gradient(circle at 72% 120%, rgba(183,166,232,.18), transparent 28%), linear-gradient(145deg, rgba(255,255,255,.58), ' + tier.bg + 'cf)'
@@ -239,13 +240,13 @@ function SortableListRow({ prospect, index, introActive, onTierChange, onSelectP
     <motion.div
       ref={setNodeRef}
       layout
-      className="group relative grid cursor-pointer items-center gap-3 overflow-hidden rounded-[28px] border border-white/55 px-4 py-3 backdrop-blur-md transition-all duration-200"
+      className={`prospect-list-row prospect-tier-${tierKey} group relative grid cursor-pointer items-center gap-3 overflow-hidden rounded-[28px] border border-white/55 px-4 py-3 backdrop-blur-md transition-all duration-200`}
       style={{
         transform: CSS.Transform.toString(transform),
         transition,
         background: rowBackground,
         boxShadow: isDragging ? '0 22px 44px rgba(120,112,102,.17), inset 1px 1px 0 rgba(255,255,255,.9)' : '0 8px 26px rgba(0,0,0,.035), inset 1px 1px 0 rgba(255,255,255,.82)',
-        gridTemplateColumns: '58px 72px minmax(230px,1.25fr) minmax(190px,.8fr) minmax(220px,.9fr) minmax(180px,.8fr) 116px',
+        gridTemplateColumns: '50px 62px minmax(210px,1.25fr) minmax(170px,.8fr) minmax(190px,.9fr) minmax(160px,.8fr) 104px',
         zIndex: isDragging ? 30 : 'auto',
       }}
       initial={introActive && index < 16 ? { opacity: 0, y: 12, scale: 0.99 } : false}
@@ -260,7 +261,7 @@ function SortableListRow({ prospect, index, introActive, onTierChange, onSelectP
       <button
         type="button"
         aria-label="Arrastar jogador"
-        className="rounded-full py-2 font-mono text-[11px] font-black transition-transform active:scale-95"
+        className="prospect-soft-chip rounded-full py-2 font-mono text-[11px] font-black transition-transform active:scale-95"
         style={{ color: tier.color, background: '#edeae4', boxShadow: '2px 2px 5px #d4d0ca, -2px -2px 5px #ffffff', cursor: 'grab' }}
         onClick={e => e.stopPropagation()}
         {...attributes}
@@ -278,7 +279,7 @@ function SortableListRow({ prospect, index, introActive, onTierChange, onSelectP
             onPointerDown={e => e.stopPropagation()}
             onClick={e => e.stopPropagation()}
             onChange={e => onTierChange(prospect.id, e.target.value)}
-            className="rounded-full px-3 py-1 font-mono text-[9px] font-black uppercase tracking-[.16em] outline-none"
+            className="prospect-tier-select rounded-full px-3 py-1 font-mono text-[9px] font-black uppercase tracking-[.16em] outline-none"
             style={{ background: tier.bg, color: tier.text, boxShadow: '2px 2px 5px #d4d0ca, -2px -2px 5px #ffffff' }}
           >
             {Object.keys(TIER_STYLES).map(tierKey => (
@@ -319,13 +320,13 @@ function SortableListRow({ prospect, index, introActive, onTierChange, onSelectP
         <ActionButton label="Ir para o Big Board" color={tier.color} onClick={onOpenBoard}>
           <Plus size={16} strokeWidth={2.4} />
         </ActionButton>
-        <span className="hidden pl-1 font-sans text-xs font-black transition-transform duration-200 group-hover:translate-x-1 xl:block" style={{ color: tier.color }}>Perfil →</span>
+        <span className="hidden pl-1 font-sans text-xs font-black transition-transform duration-200 group-hover:translate-x-1 xl:block" style={{ color: tier.color }}>Perfil</span>
       </div>
     </motion.div>
   )
 }
 
-export default function ProspectList({ prospects, onReorder, onTierChange, onSelectProspect, onOpenBoard }) {
+export default function ProspectList({ prospects, onReorder, onTierChange, onSelectProspect, onOpenBoard, time = '--:--:--', isDark = false, onToggleTheme }) {
   const [search, setSearch] = useState('')
   const [tierFilter, setTier] = useState('ALL')
   const [sortBy, setSortBy] = useState('rank')
@@ -374,130 +375,201 @@ export default function ProspectList({ prospects, onReorder, onTierChange, onSel
 
   return (
     <div className="min-h-full">
-      <div className="sticky top-0 z-50 border-b border-white/60 bg-white/60 px-6 py-4 shadow-[0_4px_30px_rgb(0,0,0,0.05)] backdrop-blur-md">
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="relative min-w-[200px] max-w-xs flex-1">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 select-none text-sm text-muted">⌕</span>
-            <input
-              type="text"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              placeholder="Buscar jogador ou escola..."
-              className="neu-input w-full py-2 pl-8 pr-3 font-sans text-sm"
-            />
-          </div>
+      <div className="prospect-db-toolbar sticky top-0 z-50 px-4 pt-4 sm:px-6 lg:px-8">
+        <div className={
+          'relative overflow-hidden rounded-[30px] border backdrop-blur-xl ring-1 transition-all duration-300 ' +
+          (isDark
+            ? 'border-white/10 bg-slate-950/50 text-white shadow-2xl shadow-black/30 ring-white/10'
+            : 'border-white/50 bg-white/60 text-slate-950 shadow-xl shadow-black/5 ring-white/50')
+        }>
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_0%,rgba(124,92,207,.18),transparent_34%),radial-gradient(circle_at_84%_12%,rgba(90,174,214,.14),transparent_32%)]" />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white/45 to-transparent opacity-50" />
 
-          <div className="flex items-center gap-1.5 rounded-pill p-1" style={{ boxShadow: 'inset 2px 2px 5px #d4d0ca, inset -2px -2px 5px #ffffff' }}>
-            {[
-              { id: 'cards', label: 'Cards' },
-              { id: 'list', label: 'Lista' },
-            ].map(mode => {
-              const isActive = viewMode === mode.id
-              return (
+          <div className="relative flex flex-col gap-5 px-4 py-4 sm:px-5 lg:px-6">
+            <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 font-mono text-[10px] font-black uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">
+                  <span>NBA Draft</span>
+                  <span className="h-1 w-1 rounded-full bg-violet-400/70" />
+                  <span>Database</span>
+                </div>
+                <div className="mt-1 flex flex-wrap items-end gap-x-4 gap-y-2">
+                  <h1 className="font-headline text-4xl font-black tracking-tight text-slate-950 dark:text-white md:text-5xl">
+                    Prospect DB
+                  </h1>
+                  <p className="pb-1 font-sans text-sm font-semibold text-slate-500 dark:text-slate-400">
+                    Board analítico da classe, scouting e filtros de decisão.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2 xl:justify-end">
+                {[
+                  ['Draft', '2026', 'rgba(124,92,207,.14)', '#7c5ccf'],
+                  ['Classe', prospects.length + ' picks', 'rgba(90,174,214,.14)', '#4f86ad'],
+                  ['Modo', 'Custom', 'rgba(139,207,180,.16)', '#4f9577'],
+                ].map(([label, value, bg, color]) => (
+                  <div
+                    key={label}
+                    className="inline-flex h-9 items-center gap-2 rounded-full border border-white/40 px-3.5 font-mono text-[10px] font-black uppercase tracking-[0.16em] shadow-sm backdrop-blur-md transition-all duration-200 hover:-translate-y-0.5 dark:border-white/10"
+                    style={{ background: bg, color }}
+                  >
+                    <span className="opacity-60">{label}</span>
+                    <span>{value}</span>
+                  </div>
+                ))}
+
+                <div className="inline-flex h-9 items-center rounded-full border border-white/40 bg-white/35 px-3.5 font-mono text-[10px] font-black uppercase tracking-[0.16em] text-slate-500 shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-white/10 dark:text-slate-300">
+                  {time}
+                </div>
+
                 <button
-                  key={mode.id}
                   type="button"
-                  onClick={() => setViewMode(mode.id)}
-                  className="rounded-pill px-3 py-1.5 font-mono text-[9px] font-bold tracking-widest"
-                  style={{
-                    background: isActive ? '#f1effc' : 'transparent',
-                    color: isActive ? '#6c61aa' : '#a09891',
-                    boxShadow: isActive ? '2px 2px 5px #d4d0ca, -2px -2px 5px #ffffff' : 'none',
-                  }}
+                  onClick={onToggleTheme}
+                  className="inline-flex h-9 items-center gap-2 rounded-full border border-white/40 bg-white/35 px-3.5 font-mono text-[10px] font-black uppercase tracking-[0.16em] text-slate-600 shadow-sm backdrop-blur-md transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/50 focus:outline-none focus:ring-2 focus:ring-violet-300/60 dark:border-white/10 dark:bg-white/10 dark:text-slate-200 dark:hover:bg-white/15"
+                  aria-label={isDark ? 'Ativar modo claro' : 'Ativar modo noturno'}
+                  aria-pressed={isDark}
                 >
-                  {mode.label}
+                  {isDark ? <Sun size={14} strokeWidth={2.4} /> : <Moon size={14} strokeWidth={2.4} />}
+                  <span>{isDark ? 'Light' : 'Dark'}</span>
                 </button>
-              )
-            })}
-          </div>
+              </div>
+            </div>
 
-          <div className="h-5 w-px bg-border" />
+            <div className="rounded-[26px] border border-white/45 bg-white/45 p-3 shadow-[0_18px_50px_rgba(0,0,0,0.06)] backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.06] dark:shadow-black/20">
+              <div className="flex flex-col gap-3 2xl:flex-row 2xl:items-center">
+                <div className="relative min-w-[240px] flex-1 2xl:max-w-md">
+                  <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" size={16} strokeWidth={2.4} aria-hidden="true" />
+                  <input
+                    type="text"
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                    placeholder="Buscar jogador ou escola..."
+                    className="h-12 w-full rounded-2xl border border-white/40 bg-white/55 pl-11 pr-4 font-sans text-sm font-semibold text-slate-800 shadow-[inset_0_1px_0_rgba(255,255,255,.65),0_10px_26px_rgba(0,0,0,.04)] outline-none transition-all duration-200 placeholder:text-slate-400 focus:border-violet-300/70 focus:ring-4 focus:ring-violet-300/15 dark:border-white/10 dark:bg-slate-950/35 dark:text-white dark:placeholder:text-slate-500"
+                  />
+                </div>
 
-          <div className="flex flex-wrap items-center gap-1.5">
-            <span className="font-mono text-[9px] tracking-widest text-lo">TIER</span>
-            {['ALL', ...Object.keys(TIER_CONFIG)].map(t => {
-              const cfg = TIER_CONFIG[t]
-              const isActive = tierFilter === t
-              return (
-                <button
-                  key={t}
-                  onClick={() => setTier(t)}
-                  className="rounded-pill px-2.5 py-1 font-mono text-[9px] tracking-widest transition-all duration-150"
-                  style={{
-                    background: isActive ? (cfg?.bg || '#e8e5df') : '#edeae4',
-                    color: isActive ? (cfg?.text || '#555') : '#a09891',
-                    boxShadow: isActive
-                      ? 'inset 2px 2px 5px #d4d0ca, inset -2px -2px 5px #ffffff'
-                      : '2px 2px 5px #d4d0ca, -2px -2px 5px #ffffff',
-                  }}
-                >
-                  {t}
-                </button>
-              )
-            })}
-          </div>
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="inline-flex h-12 items-center gap-1 rounded-2xl border border-white/40 bg-white/35 p-1 shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-white/[0.06]">
+                    {[
+                      { id: 'cards', label: 'Cards', Icon: LayoutGrid },
+                      { id: 'list', label: 'Lista', Icon: ListIcon },
+                    ].map(mode => {
+                      const isActive = viewMode === mode.id
+                      const Icon = mode.Icon
+                      return (
+                        <button
+                          key={mode.id}
+                          type="button"
+                          onClick={() => setViewMode(mode.id)}
+                          className={
+                            'inline-flex h-10 items-center gap-2 rounded-xl px-3 font-mono text-[10px] font-black uppercase tracking-[0.16em] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-violet-300/50 ' +
+                            (isActive
+                              ? 'bg-white text-violet-600 shadow-[0_10px_24px_rgba(124,92,207,.16)] dark:bg-white/15 dark:text-violet-200'
+                              : 'text-slate-500 hover:bg-white/45 hover:text-slate-800 dark:text-slate-400 dark:hover:bg-white/10 dark:hover:text-white')
+                          }
+                        >
+                          <Icon size={14} strokeWidth={2.4} />
+                          {mode.label}
+                        </button>
+                      )
+                    })}
+                  </div>
 
-          <div className="hidden h-5 w-px bg-border md:block" />
+                  <div className="hidden h-8 w-px bg-white/45 dark:bg-white/10 xl:block" />
 
-          <div className="flex flex-wrap items-center gap-1.5">
-            <span className="font-mono text-[9px] tracking-widest text-lo">POS</span>
-            {positions.map(pos => {
-              const isActive = posFilter === pos
-              return (
-                <button
-                  key={pos}
-                  onClick={() => setPos(pos)}
-                  className="rounded-pill px-2.5 py-1 font-mono text-[9px] tracking-widest transition-all duration-150"
-                  style={{
-                    background: '#edeae4',
-                    color: isActive ? '#8bbfe8' : '#a09891',
-                    boxShadow: isActive
-                      ? 'inset 2px 2px 5px #d4d0ca, inset -2px -2px 5px #ffffff'
-                      : '2px 2px 5px #d4d0ca, -2px -2px 5px #ffffff',
-                  }}
-                >
-                  {pos}
-                </button>
-              )
-            })}
-          </div>
+                  <div className="flex flex-wrap items-center gap-1.5 rounded-2xl border border-white/35 bg-white/25 px-2 py-2 backdrop-blur-md dark:border-white/10 dark:bg-white/[0.04]">
+                    <span className="px-1 font-mono text-[9px] font-black uppercase tracking-[0.22em] text-slate-400 dark:text-slate-500">Tier</span>
+                    {['ALL', ...Object.keys(TIER_CONFIG)].map(t => {
+                      const cfg = TIER_CONFIG[t]
+                      const isActive = tierFilter === t
+                      const label = t === 'ALL' ? 'ALL' : cfg?.label || t
+                      return (
+                        <button
+                          key={t}
+                          type="button"
+                          onClick={() => setTier(t)}
+                          className={
+                            'rounded-full border px-3 py-1.5 font-mono text-[9px] font-black uppercase tracking-[0.16em] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-violet-300/50 ' +
+                            (isActive
+                              ? 'border-white/70 bg-white text-slate-900 shadow-[0_10px_22px_rgba(0,0,0,.06)] dark:border-white/15 dark:bg-white/15 dark:text-white'
+                              : 'border-transparent text-slate-500 hover:border-white/50 hover:bg-white/40 hover:text-slate-800 dark:text-slate-400 dark:hover:border-white/10 dark:hover:bg-white/10 dark:hover:text-white')
+                          }
+                          style={isActive && cfg ? { color: cfg.text, boxShadow: '0 10px 24px ' + cfg.color + '22' } : undefined}
+                        >
+                          {label}
+                        </button>
+                      )
+                    })}
+                  </div>
 
-          <div className="ml-auto flex items-center gap-2">
-            <span className="font-mono text-[9px] tracking-widest text-lo">SORT</span>
-            <select
-              value={sortBy}
-              onChange={e => setSortBy(e.target.value)}
-              className="neu-input px-3 py-2 font-sans text-xs text-ink"
-            >
-              {SORT_OPTIONS.map(o => (
-                <option key={o.value} value={o.value}>{o.label}</option>
-              ))}
-            </select>
-          </div>
-        </div>
+                  <div className="flex flex-wrap items-center gap-1.5 rounded-2xl border border-white/35 bg-white/25 px-2 py-2 backdrop-blur-md dark:border-white/10 dark:bg-white/[0.04]">
+                    <span className="px-1 font-mono text-[9px] font-black uppercase tracking-[0.22em] text-slate-400 dark:text-slate-500">Pos</span>
+                    {positions.map(pos => {
+                      const isActive = posFilter === pos
+                      return (
+                        <button
+                          key={pos}
+                          type="button"
+                          onClick={() => setPos(pos)}
+                          className={
+                            'rounded-full border px-3 py-1.5 font-mono text-[9px] font-black uppercase tracking-[0.16em] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-sky-300/50 ' +
+                            (isActive
+                              ? 'border-sky-200/60 bg-sky-100/60 text-sky-700 shadow-[0_10px_22px_rgba(90,174,214,.16)] dark:border-sky-300/20 dark:bg-sky-300/10 dark:text-sky-200'
+                              : 'border-transparent text-slate-500 hover:border-white/50 hover:bg-white/40 hover:text-slate-800 dark:text-slate-400 dark:hover:border-white/10 dark:hover:bg-white/10 dark:hover:text-white')
+                          }
+                        >
+                          {pos}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
 
-        <div className="mt-3 flex items-center gap-2">
-          <span className="font-sans text-xs text-muted">
-            Exibindo <strong className="text-ink">{filtered.length}</strong> de{' '}
-            <strong className="text-ink">{prospects.length}</strong> prospects
-          </span>
-          <div className="stat-bar max-w-[100px] flex-1">
-            <div
-              className="stat-bar__fill"
-              style={{ '--target-width': `${(filtered.length / prospects.length) * 100}%`, background: '#a79be8' }}
-            />
+                <div className="flex flex-wrap items-center gap-3 2xl:ml-auto 2xl:justify-end">
+                  <div className="inline-flex h-12 items-center gap-3 rounded-2xl border border-white/35 bg-white/35 px-4 backdrop-blur-md dark:border-white/10 dark:bg-white/[0.05]">
+                    <SlidersHorizontal size={15} className="text-violet-400" strokeWidth={2.4} />
+                    <div className="min-w-[118px]">
+                      <div className="font-mono text-[9px] font-black uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">Exibindo</div>
+                      <div className="font-data text-sm font-black text-slate-900 dark:text-white">
+                        {filtered.length}<span className="text-slate-400 dark:text-slate-500"> / {prospects.length}</span>
+                      </div>
+                    </div>
+                    <div className="h-1.5 w-20 overflow-hidden rounded-full bg-slate-200/70 dark:bg-white/10">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-violet-400 to-sky-300 transition-all duration-300"
+                        style={{ width: prospects.length ? Math.max(6, (filtered.length / prospects.length) * 100) + '%' : '0%' }}
+                      />
+                    </div>
+                  </div>
+
+                  <label className="inline-flex h-12 items-center gap-2 rounded-2xl border border-white/35 bg-white/35 px-3 backdrop-blur-md dark:border-white/10 dark:bg-white/[0.05]">
+                    <span className="font-mono text-[9px] font-black uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">Sort</span>
+                    <select
+                      value={sortBy}
+                      onChange={e => setSortBy(e.target.value)}
+                      className="h-9 rounded-xl border border-white/40 bg-white/55 px-3 font-sans text-xs font-black text-slate-800 outline-none transition-all duration-200 focus:ring-2 focus:ring-violet-300/40 dark:border-white/10 dark:bg-slate-950/40 dark:text-white"
+                    >
+                      {SORT_OPTIONS.map(o => (
+                        <option key={o.value} value={o.value}>{o.label}</option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="p-6">
+      <div className="prospect-db-content p-4 3xl:p-6">
         {filtered.length === 0 ? (
           <div className="flex h-64 flex-col items-center justify-center gap-3">
             <div
               className="flex h-16 w-16 items-center justify-center rounded-full"
               style={{ boxShadow: 'inset 4px 4px 10px #d4d0ca, inset -4px -4px 10px #ffffff', background: '#edeae4' }}
             >
-              <span className="text-2xl text-lo">∅</span>
+              <span className="text-2xl text-lo">0</span>
             </div>
             <div className="font-display text-xl text-muted">Sem resultados</div>
             <div className="font-sans text-xs text-lo">Tente outros filtros</div>
@@ -518,7 +590,7 @@ export default function ProspectList({ prospects, onReorder, onTierChange, onSel
                     strategy={viewMode === 'cards' ? rectSortingStrategy : verticalListSortingStrategy}
                   >
               {viewMode === 'cards' ? (
-                <motion.div layout className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(310px, 1fr))' }}>
+                <motion.div layout className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>
                   {filtered.map((p, index) => (
                     <SortableProspectCard
                       key={p.id}
@@ -532,8 +604,8 @@ export default function ProspectList({ prospects, onReorder, onTierChange, onSel
                 </motion.div>
               ) : (
                 <motion.div layout className="overflow-x-auto pb-2">
-                  <div className="min-w-[1180px] space-y-3">
-                    <div className="grid gap-3 px-4 font-mono text-[9px] font-bold uppercase tracking-widest text-lo" style={{ gridTemplateColumns: '58px 72px minmax(230px,1.25fr) minmax(190px,.8fr) minmax(220px,.9fr) minmax(180px,.8fr) 116px' }}>
+                  <div className="prospect-list-table min-w-[1080px] space-y-3">
+                    <div className="grid gap-3 px-4 font-mono text-[9px] font-bold uppercase tracking-widest text-lo" style={{ gridTemplateColumns: '50px 62px minmax(210px,1.25fr) minmax(170px,.8fr) minmax(190px,.9fr) minmax(160px,.8fr) 104px' }}>
                       <span>Rank</span>
                       <span>Foto</span>
                       <span>Prospecto</span>

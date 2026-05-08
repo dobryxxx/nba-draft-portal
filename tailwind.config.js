@@ -1,8 +1,13 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: ['selector', '.theme-dark'],
   content: ['./index.html', './src/**/*.{js,jsx}'],
   theme: {
     extend: {
+      screens: {
+        '3xl': '1920px',
+        'uw': '2560px',
+      },
       colors: {
         // Fundo e superfícies
         base:    '#edeae4',
@@ -23,10 +28,13 @@ export default {
         lo:      '#c5bfb5',
       },
       fontFamily: {
-        mono:    ['"Space Mono"', 'monospace'],
-        sans:    ['"DM Sans"', 'sans-serif'],
-        display: ['"Playfair Display"', 'serif'],
-        numeric: ['"Sora"', '"DM Sans"', 'sans-serif'],
+        brand: ['"Printvetica"', '"Fraunces"', 'Georgia', 'serif'],
+        headline: ['"Fraunces"', '"Printvetica"', 'Georgia', 'serif'],
+        sans: ['"Satoshi"', 'Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+        data: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+        display: ['"Printvetica"', '"Fraunces"', 'Georgia', 'serif'],
+        numeric: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
       },
       borderRadius: {
         'neu': '16px',

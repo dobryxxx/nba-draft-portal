@@ -1,0 +1,1777 @@
+{
+  "generatedAt": "2026-05-07T18:59:01.718Z",
+  "sources": [
+    "api_profiles.json.gz",
+    "api_season_lines.json",
+    "barttorvik_complete_final.csv",
+    "pbp_shot_creation.csv"
+  ],
+  "topProblemProspects": [
+    {
+      "name": "Isiah Harwell",
+      "rank": 31,
+      "auditScore": 44,
+      "severity": "warning",
+      "matchConfidence": "high",
+      "issues": [
+        {
+          "type": "measurements",
+          "severity": "warning",
+          "field": "height",
+          "message": "Altura interna diverge da fonte externa.",
+          "evidence": [
+            "Interno: 6'4\"",
+            "Externo: 78 in"
+          ],
+          "suggestion": "Considerar 6'6\"."
+        },
+        {
+          "type": "stats",
+          "severity": "warning",
+          "field": "stats.threep",
+          "message": "3PT% interno diverge bastante da fonte externa.",
+          "evidence": [
+            "Interno: 37.8",
+            "Externo: 27.1"
+          ],
+          "suggestion": "Revisar 3PT% para 27.1."
+        },
+        {
+          "type": "stats",
+          "severity": "warning",
+          "field": "stats.ts",
+          "message": "TS% interno diverge da fonte externa.",
+          "evidence": [
+            "Interno: 59.4",
+            "Externo: 39.66"
+          ],
+          "suggestion": "Revisar TS% para 39.66."
+        },
+        {
+          "type": "scouting",
+          "severity": "warning",
+          "field": "scouting.strengths",
+          "message": "Scouting destaca arremesso, mas dados externos nao sustentam.",
+          "evidence": [
+            "Shooting trait: 0"
+          ],
+          "suggestion": "Revisar strength de shooting."
+        }
+      ]
+    },
+    {
+      "name": "Karim Lopez",
+      "rank": 19,
+      "auditScore": 58,
+      "severity": "warning",
+      "matchConfidence": "none",
+      "issues": [
+        {
+          "type": "match",
+          "severity": "warning",
+          "message": "Nenhum match externo encontrado."
+        },
+        {
+          "type": "identity",
+          "severity": "warning",
+          "field": "name",
+          "message": "Jogador nao encontrado nas fontes externas.",
+          "evidence": [],
+          "suggestion": "Revisar nome/escola ou adicionar alias manual."
+        },
+        {
+          "type": "position",
+          "severity": "warning",
+          "field": "position",
+          "message": "Big sem indicadores externos claros de rebote/protecao de aro.",
+          "evidence": [
+            "Rebounding: 0",
+            "Rim protection: 0"
+          ],
+          "suggestion": "Revisar posicao ou papel projetado."
+        }
+      ]
+    },
+    {
+      "name": "Alexandros Samodurov",
+      "rank": 44,
+      "auditScore": 66,
+      "severity": "warning",
+      "matchConfidence": "medium",
+      "issues": [
+        {
+          "type": "missing_data",
+          "severity": "info",
+          "field": "wingspan",
+          "message": "Campo ausente: wingspan.",
+          "evidence": []
+        },
+        {
+          "type": "identity",
+          "severity": "info",
+          "field": "team",
+          "message": "Escola/time externo diferente da base interna.",
+          "evidence": [
+            "Interno: Panathinaikos",
+            "Externo: PAN"
+          ],
+          "suggestion": "Revisar se houve transferencia ou alias de escola."
+        },
+        {
+          "type": "missing_data",
+          "severity": "info",
+          "field": "wingspan",
+          "message": "Envergadura ausente na base interna.",
+          "evidence": []
+        },
+        {
+          "type": "stats",
+          "severity": "info",
+          "field": "rank",
+          "message": "BPM externo alto para rank baixo.",
+          "evidence": [
+            "BPM externo: 10.64",
+            "Rank: #44"
+          ],
+          "suggestion": "Revisar se o board esta subestimando impacto."
+        },
+        {
+          "type": "scouting",
+          "severity": "warning",
+          "field": "scouting.strengths",
+          "message": "Scouting destaca arremesso, mas dados externos nao sustentam.",
+          "evidence": [
+            "Shooting trait: 6"
+          ],
+          "suggestion": "Revisar strength de shooting."
+        }
+      ]
+    },
+    {
+      "name": "Sergio de Larrea",
+      "rank": 43,
+      "auditScore": 71,
+      "severity": "warning",
+      "matchConfidence": "medium",
+      "issues": [
+        {
+          "type": "missing_data",
+          "severity": "info",
+          "field": "wingspan",
+          "message": "Campo ausente: wingspan.",
+          "evidence": []
+        },
+        {
+          "type": "identity",
+          "severity": "info",
+          "field": "team",
+          "message": "Escola/time externo diferente da base interna.",
+          "evidence": [
+            "Interno: Valencia",
+            "Externo: VAL"
+          ],
+          "suggestion": "Revisar se houve transferencia ou alias de escola."
+        },
+        {
+          "type": "missing_data",
+          "severity": "info",
+          "field": "wingspan",
+          "message": "Envergadura ausente na base interna.",
+          "evidence": []
+        },
+        {
+          "type": "stats",
+          "severity": "warning",
+          "field": "stats.ts",
+          "message": "TS% interno diverge da fonte externa.",
+          "evidence": [
+            "Interno: 60.5",
+            "Externo: 51.1"
+          ],
+          "suggestion": "Revisar TS% para 51.1."
+        }
+      ]
+    },
+    {
+      "name": "Tounde Yessoufou",
+      "rank": 15,
+      "auditScore": 72,
+      "severity": "warning",
+      "matchConfidence": "high",
+      "issues": [
+        {
+          "type": "measurements",
+          "severity": "warning",
+          "field": "height",
+          "message": "Altura interna diverge da fonte externa.",
+          "evidence": [
+            "Interno: 6'7\"",
+            "Externo: 77 in"
+          ],
+          "suggestion": "Considerar 6'5\"."
+        },
+        {
+          "type": "scouting",
+          "severity": "warning",
+          "field": "scouting.strengths",
+          "message": "Scouting destaca arremesso, mas dados externos nao sustentam.",
+          "evidence": [
+            "Shooting trait: 18"
+          ],
+          "suggestion": "Revisar strength de shooting."
+        }
+      ]
+    },
+    {
+      "name": "Chris Cenac Jr.",
+      "rank": 27,
+      "auditScore": 72,
+      "severity": "warning",
+      "matchConfidence": "high",
+      "issues": [
+        {
+          "type": "measurements",
+          "severity": "warning",
+          "field": "height",
+          "message": "Altura interna diverge da fonte externa.",
+          "evidence": [
+            "Interno: 6'9\"",
+            "Externo: 83 in"
+          ],
+          "suggestion": "Considerar 6'11\"."
+        },
+        {
+          "type": "scouting",
+          "severity": "warning",
+          "field": "scouting.strengths",
+          "message": "Scouting destaca arremesso, mas dados externos nao sustentam.",
+          "evidence": [
+            "Shooting trait: 19"
+          ],
+          "suggestion": "Revisar strength de shooting."
+        }
+      ]
+    },
+    {
+      "name": "Matthew Able",
+      "rank": 36,
+      "auditScore": 72,
+      "severity": "warning",
+      "matchConfidence": "none",
+      "issues": [
+        {
+          "type": "match",
+          "severity": "warning",
+          "message": "Nenhum match externo encontrado."
+        },
+        {
+          "type": "identity",
+          "severity": "warning",
+          "field": "name",
+          "message": "Jogador nao encontrado nas fontes externas.",
+          "evidence": [],
+          "suggestion": "Revisar nome/escola ou adicionar alias manual."
+        }
+      ]
+    },
+    {
+      "name": "Elliot Cadeau",
+      "rank": 39,
+      "auditScore": 76,
+      "severity": "warning",
+      "matchConfidence": "high",
+      "issues": [
+        {
+          "type": "missing_data",
+          "severity": "info",
+          "field": "wingspan",
+          "message": "Campo ausente: wingspan.",
+          "evidence": []
+        },
+        {
+          "type": "missing_data",
+          "severity": "info",
+          "field": "wingspan",
+          "message": "Envergadura ausente na base interna.",
+          "evidence": []
+        },
+        {
+          "type": "scouting",
+          "severity": "warning",
+          "field": "scouting.strengths",
+          "message": "Scouting destaca arremesso, mas dados externos nao sustentam.",
+          "evidence": [
+            "Shooting trait: 36"
+          ],
+          "suggestion": "Revisar strength de shooting."
+        }
+      ]
+    },
+    {
+      "name": "Jeremy Fears Jr.",
+      "rank": 40,
+      "auditScore": 80,
+      "severity": "info",
+      "matchConfidence": "high",
+      "issues": [
+        {
+          "type": "missing_data",
+          "severity": "info",
+          "field": "wingspan",
+          "message": "Campo ausente: wingspan.",
+          "evidence": []
+        },
+        {
+          "type": "identity",
+          "severity": "info",
+          "field": "team",
+          "message": "Escola/time externo diferente da base interna.",
+          "evidence": [
+            "Interno: Michigan State",
+            "Externo: Michigan St."
+          ],
+          "suggestion": "Revisar se houve transferencia ou alias de escola."
+        },
+        {
+          "type": "missing_data",
+          "severity": "info",
+          "field": "wingspan",
+          "message": "Envergadura ausente na base interna.",
+          "evidence": []
+        },
+        {
+          "type": "stats",
+          "severity": "info",
+          "field": "rank",
+          "message": "BPM externo alto para rank baixo.",
+          "evidence": [
+            "BPM externo: 10.19",
+            "Rank: #40"
+          ],
+          "suggestion": "Revisar se o board esta subestimando impacto."
+        }
+      ]
+    },
+    {
+      "name": "Luigi Suigo",
+      "rank": 45,
+      "auditScore": 85,
+      "severity": "info",
+      "matchConfidence": "medium",
+      "issues": [
+        {
+          "type": "missing_data",
+          "severity": "info",
+          "field": "wingspan",
+          "message": "Campo ausente: wingspan.",
+          "evidence": []
+        },
+        {
+          "type": "identity",
+          "severity": "info",
+          "field": "team",
+          "message": "Escola/time externo diferente da base interna.",
+          "evidence": [
+            "Interno: Mega Basket",
+            "Externo: MEG"
+          ],
+          "suggestion": "Revisar se houve transferencia ou alias de escola."
+        },
+        {
+          "type": "missing_data",
+          "severity": "info",
+          "field": "wingspan",
+          "message": "Envergadura ausente na base interna.",
+          "evidence": []
+        }
+      ]
+    }
+  ],
+  "totalProspects": 45,
+  "matchedHighConfidence": 40,
+  "matchedMediumConfidence": 3,
+  "matchedLowConfidence": 0,
+  "unmatched": 2,
+  "cleanProspects": 24,
+  "warningProspects": 14,
+  "criticalProspects": 0,
+  "results": [
+    {
+      "playerId": "33",
+      "name": "Isiah Harwell",
+      "rank": 31,
+      "position": "SG",
+      "tier": "SLEEPER",
+      "auditScore": 44,
+      "severity": "warning",
+      "matchConfidence": "high",
+      "matchedSources": [
+        "profile",
+        "seasonLines",
+        "barttorvik",
+        "shotCreation"
+      ],
+      "issues": [
+        {
+          "type": "measurements",
+          "severity": "warning",
+          "field": "height",
+          "message": "Altura interna diverge da fonte externa.",
+          "evidence": [
+            "Interno: 6'4\"",
+            "Externo: 78 in"
+          ],
+          "suggestion": "Considerar 6'6\"."
+        },
+        {
+          "type": "stats",
+          "severity": "warning",
+          "field": "stats.threep",
+          "message": "3PT% interno diverge bastante da fonte externa.",
+          "evidence": [
+            "Interno: 37.8",
+            "Externo: 27.1"
+          ],
+          "suggestion": "Revisar 3PT% para 27.1."
+        },
+        {
+          "type": "stats",
+          "severity": "warning",
+          "field": "stats.ts",
+          "message": "TS% interno diverge da fonte externa.",
+          "evidence": [
+            "Interno: 59.4",
+            "Externo: 39.66"
+          ],
+          "suggestion": "Revisar TS% para 39.66."
+        },
+        {
+          "type": "scouting",
+          "severity": "warning",
+          "field": "scouting.strengths",
+          "message": "Scouting destaca arremesso, mas dados externos nao sustentam.",
+          "evidence": [
+            "Shooting trait: 0"
+          ],
+          "suggestion": "Revisar strength de shooting."
+        }
+      ],
+      "suggestions": {
+        "notes": [
+          "measurements: Considerar 6'6\".",
+          "stats: Revisar 3PT% para 27.1.",
+          "stats: Revisar TS% para 39.66.",
+          "scouting: Revisar strength de shooting."
+        ],
+        "stats": {
+          "threep": "Revisar 3PT% para 27.1.",
+          "ts": "Revisar TS% para 39.66."
+        }
+      }
+    },
+    {
+      "playerId": "20",
+      "name": "Karim Lopez",
+      "rank": 19,
+      "position": "SF/PF",
+      "tier": "MID_1ST",
+      "auditScore": 58,
+      "severity": "warning",
+      "matchConfidence": "none",
+      "matchedSources": [],
+      "issues": [
+        {
+          "type": "match",
+          "severity": "warning",
+          "message": "Nenhum match externo encontrado."
+        },
+        {
+          "type": "identity",
+          "severity": "warning",
+          "field": "name",
+          "message": "Jogador nao encontrado nas fontes externas.",
+          "evidence": [],
+          "suggestion": "Revisar nome/escola ou adicionar alias manual."
+        },
+        {
+          "type": "position",
+          "severity": "warning",
+          "field": "position",
+          "message": "Big sem indicadores externos claros de rebote/protecao de aro.",
+          "evidence": [
+            "Rebounding: 0",
+            "Rim protection: 0"
+          ],
+          "suggestion": "Revisar posicao ou papel projetado."
+        }
+      ],
+      "suggestions": {
+        "notes": [
+          "identity: Revisar nome/escola ou adicionar alias manual.",
+          "position: Revisar posicao ou papel projetado."
+        ],
+        "position": "Revisar posicao ou papel projetado."
+      }
+    },
+    {
+      "playerId": "62",
+      "name": "Alexandros Samodurov",
+      "rank": 44,
+      "position": "PF/C",
+      "tier": "SLEEPER",
+      "auditScore": 66,
+      "severity": "warning",
+      "matchConfidence": "medium",
+      "matchedSources": [
+        "profile"
+      ],
+      "issues": [
+        {
+          "type": "missing_data",
+          "severity": "info",
+          "field": "wingspan",
+          "message": "Campo ausente: wingspan.",
+          "evidence": []
+        },
+        {
+          "type": "identity",
+          "severity": "info",
+          "field": "team",
+          "message": "Escola/time externo diferente da base interna.",
+          "evidence": [
+            "Interno: Panathinaikos",
+            "Externo: PAN"
+          ],
+          "suggestion": "Revisar se houve transferencia ou alias de escola."
+        },
+        {
+          "type": "missing_data",
+          "severity": "info",
+          "field": "wingspan",
+          "message": "Envergadura ausente na base interna.",
+          "evidence": []
+        },
+        {
+          "type": "stats",
+          "severity": "info",
+          "field": "rank",
+          "message": "BPM externo alto para rank baixo.",
+          "evidence": [
+            "BPM externo: 10.64",
+            "Rank: #44"
+          ],
+          "suggestion": "Revisar se o board esta subestimando impacto."
+        },
+        {
+          "type": "scouting",
+          "severity": "warning",
+          "field": "scouting.strengths",
+          "message": "Scouting destaca arremesso, mas dados externos nao sustentam.",
+          "evidence": [
+            "Shooting trait: 6"
+          ],
+          "suggestion": "Revisar strength de shooting."
+        }
+      ],
+      "suggestions": {
+        "notes": [
+          "identity: Revisar se houve transferencia ou alias de escola.",
+          "stats: Revisar se o board esta subestimando impacto.",
+          "scouting: Revisar strength de shooting."
+        ]
+      }
+    },
+    {
+      "playerId": "61",
+      "name": "Sergio de Larrea",
+      "rank": 43,
+      "position": "PG/SG",
+      "tier": "SLEEPER",
+      "auditScore": 71,
+      "severity": "warning",
+      "matchConfidence": "medium",
+      "matchedSources": [
+        "profile"
+      ],
+      "issues": [
+        {
+          "type": "missing_data",
+          "severity": "info",
+          "field": "wingspan",
+          "message": "Campo ausente: wingspan.",
+          "evidence": []
+        },
+        {
+          "type": "identity",
+          "severity": "info",
+          "field": "team",
+          "message": "Escola/time externo diferente da base interna.",
+          "evidence": [
+            "Interno: Valencia",
+            "Externo: VAL"
+          ],
+          "suggestion": "Revisar se houve transferencia ou alias de escola."
+        },
+        {
+          "type": "missing_data",
+          "severity": "info",
+          "field": "wingspan",
+          "message": "Envergadura ausente na base interna.",
+          "evidence": []
+        },
+        {
+          "type": "stats",
+          "severity": "warning",
+          "field": "stats.ts",
+          "message": "TS% interno diverge da fonte externa.",
+          "evidence": [
+            "Interno: 60.5",
+            "Externo: 51.1"
+          ],
+          "suggestion": "Revisar TS% para 51.1."
+        }
+      ],
+      "suggestions": {
+        "notes": [
+          "identity: Revisar se houve transferencia ou alias de escola.",
+          "stats: Revisar TS% para 51.1."
+        ],
+        "stats": {
+          "ts": "Revisar TS% para 51.1."
+        }
+      }
+    },
+    {
+      "playerId": "17",
+      "name": "Tounde Yessoufou",
+      "rank": 15,
+      "position": "SF",
+      "tier": "MID_1ST",
+      "auditScore": 72,
+      "severity": "warning",
+      "matchConfidence": "high",
+      "matchedSources": [
+        "profile",
+        "seasonLines",
+        "barttorvik",
+        "shotCreation"
+      ],
+      "issues": [
+        {
+          "type": "measurements",
+          "severity": "warning",
+          "field": "height",
+          "message": "Altura interna diverge da fonte externa.",
+          "evidence": [
+            "Interno: 6'7\"",
+            "Externo: 77 in"
+          ],
+          "suggestion": "Considerar 6'5\"."
+        },
+        {
+          "type": "scouting",
+          "severity": "warning",
+          "field": "scouting.strengths",
+          "message": "Scouting destaca arremesso, mas dados externos nao sustentam.",
+          "evidence": [
+            "Shooting trait: 18"
+          ],
+          "suggestion": "Revisar strength de shooting."
+        }
+      ],
+      "suggestions": {
+        "notes": [
+          "measurements: Considerar 6'5\".",
+          "scouting: Revisar strength de shooting."
+        ]
+      }
+    },
+    {
+      "playerId": "15",
+      "name": "Chris Cenac Jr.",
+      "rank": 27,
+      "position": "PF",
+      "tier": "MID_1ST",
+      "auditScore": 72,
+      "severity": "warning",
+      "matchConfidence": "high",
+      "matchedSources": [
+        "profile",
+        "seasonLines",
+        "barttorvik",
+        "shotCreation"
+      ],
+      "issues": [
+        {
+          "type": "measurements",
+          "severity": "warning",
+          "field": "height",
+          "message": "Altura interna diverge da fonte externa.",
+          "evidence": [
+            "Interno: 6'9\"",
+            "Externo: 83 in"
+          ],
+          "suggestion": "Considerar 6'11\"."
+        },
+        {
+          "type": "scouting",
+          "severity": "warning",
+          "field": "scouting.strengths",
+          "message": "Scouting destaca arremesso, mas dados externos nao sustentam.",
+          "evidence": [
+            "Shooting trait: 19"
+          ],
+          "suggestion": "Revisar strength de shooting."
+        }
+      ],
+      "suggestions": {
+        "notes": [
+          "measurements: Considerar 6'11\".",
+          "scouting: Revisar strength de shooting."
+        ]
+      }
+    },
+    {
+      "playerId": "45",
+      "name": "Matthew Able",
+      "rank": 36,
+      "position": "SF",
+      "tier": "SLEEPER",
+      "auditScore": 72,
+      "severity": "warning",
+      "matchConfidence": "none",
+      "matchedSources": [],
+      "issues": [
+        {
+          "type": "match",
+          "severity": "warning",
+          "message": "Nenhum match externo encontrado."
+        },
+        {
+          "type": "identity",
+          "severity": "warning",
+          "field": "name",
+          "message": "Jogador nao encontrado nas fontes externas.",
+          "evidence": [],
+          "suggestion": "Revisar nome/escola ou adicionar alias manual."
+        }
+      ],
+      "suggestions": {
+        "notes": [
+          "identity: Revisar nome/escola ou adicionar alias manual."
+        ]
+      }
+    },
+    {
+      "playerId": "57",
+      "name": "Elliot Cadeau",
+      "rank": 39,
+      "position": "PG",
+      "tier": "SLEEPER",
+      "auditScore": 76,
+      "severity": "warning",
+      "matchConfidence": "high",
+      "matchedSources": [
+        "profile",
+        "seasonLines",
+        "barttorvik",
+        "shotCreation"
+      ],
+      "issues": [
+        {
+          "type": "missing_data",
+          "severity": "info",
+          "field": "wingspan",
+          "message": "Campo ausente: wingspan.",
+          "evidence": []
+        },
+        {
+          "type": "missing_data",
+          "severity": "info",
+          "field": "wingspan",
+          "message": "Envergadura ausente na base interna.",
+          "evidence": []
+        },
+        {
+          "type": "scouting",
+          "severity": "warning",
+          "field": "scouting.strengths",
+          "message": "Scouting destaca arremesso, mas dados externos nao sustentam.",
+          "evidence": [
+            "Shooting trait: 36"
+          ],
+          "suggestion": "Revisar strength de shooting."
+        }
+      ],
+      "suggestions": {
+        "notes": [
+          "scouting: Revisar strength de shooting."
+        ]
+      }
+    },
+    {
+      "playerId": "58",
+      "name": "Jeremy Fears Jr.",
+      "rank": 40,
+      "position": "PG",
+      "tier": "SLEEPER",
+      "auditScore": 80,
+      "severity": "info",
+      "matchConfidence": "high",
+      "matchedSources": [
+        "profile",
+        "seasonLines",
+        "barttorvik",
+        "shotCreation"
+      ],
+      "issues": [
+        {
+          "type": "missing_data",
+          "severity": "info",
+          "field": "wingspan",
+          "message": "Campo ausente: wingspan.",
+          "evidence": []
+        },
+        {
+          "type": "identity",
+          "severity": "info",
+          "field": "team",
+          "message": "Escola/time externo diferente da base interna.",
+          "evidence": [
+            "Interno: Michigan State",
+            "Externo: Michigan St."
+          ],
+          "suggestion": "Revisar se houve transferencia ou alias de escola."
+        },
+        {
+          "type": "missing_data",
+          "severity": "info",
+          "field": "wingspan",
+          "message": "Envergadura ausente na base interna.",
+          "evidence": []
+        },
+        {
+          "type": "stats",
+          "severity": "info",
+          "field": "rank",
+          "message": "BPM externo alto para rank baixo.",
+          "evidence": [
+            "BPM externo: 10.19",
+            "Rank: #40"
+          ],
+          "suggestion": "Revisar se o board esta subestimando impacto."
+        }
+      ],
+      "suggestions": {
+        "notes": [
+          "identity: Revisar se houve transferencia ou alias de escola.",
+          "stats: Revisar se o board esta subestimando impacto."
+        ]
+      }
+    },
+    {
+      "playerId": "63",
+      "name": "Luigi Suigo",
+      "rank": 45,
+      "position": "C",
+      "tier": "SLEEPER",
+      "auditScore": 85,
+      "severity": "info",
+      "matchConfidence": "medium",
+      "matchedSources": [
+        "profile"
+      ],
+      "issues": [
+        {
+          "type": "missing_data",
+          "severity": "info",
+          "field": "wingspan",
+          "message": "Campo ausente: wingspan.",
+          "evidence": []
+        },
+        {
+          "type": "identity",
+          "severity": "info",
+          "field": "team",
+          "message": "Escola/time externo diferente da base interna.",
+          "evidence": [
+            "Interno: Mega Basket",
+            "Externo: MEG"
+          ],
+          "suggestion": "Revisar se houve transferencia ou alias de escola."
+        },
+        {
+          "type": "missing_data",
+          "severity": "info",
+          "field": "wingspan",
+          "message": "Envergadura ausente na base interna.",
+          "evidence": []
+        }
+      ],
+      "suggestions": {
+        "notes": [
+          "identity: Revisar se houve transferencia ou alias de escola."
+        ]
+      }
+    },
+    {
+      "playerId": "22",
+      "name": "Amari Allen",
+      "rank": 21,
+      "position": "SF/PF",
+      "tier": "MID_1ST",
+      "auditScore": 86,
+      "severity": "warning",
+      "matchConfidence": "high",
+      "matchedSources": [
+        "profile",
+        "seasonLines",
+        "barttorvik",
+        "shotCreation"
+      ],
+      "issues": [
+        {
+          "type": "scouting",
+          "severity": "warning",
+          "field": "scouting.strengths",
+          "message": "Scouting destaca arremesso, mas dados externos nao sustentam.",
+          "evidence": [
+            "Shooting trait: 33"
+          ],
+          "suggestion": "Revisar strength de shooting."
+        }
+      ],
+      "suggestions": {
+        "notes": [
+          "scouting: Revisar strength de shooting."
+        ]
+      }
+    },
+    {
+      "playerId": "26",
+      "name": "Christian Anderson",
+      "rank": 23,
+      "position": "PG",
+      "tier": "MID_1ST",
+      "auditScore": 86,
+      "severity": "warning",
+      "matchConfidence": "high",
+      "matchedSources": [
+        "profile",
+        "seasonLines",
+        "barttorvik",
+        "shotCreation"
+      ],
+      "issues": [
+        {
+          "type": "measurements",
+          "severity": "warning",
+          "field": "height",
+          "message": "Altura interna diverge da fonte externa.",
+          "evidence": [
+            "Interno: 6'6\"",
+            "Externo: 75 in"
+          ],
+          "suggestion": "Considerar 6'3\"."
+        }
+      ],
+      "suggestions": {
+        "notes": [
+          "measurements: Considerar 6'3\"."
+        ]
+      }
+    },
+    {
+      "playerId": "30",
+      "name": "Milan Momcilovic",
+      "rank": 29,
+      "position": "PF",
+      "tier": "MID_1ST",
+      "auditScore": 86,
+      "severity": "warning",
+      "matchConfidence": "high",
+      "matchedSources": [
+        "profile",
+        "seasonLines",
+        "barttorvik",
+        "shotCreation"
+      ],
+      "issues": [
+        {
+          "type": "position",
+          "severity": "warning",
+          "field": "position",
+          "message": "Big sem indicadores externos claros de rebote/protecao de aro.",
+          "evidence": [
+            "Rebounding: 37",
+            "Rim protection: 12"
+          ],
+          "suggestion": "Revisar posicao ou papel projetado."
+        }
+      ],
+      "suggestions": {
+        "notes": [
+          "position: Revisar posicao ou papel projetado."
+        ],
+        "position": "Revisar posicao ou papel projetado."
+      }
+    },
+    {
+      "playerId": "32",
+      "name": "Ebuka Okorie",
+      "rank": 30,
+      "position": "SG/SF",
+      "tier": "SLEEPER",
+      "auditScore": 86,
+      "severity": "warning",
+      "matchConfidence": "high",
+      "matchedSources": [
+        "profile",
+        "seasonLines",
+        "barttorvik",
+        "shotCreation"
+      ],
+      "issues": [
+        {
+          "type": "measurements",
+          "severity": "warning",
+          "field": "height",
+          "message": "Altura interna diverge da fonte externa.",
+          "evidence": [
+            "Interno: 6'5\"",
+            "Externo: 74 in"
+          ],
+          "suggestion": "Considerar 6'2\"."
+        }
+      ],
+      "suggestions": {
+        "notes": [
+          "measurements: Considerar 6'2\"."
+        ]
+      }
+    },
+    {
+      "playerId": "34",
+      "name": "Tyler Tanner",
+      "rank": 32,
+      "position": "PG",
+      "tier": "SLEEPER",
+      "auditScore": 86,
+      "severity": "warning",
+      "matchConfidence": "high",
+      "matchedSources": [
+        "profile",
+        "seasonLines",
+        "barttorvik",
+        "shotCreation"
+      ],
+      "issues": [
+        {
+          "type": "measurements",
+          "severity": "warning",
+          "field": "height",
+          "message": "Altura interna diverge da fonte externa.",
+          "evidence": [
+            "Interno: 6'3\"",
+            "Externo: 72 in"
+          ],
+          "suggestion": "Considerar 6'0\"."
+        }
+      ],
+      "suggestions": {
+        "notes": [
+          "measurements: Considerar 6'0\"."
+        ]
+      }
+    },
+    {
+      "playerId": "35",
+      "name": "Henri Veesaar",
+      "rank": 33,
+      "position": "C/PF",
+      "tier": "SLEEPER",
+      "auditScore": 86,
+      "severity": "warning",
+      "matchConfidence": "high",
+      "matchedSources": [
+        "profile",
+        "seasonLines",
+        "barttorvik",
+        "shotCreation"
+      ],
+      "issues": [
+        {
+          "type": "stats",
+          "severity": "warning",
+          "field": "stats.threep",
+          "message": "3PT% interno diverge bastante da fonte externa.",
+          "evidence": [
+            "Interno: 29.4",
+            "Externo: 42.6"
+          ],
+          "suggestion": "Revisar 3PT% para 42.6."
+        }
+      ],
+      "suggestions": {
+        "notes": [
+          "stats: Revisar 3PT% para 42.6."
+        ],
+        "stats": {
+          "threep": "Revisar 3PT% para 42.6."
+        }
+      }
+    },
+    {
+      "playerId": "59",
+      "name": "Billy Richmond III",
+      "rank": 41,
+      "position": "SG/SF",
+      "tier": "SLEEPER",
+      "auditScore": 90,
+      "severity": "info",
+      "matchConfidence": "high",
+      "matchedSources": [
+        "profile",
+        "seasonLines",
+        "barttorvik",
+        "shotCreation"
+      ],
+      "issues": [
+        {
+          "type": "missing_data",
+          "severity": "info",
+          "field": "wingspan",
+          "message": "Campo ausente: wingspan.",
+          "evidence": []
+        },
+        {
+          "type": "missing_data",
+          "severity": "info",
+          "field": "wingspan",
+          "message": "Envergadura ausente na base interna.",
+          "evidence": []
+        }
+      ],
+      "suggestions": {
+        "notes": []
+      }
+    },
+    {
+      "playerId": "60",
+      "name": "Andrej Stojakovic",
+      "rank": 42,
+      "position": "SG/SF",
+      "tier": "SLEEPER",
+      "auditScore": 90,
+      "severity": "info",
+      "matchConfidence": "high",
+      "matchedSources": [
+        "profile",
+        "seasonLines",
+        "barttorvik",
+        "shotCreation"
+      ],
+      "issues": [
+        {
+          "type": "missing_data",
+          "severity": "info",
+          "field": "wingspan",
+          "message": "Campo ausente: wingspan.",
+          "evidence": []
+        },
+        {
+          "type": "missing_data",
+          "severity": "info",
+          "field": "wingspan",
+          "message": "Envergadura ausente na base interna.",
+          "evidence": []
+        }
+      ],
+      "suggestions": {
+        "notes": []
+      }
+    },
+    {
+      "playerId": "31",
+      "name": "Joshua Jefferson",
+      "rank": 26,
+      "position": "SF/PF",
+      "tier": "MID_1ST",
+      "auditScore": 95,
+      "severity": "info",
+      "matchConfidence": "high",
+      "matchedSources": [
+        "profile",
+        "seasonLines",
+        "barttorvik",
+        "shotCreation"
+      ],
+      "issues": [
+        {
+          "type": "identity",
+          "severity": "info",
+          "field": "team",
+          "message": "Escola/time externo diferente da base interna.",
+          "evidence": [
+            "Interno: Iowa State",
+            "Externo: Iowa St."
+          ],
+          "suggestion": "Revisar se houve transferencia ou alias de escola."
+        }
+      ],
+      "suggestions": {
+        "notes": [
+          "identity: Revisar se houve transferencia ou alias de escola."
+        ]
+      }
+    },
+    {
+      "playerId": "46",
+      "name": "Flory Bidunga",
+      "rank": 37,
+      "position": "C",
+      "tier": "SLEEPER",
+      "auditScore": 95,
+      "severity": "info",
+      "matchConfidence": "high",
+      "matchedSources": [
+        "profile",
+        "seasonLines",
+        "barttorvik",
+        "shotCreation"
+      ],
+      "issues": [
+        {
+          "type": "stats",
+          "severity": "info",
+          "field": "rank",
+          "message": "BPM externo alto para rank baixo.",
+          "evidence": [
+            "BPM externo: 9.35",
+            "Rank: #37"
+          ],
+          "suggestion": "Revisar se o board esta subestimando impacto."
+        }
+      ],
+      "suggestions": {
+        "notes": [
+          "stats: Revisar se o board esta subestimando impacto."
+        ]
+      }
+    },
+    {
+      "playerId": "49",
+      "name": "Morez Johnson Jr.",
+      "rank": 38,
+      "position": "C/PF",
+      "tier": "SLEEPER",
+      "auditScore": 95,
+      "severity": "info",
+      "matchConfidence": "high",
+      "matchedSources": [
+        "profile",
+        "seasonLines",
+        "barttorvik",
+        "shotCreation"
+      ],
+      "issues": [
+        {
+          "type": "stats",
+          "severity": "info",
+          "field": "rank",
+          "message": "BPM externo alto para rank baixo.",
+          "evidence": [
+            "BPM externo: 10.1",
+            "Rank: #38"
+          ],
+          "suggestion": "Revisar se o board esta subestimando impacto."
+        }
+      ],
+      "suggestions": {
+        "notes": [
+          "stats: Revisar se o board esta subestimando impacto."
+        ]
+      }
+    },
+    {
+      "playerId": "1",
+      "name": "AJ Dybantsa",
+      "rank": 1,
+      "position": "SF/PF",
+      "tier": "ELITE",
+      "auditScore": 100,
+      "severity": "info",
+      "matchConfidence": "high",
+      "matchedSources": [
+        "profile",
+        "seasonLines",
+        "barttorvik",
+        "shotCreation"
+      ],
+      "issues": [],
+      "suggestions": {
+        "notes": []
+      }
+    },
+    {
+      "playerId": "2",
+      "name": "Darryn Peterson",
+      "rank": 2,
+      "position": "PG/SG",
+      "tier": "ELITE",
+      "auditScore": 100,
+      "severity": "info",
+      "matchConfidence": "high",
+      "matchedSources": [
+        "profile",
+        "seasonLines",
+        "barttorvik",
+        "shotCreation"
+      ],
+      "issues": [],
+      "suggestions": {
+        "notes": []
+      }
+    },
+    {
+      "playerId": "3",
+      "name": "Cameron Boozer",
+      "rank": 3,
+      "position": "PF/C",
+      "tier": "ELITE",
+      "auditScore": 100,
+      "severity": "info",
+      "matchConfidence": "high",
+      "matchedSources": [
+        "profile",
+        "seasonLines",
+        "barttorvik",
+        "shotCreation"
+      ],
+      "issues": [],
+      "suggestions": {
+        "notes": []
+      }
+    },
+    {
+      "playerId": "4",
+      "name": "Caleb Wilson",
+      "rank": 4,
+      "position": "PF",
+      "tier": "LOTTERY",
+      "auditScore": 100,
+      "severity": "info",
+      "matchConfidence": "high",
+      "matchedSources": [
+        "profile",
+        "seasonLines",
+        "barttorvik",
+        "shotCreation"
+      ],
+      "issues": [],
+      "suggestions": {
+        "notes": []
+      }
+    },
+    {
+      "playerId": "5",
+      "name": "Keaton Wagler",
+      "rank": 5,
+      "position": "PG/SG",
+      "tier": "LOTTERY",
+      "auditScore": 100,
+      "severity": "info",
+      "matchConfidence": "high",
+      "matchedSources": [
+        "profile",
+        "seasonLines",
+        "barttorvik",
+        "shotCreation"
+      ],
+      "issues": [],
+      "suggestions": {
+        "notes": []
+      }
+    },
+    {
+      "playerId": "14",
+      "name": "Darius Acuff Jr.",
+      "rank": 6,
+      "position": "PG/SG",
+      "tier": "LOTTERY",
+      "auditScore": 100,
+      "severity": "info",
+      "matchConfidence": "high",
+      "matchedSources": [
+        "profile",
+        "seasonLines",
+        "barttorvik",
+        "shotCreation"
+      ],
+      "issues": [],
+      "suggestions": {
+        "notes": []
+      }
+    },
+    {
+      "playerId": "6",
+      "name": "Kingston Flemings",
+      "rank": 7,
+      "position": "PG",
+      "tier": "LOTTERY",
+      "auditScore": 100,
+      "severity": "info",
+      "matchConfidence": "high",
+      "matchedSources": [
+        "profile",
+        "seasonLines",
+        "barttorvik",
+        "shotCreation"
+      ],
+      "issues": [],
+      "suggestions": {
+        "notes": []
+      }
+    },
+    {
+      "playerId": "7",
+      "name": "Mikel Brown Jr.",
+      "rank": 8,
+      "position": "PG/SG",
+      "tier": "LOTTERY",
+      "auditScore": 100,
+      "severity": "info",
+      "matchConfidence": "high",
+      "matchedSources": [
+        "profile",
+        "seasonLines",
+        "barttorvik",
+        "shotCreation"
+      ],
+      "issues": [],
+      "suggestions": {
+        "notes": []
+      }
+    },
+    {
+      "playerId": "9",
+      "name": "Nate Ament",
+      "rank": 9,
+      "position": "PF/SF",
+      "tier": "LOTTERY",
+      "auditScore": 100,
+      "severity": "info",
+      "matchConfidence": "high",
+      "matchedSources": [
+        "profile",
+        "seasonLines",
+        "barttorvik",
+        "shotCreation"
+      ],
+      "issues": [],
+      "suggestions": {
+        "notes": []
+      }
+    },
+    {
+      "playerId": "25",
+      "name": "Aday Mara",
+      "rank": 10,
+      "position": "C",
+      "tier": "LOTTERY",
+      "auditScore": 100,
+      "severity": "info",
+      "matchConfidence": "high",
+      "matchedSources": [
+        "profile",
+        "seasonLines",
+        "barttorvik",
+        "shotCreation"
+      ],
+      "issues": [],
+      "suggestions": {
+        "notes": []
+      }
+    },
+    {
+      "playerId": "11",
+      "name": "Labaron Philon",
+      "rank": 11,
+      "position": "PG/SG",
+      "tier": "LOTTERY",
+      "auditScore": 100,
+      "severity": "info",
+      "matchConfidence": "high",
+      "matchedSources": [
+        "profile",
+        "seasonLines",
+        "barttorvik",
+        "shotCreation"
+      ],
+      "issues": [],
+      "suggestions": {
+        "notes": []
+      }
+    },
+    {
+      "playerId": "10",
+      "name": "Yaxel Lendeborg",
+      "rank": 12,
+      "position": "PF",
+      "tier": "LOTTERY",
+      "auditScore": 100,
+      "severity": "info",
+      "matchConfidence": "high",
+      "matchedSources": [
+        "profile",
+        "seasonLines",
+        "barttorvik",
+        "shotCreation"
+      ],
+      "issues": [],
+      "suggestions": {
+        "notes": []
+      }
+    },
+    {
+      "playerId": "12",
+      "name": "Allen Graves",
+      "rank": 13,
+      "position": "PF/SF",
+      "tier": "LOTTERY",
+      "auditScore": 100,
+      "severity": "info",
+      "matchConfidence": "high",
+      "matchedSources": [
+        "profile",
+        "seasonLines",
+        "barttorvik",
+        "shotCreation"
+      ],
+      "issues": [],
+      "suggestions": {
+        "notes": []
+      }
+    },
+    {
+      "playerId": "13",
+      "name": "Hannes Steinbach",
+      "rank": 14,
+      "position": "PF/C",
+      "tier": "LOTTERY",
+      "auditScore": 100,
+      "severity": "info",
+      "matchConfidence": "high",
+      "matchedSources": [
+        "profile",
+        "seasonLines",
+        "barttorvik",
+        "shotCreation"
+      ],
+      "issues": [],
+      "suggestions": {
+        "notes": []
+      }
+    },
+    {
+      "playerId": "18",
+      "name": "Cameron Carr",
+      "rank": 16,
+      "position": "SG/SF",
+      "tier": "MID_1ST",
+      "auditScore": 100,
+      "severity": "info",
+      "matchConfidence": "high",
+      "matchedSources": [
+        "profile",
+        "seasonLines",
+        "barttorvik",
+        "shotCreation"
+      ],
+      "issues": [],
+      "suggestions": {
+        "notes": []
+      }
+    },
+    {
+      "playerId": "16",
+      "name": "Bennett Stirtz",
+      "rank": 17,
+      "position": "PG/SG",
+      "tier": "MID_1ST",
+      "auditScore": 100,
+      "severity": "info",
+      "matchConfidence": "high",
+      "matchedSources": [
+        "profile",
+        "seasonLines",
+        "barttorvik",
+        "shotCreation"
+      ],
+      "issues": [],
+      "suggestions": {
+        "notes": []
+      }
+    },
+    {
+      "playerId": "8",
+      "name": "Jayden Quaintance",
+      "rank": 18,
+      "position": "PF/C",
+      "tier": "MID_1ST",
+      "auditScore": 100,
+      "severity": "info",
+      "matchConfidence": "high",
+      "matchedSources": [
+        "profile",
+        "seasonLines",
+        "barttorvik",
+        "shotCreation"
+      ],
+      "issues": [],
+      "suggestions": {
+        "notes": []
+      }
+    },
+    {
+      "playerId": "21",
+      "name": "Malachi Moreno",
+      "rank": 20,
+      "position": "C/PF",
+      "tier": "MID_1ST",
+      "auditScore": 100,
+      "severity": "info",
+      "matchConfidence": "high",
+      "matchedSources": [
+        "profile",
+        "seasonLines",
+        "barttorvik",
+        "shotCreation"
+      ],
+      "issues": [],
+      "suggestions": {
+        "notes": []
+      }
+    },
+    {
+      "playerId": "24",
+      "name": "Isaiah Evans",
+      "rank": 22,
+      "position": "SG",
+      "tier": "MID_1ST",
+      "auditScore": 100,
+      "severity": "info",
+      "matchConfidence": "high",
+      "matchedSources": [
+        "profile",
+        "seasonLines",
+        "barttorvik",
+        "shotCreation"
+      ],
+      "issues": [],
+      "suggestions": {
+        "notes": []
+      }
+    },
+    {
+      "playerId": "27",
+      "name": "Koa Peat",
+      "rank": 24,
+      "position": "PF",
+      "tier": "MID_1ST",
+      "auditScore": 100,
+      "severity": "info",
+      "matchConfidence": "high",
+      "matchedSources": [
+        "profile",
+        "seasonLines",
+        "barttorvik",
+        "shotCreation"
+      ],
+      "issues": [],
+      "suggestions": {
+        "notes": []
+      }
+    },
+    {
+      "playerId": "28",
+      "name": "Brayden Burries",
+      "rank": 25,
+      "position": "SG",
+      "tier": "MID_1ST",
+      "auditScore": 100,
+      "severity": "info",
+      "matchConfidence": "high",
+      "matchedSources": [
+        "profile",
+        "seasonLines",
+        "barttorvik",
+        "shotCreation"
+      ],
+      "issues": [],
+      "suggestions": {
+        "notes": []
+      }
+    },
+    {
+      "playerId": "29",
+      "name": "Meleek Thomas",
+      "rank": 28,
+      "position": "SG/SF",
+      "tier": "MID_1ST",
+      "auditScore": 100,
+      "severity": "info",
+      "matchConfidence": "high",
+      "matchedSources": [
+        "profile",
+        "seasonLines",
+        "barttorvik",
+        "shotCreation"
+      ],
+      "issues": [],
+      "suggestions": {
+        "notes": []
+      }
+    },
+    {
+      "playerId": "37",
+      "name": "Dailyn Swain",
+      "rank": 34,
+      "position": "SF/PF",
+      "tier": "SLEEPER",
+      "auditScore": 100,
+      "severity": "info",
+      "matchConfidence": "high",
+      "matchedSources": [
+        "profile",
+        "seasonLines",
+        "barttorvik",
+        "shotCreation"
+      ],
+      "issues": [],
+      "suggestions": {
+        "notes": []
+      }
+    },
+    {
+      "playerId": "42",
+      "name": "Juke Harris",
+      "rank": 35,
+      "position": "SF/PF",
+      "tier": "SLEEPER",
+      "auditScore": 100,
+      "severity": "info",
+      "matchConfidence": "high",
+      "matchedSources": [
+        "profile",
+        "seasonLines",
+        "barttorvik",
+        "shotCreation"
+      ],
+      "issues": [],
+      "suggestions": {
+        "notes": []
+      }
+    }
+  ]
+}

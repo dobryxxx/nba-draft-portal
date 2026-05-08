@@ -1,326 +1,46 @@
-﻿import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { prospects, LOTTERY_TEAMS, PICKS_15_30 } from '../data/prospects'
+import { toPng } from 'html-to-image'
+import { prospects, PICKS_15_30 } from '../data/prospects'
 import { getPlayerCutoutImage } from '../utils/playerImages'
-import { calculateDraftFit, getPlayerDraftAttributes } from '../utils/draftFitAlgorithm.js'
-import { getTeamProfile } from '../data/teamProfiles.js'
 import TeamLogoGlass from '../components/TeamLogoGlass'
-import DraftFitBreakdown, { getDraftFitStatus } from '../components/DraftFitBreakdown'
-
-const TRADE_MAP = {
-  NOP: () => ({ ownerAbbr: 'ATL', ownerName: 'Atlanta Hawks', ownerColor: '#C8102E', viaAbbr: 'NOP', viaName: 'New Orleans Pelicans' }),
-  LAC: () => ({ ownerAbbr: 'OKC', ownerName: 'Oklahoma City Thunder', ownerColor: '#007AC1', viaAbbr: 'LAC', viaName: 'LA Clippers' }),
-  IND: finalPosition => {
-    if (finalPosition <= 4 || finalPosition >= 11) return { ownerAbbr: 'IND', ownerName: 'Indiana Pacers', ownerColor: '#002D62', viaAbbr: null, viaName: null }
-    return { ownerAbbr: 'LAC', ownerName: 'LA Clippers', ownerColor: '#C8102E', viaAbbr: 'IND', viaName: 'Indiana Pacers' }
-  },
-}
-
-const COMBOS = [140, 140, 140, 125, 105, 90, 75, 60, 45, 30, 20, 15, 10, 5]
-const PHASE = { IDLE: 'idle', ANIMATING: 'animating', DONE: 'done', DRAFTING: 'drafting' }
-const SCENE = { LOTTERY_INTRO: 'lotteryIntro', LOTTERY_REVEAL: 'lotteryReveal', DRAFT_ORDER: 'draftOrder', WAR_ROOM: 'warRoom', PICK_CONFIRM: 'pickConfirm', NEXT_PICK: 'nextPickTransition', DRAFT_RESULTS: 'draftResults' }
-const TOTAL_PICKS = 30
-const TRADE_MAP_LABELS = { IND: 'PROT. 1-4 / 11-14', NOP: 'via ATL', LAC: 'via OKC' }
-
-const TIER_STYLES = {
-  ELITE: { label: 'ELITE', color: '#7c5ccf', bg: '#eee9fb', text: '#5d46a3', glow: 'rgba(124,92,207,.26)' },
-  LOTTERY: { label: 'LOTTERY', color: '#5aaed6', bg: '#edf7fd', text: '#3f7fa0', glow: 'rgba(90,174,214,.24)' },
-  MID_1ST: { label: 'MID 1ST', color: '#c9a941', bg: '#fbf4d2', text: '#8a7023', glow: 'rgba(201,169,65,.24)' },
-  SLEEPER: { label: 'SLEEPER', color: '#e6a06f', bg: '#faeee5', text: '#a8663b', glow: 'rgba(230,160,111,.22)' },
-}
-
-const normalizeTierKey = tier => ({ ALL_STAR: 'LOTTERY', STARTER: 'MID_1ST', FRINGE: 'MID_1ST', ROLE_PLAYER: 'SLEEPER' }[tier] || tier)
-
-const FILTERS = [
-  ['best', 'Best Available'],
-  ['guards', 'Guards'],
-  ['wings', 'Wings'],
-  ['bigs', 'Bigs'],
-  ['shooters', 'Shooters'],
-  ['defenders', 'Defenders'],
-  ['upside', 'Upside'],
-  ['safe', 'Safe Picks'],
-]
-
-const motionPresets = {
-  page: {
-    initial: { opacity: 0, y: 24, filter: 'blur(10px)' },
-    animate: { opacity: 1, y: 0, filter: 'blur(0px)' },
-    exit: { opacity: 0, y: -16, filter: 'blur(8px)' },
-    transition: { duration: .48, ease: [0.22, 1, 0.36, 1] }
-  },
-  cardStagger: {
-    hidden: {},
-    show: { transition: { staggerChildren: .075, delayChildren: .08 } }
-  },
-  cardItem: {
-    hidden: { opacity: 0, y: 20, scale: .98 },
-    show: { opacity: 1, y: 0, scale: 1, transition: { duration: .36, ease: [0.22, 1, 0.36, 1] } }
-  },
-  heroReveal: {
-    initial: { opacity: 0, scale: .94, filter: 'blur(10px)' },
-    animate: { opacity: 1, scale: 1, filter: 'blur(0px)' },
-    exit: { opacity: 0, scale: .98, filter: 'blur(6px)' },
-    transition: { duration: .55, ease: [0.22, 1, 0.36, 1] }
-  },
-  overlayConfirm: {
-    initial: { opacity: 0, scale: .96, filter: 'blur(12px)' },
-    animate: { opacity: 1, scale: 1, filter: 'blur(0px)' },
-    exit: { opacity: 0, scale: 1.02, filter: 'blur(8px)' },
-    transition: { duration: .42, ease: [0.22, 1, 0.36, 1] }
-  }
-}
-
-function applyTradeRules(team, finalPosition) {
-  const rule = TRADE_MAP[team.abbr]
-  if (rule) return rule(finalPosition)
-  return { ownerAbbr: team.abbr, ownerName: team.name, ownerColor: team.color, viaAbbr: null, viaName: null }
-}
-
-function buildPool() {
-  const pool = []
-  LOTTERY_TEAMS.forEach((team, i) => {
-    for (let c = 0; c < COMBOS[i]; c++) pool.push(team.id)
-  })
-  return pool
-}
-
-function pickOne(pool, exclude) {
-  const eligible = pool.filter(id => !exclude.includes(id))
-  return eligible[Math.floor(Math.random() * eligible.length)]
-}
-
-function runLottery() {
-  const pool = buildPool()
-  const top4 = []
-  for (let i = 0; i < 4; i++) {
-    const winner = pickOne(pool, top4)
-    if (winner != null) top4.push(winner)
-  }
-  const rest = LOTTERY_TEAMS.filter(t => !top4.includes(t.id)).sort((a, b) => a.slotOrder - b.slotOrder).map(t => t.id)
-  return [...top4, ...rest]
-}
-
-const teamById = id => LOTTERY_TEAMS.find(t => t.id === id)
-
-function getSceneFromState(phase, draftFinished) {
-  if (draftFinished) return SCENE.DRAFT_RESULTS
-  if (phase === PHASE.IDLE) return SCENE.LOTTERY_INTRO
-  if (phase === PHASE.ANIMATING) return SCENE.LOTTERY_REVEAL
-  if (phase === PHASE.DONE) return SCENE.DRAFT_ORDER
-  if (phase === PHASE.DRAFTING) return SCENE.WAR_ROOM
-  return SCENE.LOTTERY_INTRO
-}
-function buildProjectedLotteryPicks() {
-  return LOTTERY_TEAMS.map((team, i) => ({ pick: i + 1, isLottery: true, isTop4: i < 4, ownerName: team.name, ownerAbbr: team.abbr, ownerColor: team.color, originalTeam: team }))
-}
-
-function getTeamTimelineLabel(teamId) {
-  const timeline = getTeamProfile(teamId)?.timeline
-  const labels = {
-    rebuild: 'Reconstrução',
-    young_core: 'Núcleo jovem',
-    playoff_core: 'Core de playoff',
-    contender: 'Contender',
-    retool: 'Retool'
-  }
-  return labels[timeline] || 'Timeline em avaliação'
-}
-
-function getTeamPriorityLabel(teamId) {
-  const priority = getTeamProfile(teamId)?.priority
-  const labels = {
-    spacing: 'Prioridade: spacing',
-    creation: 'Prioridade: criação',
-    defense: 'Prioridade: defesa',
-    size: 'Prioridade: tamanho',
-    upside: 'Prioridade: upside',
-    floor: 'Prioridade: piso',
-    rebounding: 'Prioridade: rebote',
-    athleticism: 'Prioridade: atletismo'
-  }
-  return labels[priority] || 'Prioridade: melhor valor'
-}
-const clamp = value => Math.min(100, Math.max(0, value))
-const num = value => (typeof value === 'number' ? value.toFixed(1) : '-')
-const getTierStyles = tier => TIER_STYLES[normalizeTierKey(tier)] || TIER_STYLES.SLEEPER
-const initials = name => String(name || '').split(' ').filter(Boolean).slice(0, 2).map(x => x[0]).join('').toUpperCase()
-
-function getLotteryMovement(pick) {
-  if (!pick?.originalTeam) return { delta: 0, label: 'Manteve posicao', tone: '#a09891' }
-  const delta = pick.originalTeam.slotOrder - pick.pick
-  if (delta > 0) return { delta, label: 'Subiu +' + delta, tone: '#7c5ccf' }
-  if (delta < 0) return { delta, label: 'Caiu ' + delta, tone: '#d96f7d' }
-  return { delta: 0, label: 'Manteve posicao', tone: '#4f86ad' }
-}
-
-function getBiggestWinner(results) {
-  return results.filter(p => p.isLottery).map(p => ({ ...p, movement: getLotteryMovement(p) })).sort((a, b) => b.movement.delta - a.movement.delta)[0]
-}
-
-function getBiggestDrop(results) {
-  return results.filter(p => p.isLottery).map(p => ({ ...p, movement: getLotteryMovement(p) })).sort((a, b) => a.movement.delta - b.movement.delta)[0]
-}
-
-function getProspectArchetype(p) {
-  const s = p.stats || {}
-  if ((s.threep || 0) >= 37) return 'Movement Shooter'
-  if ((s.apg || 0) >= 4 || (s.astTo || 0) >= 2) return 'Creator / Connector'
-  if ((s.rpg || 0) >= 8 || (s.blkPct || 0) >= 4) return 'Interior Anchor'
-  if ((s.ppg || 0) >= 18) return 'Primary Scorer'
-  return 'Two-Way Prospect'
-}
-
-function getProspectAttributes(p) {
-  const s = p.stats || {}
-  const attrs = p.scouting?.attributes || {}
-  return [
-    ['Scoring', clamp(((s.ppg || 0) / 28) * 100)],
-    ['Shooting', clamp(((s.threep || attrs.Shooting || 0) / 45) * 100)],
-    ['Playmaking', clamp(((s.apg || attrs.Playmaking || 0) / 8) * 100)],
-    ['Defense', clamp(Math.max((s.stlPct || 0) * 18, (s.blkPct || 0) * 11, (attrs.Defense || 0) * 10))],
-    ['Rebounding', clamp(((s.rpg || attrs.Rebounding || 0) / 12) * 100)],
-    ['Athleticism', clamp((attrs.Athleticism || 6) * 10)],
-  ]
-}
-
-function getWarRoomAttributes(p) {
-  const s = p?.stats || {}
-  const attrs = p?.scouting?.attributes || {}
-  return [
-    ['Scoring', clamp(((s.ppg || 0) / 28) * 100)],
-    ['Shooting', clamp(Math.max(((s.threep || 0) / 45) * 100, ((s.ts || 0) / 70) * 100, (attrs.Shooting || 0) * 10))],
-    ['Creation', clamp(Math.max(((s.apg || 0) / 8) * 100, ((s.astTo || 0) / 3.2) * 100, (attrs.Playmaking || 0) * 10))],
-    ['Defense', clamp(Math.max((s.stlPct || 0) * 18, (s.blkPct || 0) * 11, (attrs.Defense || 0) * 10))],
-    ['Athleticism', clamp((attrs.Athleticism || 6) * 10)],
-  ].sort((a, b) => b[1] - a[1])
-}
-
-function getTopMetrics(p) {
-  const s = p?.stats || {}
-  return [
-    ['PPG', num(s.ppg)],
-    ['TS%', typeof s.ts === 'number' ? s.ts.toFixed(1) : '-'],
-    ['3P%', typeof s.threep === 'number' ? s.threep.toFixed(1) : '-'],
-    ['AST', num(s.apg)],
-  ]
-}
-
-function getPlayerDecisionMeta(p) {
-  const attrs = getWarRoomAttributes(p)
-  const best = attrs[0]?.[0] || 'Scoring'
-  const weak = attrs[attrs.length - 1]?.[0] || 'Defense'
-  const primary = getProspectArchetype(p)
-  const secondary = attrs.find(([label]) => label !== best)?.[0] || 'Connector'
-  return { primary, secondary, best, weak }
-}
-
-function getDraftContextBullets(draftFit, prospect) {
-  let attr = { floor: 0, ceiling: 0 }
-  try { attr = getPlayerDraftAttributes(prospect) || attr } catch { attr = { floor: 0, ceiling: 0 } }
-  const bullets = []
-  if (draftFit?.pickContext) bullets.push(draftFit.pickContext)
-  if (draftFit?.realism === 'High') bullets.push('Alta probabilidade de disponibilidade no range da pick.')
-  else if (draftFit?.realism === 'Medium') bullets.push('Disponibilidade realista, mas exige atenção ao board.')
-  else if (draftFit?.realism === 'Low') bullets.push('Disponibilidade baixa ou encaixe dependente do mercado.')
-  else if (draftFit?.realism === 'Blocked') bullets.push('Fit bloqueado pelo draft capital atual.')
-  if ((attr.ceiling || 0) >= 82) bullets.push('Perfil de alto teto para esta faixa do draft.')
-  if ((attr.floor || 0) >= 70) bullets.push('Piso funcional para contribuir cedo.')
-  if (!bullets.length) bullets.push('Compare produção, fit e contexto antes de confirmar a escolha.')
-  return bullets.slice(0, 3)
-}
-
-function getProspectListBadge(prospect, fit, isBest) {
-  let attrs = { floor: 0, ceiling: 0 }
-  try { attrs = getPlayerDraftAttributes(prospect) || attrs } catch { attrs = { floor: 0, ceiling: 0 } }
-  if (fit?.score >= 82 && fit?.realism !== 'Blocked') return { label: 'Best Fit', color: '#7c5ccf', bg: '#eee9fb' }
-  if ((attrs.ceiling || 0) - (attrs.floor || 0) >= 18 || (attrs.ceiling || 0) >= 84) return { label: 'Upside', color: '#9b6a2f', bg: '#fbf4d2' }
-  if ((attrs.floor || 0) >= 72 || isBest) return { label: 'Safe', color: '#4f9577', bg: '#e5f4ec' }
-  return null
-}
-
-function getComparisonRows(playerA, playerB) {
-  if (!playerA || !playerB) return []
-  try {
-    const attrsA = Object.fromEntries(getWarRoomAttributes(playerA))
-    const attrsB = Object.fromEntries(getWarRoomAttributes(playerB))
-    return ['Scoring', 'Shooting', 'Creation', 'Defense', 'Athleticism'].map(label => [label, attrsA[label] || 0, attrsB[label] || 0])
-  } catch {
-    return []
-  }
-}
-
-function getTeamDecisionContext(owner) {
-  const profile = getTeamProfile(owner?.ownerAbbr)
-  const needs = getTeamNeedChips(owner?.ownerAbbr)
-  const strategy = profile?.editorial?.strategy || 'Priorizar valor de board sem perder encaixe de elenco.'
-  const range = owner?.pick ? (owner.pick <= 4 ? 'Top 4 / pick premium' : owner.pick <= 14 ? 'Lottery range' : 'First round range') : 'Range em aberto'
-  return { needs, strategy, range }
-}
-
-function getFitScore(team, prospect) {
-  if (!team || !prospect) return 72
-  const pos = prospect.position || ''
-  const base = 68 + Math.min(14, Math.max(0, 31 - prospect.rank) / 2)
-  const needBonus = team.pick <= 6 ? 8 : team.pick <= 14 ? 4 : 2
-  const balance = /PG|SG/.test(pos) ? 4 : /SF|PF/.test(pos) ? 5 : 3
-  return Math.round(clamp(base + needBonus + balance))
-}
-
-function getTeamDraftFit(owner, prospect, order) {
-  if (!owner?.ownerAbbr || !prospect) return null
-  const profile = getTeamProfile(owner.ownerAbbr)
-  if (!profile) return null
-  try { return calculateDraftFit(prospect, profile, Array.isArray(order) ? order : []) } catch { return null }
-}
-
-function realismRank(realism) {
-  return { High: 0, Medium: 1, Low: 2, Blocked: 3 }[realism] ?? 4
-}
-
-function sortProspectsForMode(list, filter, owner, order) {
-  const copy = [...list]
-  if (filter === 'fit') return copy.sort((a, b) => {
-    const fa = getTeamDraftFit(owner, a, order)
-    const fb = getTeamDraftFit(owner, b, order)
-    return realismRank(fa?.realism) - realismRank(fb?.realism) || (fb?.score || 0) - (fa?.score || 0) || a.rank - b.rank
-  })
-  if (filter === 'upside') return copy.sort((a, b) => {
-    const fa = getTeamDraftFit(owner, a, order), fb = getTeamDraftFit(owner, b, order)
-    const aa = getPlayerDraftAttributes(a), ab = getPlayerDraftAttributes(b)
-    return ((fb?.score || 0) + ab.ceiling) - ((fa?.score || 0) + aa.ceiling) || a.rank - b.rank
-  })
-  if (filter === 'safe') return copy.sort((a, b) => {
-    const fa = getTeamDraftFit(owner, a, order), fb = getTeamDraftFit(owner, b, order)
-    const aa = getPlayerDraftAttributes(a), ab = getPlayerDraftAttributes(b)
-    const va = Math.max(0, aa.ceiling - aa.floor), vb = Math.max(0, ab.ceiling - ab.floor)
-    return ((fb?.score || 0) + ab.floor - vb * .35) - ((fa?.score || 0) + aa.floor - va * .35) || a.rank - b.rank
-  })
-  return copy.sort((a, b) => a.rank - b.rank)
-}
-
-function getDraftRecommendations(owner, available, order, limit = 3) {
-  if (!owner?.ownerAbbr) return []
-  return available.map(player => ({ player, fit: getTeamDraftFit(owner, player, order) })).filter(item => item.fit).sort((a, b) => realismRank(a.fit.realism) - realismRank(b.fit.realism) || b.fit.score - a.fit.score || a.player.rank - b.player.rank).slice(0, limit)
-}
-
-function getTeamNeedChips(teamId) {
-  const profile = getTeamProfile(teamId)
-  if (!profile) return ['Board value', 'Fit', 'Upside']
-  const labels = { shooting: 'Spacing', creation: 'Criacao', defense: 'Defesa', rebounding: 'Rebote', athleticism: 'Atletismo', size: 'Tamanho', floor: 'Piso', ceiling: 'Teto' }
-  return Object.entries(profile.needs).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([key]) => labels[key] || key)
-}
-function filterProspects(list, filter) {
-  if (filter === 'guards') return list.filter(p => /PG|SG/.test(p.position))
-  if (filter === 'wings') return list.filter(p => /SG|SF|PF/.test(p.position))
-  if (filter === 'bigs') return list.filter(p => /PF|C/.test(p.position))
-  if (filter === 'shooters') return list.filter(p => (p.stats?.threep || 0) >= 35)
-  if (filter === 'defenders') return list.filter(p => (p.stats?.stlPct || 0) >= 1.8 || (p.stats?.blkPct || 0) >= 2.5)
-  if (filter === 'upside') return list.filter(p => p.tier === 'ELITE' || p.age <= 19)
-  if (filter === 'safe') return list.filter(p => (p.stats?.ts || 0) >= 57 || (p.stats?.per || 0) >= 22)
-  return list
-}
-
+import { getDraftFitStatus } from '../components/DraftFitBreakdown'
+import { AttributeBar, GlassPanel, InfoLine, MovementBadge, PremiumButton, Skeleton, StatusPill } from '../components/mockDraft/MockDraftPrimitives.jsx'
+import { getTeamProfile } from '../data/teamProfiles.js'
+import { getTeamPicks } from '../utils/draftPickAdapter.js'
+import { calculateBestFitForTeam, getBestFitColor } from '../utils/bestFitAlgorithm'
+import { calculateDraftDecision, getDraftDecisionAudit, rankAvailablePlayersForTeam } from '../utils/draftDecisionAlgorithm.ts'
+import {
+  FILTERS,
+  PHASE,
+  TOTAL_PICKS,
+  TRADE_MAP_LABELS,
+  applyTradeRules,
+  buildProjectedLotteryPicks,
+  clamp,
+  filterProspects,
+  getBiggestDrop,
+  getBiggestWinner,
+  getDraftContextBullets,
+  getFitScore,
+  getLotteryMovement,
+  getPlayerDecisionMeta,
+  getProspectListBadge,
+  getSceneFromState,
+  getTeamDecisionContext,
+  getTeamDraftFit,
+  getTeamNeedChips,
+  getTeamPriorityLabel,
+  getTeamTimelineLabel,
+  getTierStyles,
+  getTopMetrics,
+  getWarRoomAttributes,
+  initials,
+  motionPresets,
+  runLottery,
+  sortProspectsForMode,
+  teamById,
+} from '../utils/mockDraftLogic.js'
 export default function MockDraft() {
   const [phase, setPhase] = useState(PHASE.IDLE)
   const [lotteryOrder, setLotteryOrder] = useState([])
@@ -411,7 +131,7 @@ export default function MockDraft() {
     const picked = prospects.find(p => p.id === prospectId)
     const selectedPick = resolvedPicks[pickIdx]
     const nextPick = resolvedPicks[pickIdx + 1]
-    const selectedTeam = selectedPick?.ownerName || 'Time no relógio'
+    const selectedTeam = selectedPick?.ownerName || 'Time no relogio'
     const next = pickIdx + 1
 
     setIsSelecting(true)
@@ -458,29 +178,41 @@ export default function MockDraft() {
   const filteredPool = filterProspects(available, filter)
   const filteredAvailable = sortProspectsForMode(filteredPool, filter, currentOwner, resolvedPicks)
   const selectedProspect = available.find(p => p.id === previewId) || filteredAvailable[0] || available[0]
+  const setSafePreviewId = useCallback((id) => {
+    if (!id) {
+      setPreviewId(null)
+      return
+    }
+    setPreviewId(available.some(p => p.id === id) ? id : null)
+  }, [available])
+
+  useEffect(() => {
+    if (previewId && !available.some(p => p.id === previewId)) setPreviewId(null)
+  }, [available, previewId])
   const activeScene = getSceneFromState(phase, draftFinished)
   const backdropTeam = pickOverlay?.team || currentOwner || resolvedPicks[0] || null
 
   return (
-    <div className="relative min-h-full overflow-hidden bg-[#edeae4]">
+    <div className="mock-draft-root relative min-h-full overflow-hidden bg-[#edeae4]">
       <DynamicTeamBackdrop team={backdropTeam} intensity={phase === PHASE.DRAFTING || pickOverlay ? .14 : .08} />
-      <header className="sticky top-0 z-40 border-b border-white/60 bg-white/55 px-6 py-4 shadow-[0_4px_30px_rgb(0,0,0,0.05)] backdrop-blur-xl">
-        <div className="flex flex-wrap items-center justify-between gap-4">
+      <header className="mock-draft-header sticky top-0 z-40 border-b border-white/60 bg-white/55 px-5 py-3 shadow-[0_4px_30px_rgb(0,0,0,0.05)] backdrop-blur-xl">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <div className="font-display text-3xl font-black tracking-tight text-slate-800">Mock Draft Simulator</div>
-            <div className="mt-1 font-mono text-[10px] font-bold uppercase tracking-[.24em] text-muted">NBA Draft 2026 / Lottery Event / War Room Mode</div>
+            <div className="font-display text-2xl font-black tracking-tight text-slate-800">Mock Draft Simulator</div>
+            <div className="mt-0.5 font-mono text-[9px] font-bold uppercase tracking-[.22em] text-muted">NBA Draft 2026 / Lottery Event / War Room Mode</div>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2">
             {phase !== PHASE.IDLE && <PremiumButton onClick={resetAll} color="#a09891">Reset</PremiumButton>}
             {phase === PHASE.IDLE && <PremiumButton onClick={runSimulation} color="#7c5ccf" strong>Simular Loteria</PremiumButton>}
             {phase === PHASE.DONE && <PremiumButton onClick={startDrafting} color="#4f9577" strong>Seguir para o Draft</PremiumButton>}
             {draftFinished && <StatusPill>Draft finalizado</StatusPill>}
             {!draftFinished && phase === PHASE.DRAFTING && <StatusPill>{selecting !== null ? 'Pick ' + (selecting + 1) + ' / ' + TOTAL_PICKS : 'Draft concluido'}</StatusPill>}
+            {!draftFinished && phase === PHASE.DRAFTING && <StatusPill>Decision Window</StatusPill>}
           </div>
         </div>
       </header>
 
-      <main className="relative z-10 p-6">
+      <main className="relative z-10 p-4 3xl:p-5">
         <AnimatePresence mode="wait">
           <motion.div key={activeScene} {...motionPresets.page}>
             {draftFinished ? (
@@ -499,7 +231,7 @@ export default function MockDraft() {
                     selectedProspect={selectedProspect}
                     filter={filter}
                     setFilter={setFilter}
-                    setPreviewId={setPreviewId}
+                    setPreviewId={setSafePreviewId}
                     onPick={id => assignPick(selecting, id)}
                     picks={picks}
                     resolvedPicks={resolvedPicks}
@@ -522,15 +254,15 @@ function LotteryPanel({ onRun, selectedPick = 1, onSelectPick = () => {} }) {
   const projectedOrder = buildProjectedLotteryPicks()
   const selected = projectedOrder.find(p => p.pick === selectedPick) || projectedOrder[0]
   return (
-    <section className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_360px]">
-      <GlassPanel className="relative min-h-[680px] overflow-hidden p-8">
+    <section className="grid gap-4 3xl:gap-5 xl:grid-cols-[minmax(0,1.18fr)_300px] 3xl:grid-cols-[minmax(0,1.35fr)_350px]">
+      <GlassPanel className="relative min-h-[500px] overflow-hidden p-4 2xl:p-5 3xl:min-h-[620px] 3xl:p-6">
         <span className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-violet-200/35 blur-3xl" />
         <span className="pointer-events-none absolute -left-20 bottom-0 h-72 w-72 rounded-full bg-cyan-100/45 blur-3xl" />
-        <div className="relative grid min-h-[600px] gap-8 lg:grid-cols-[minmax(0,1fr)_380px]">
+        <div className="relative grid min-h-[440px] gap-4 3xl:min-h-[560px] 3xl:gap-6 xl:grid-cols-[minmax(0,1fr)_320px] 3xl:grid-cols-[minmax(0,1fr)_370px]">
           <div className="flex flex-col justify-center">
             <motion.div initial={{ opacity: 0, y: 18, filter: 'blur(8px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} transition={{ duration: .55, ease: [0.22, 1, 0.36, 1] }}>
               <div className="font-mono text-[10px] font-black uppercase tracking-[.32em] text-[#7c5ccf]">Lottery Room</div>
-              <h2 className="mt-3 max-w-3xl font-display text-7xl font-black leading-[.92] tracking-tight text-slate-800">A ordem do Draft será definida</h2>
+              <h2 className="mt-3 max-w-3xl font-display text-4xl font-black 2xl:text-5xl 3xl:text-6xl leading-[.94] tracking-tight text-slate-800">Simule a ordem do Draft e faça as suas escolhas</h2>
               <p className="mt-5 max-w-2xl text-base font-semibold leading-7 text-muted">Entre na sala da loteria: probabilidades, tensão e o primeiro grande ponto de virada da classe de 2026.</p>
               <div className="mt-8 flex flex-wrap items-center gap-3">
                 <PremiumButton onClick={onRun} color="#7c5ccf" strong>Revelar ordem</PremiumButton>
@@ -548,13 +280,13 @@ function LotteryPanel({ onRun, selectedPick = 1, onSelectPick = () => {} }) {
                     onClick={() => onSelectPick(pick.pick)}
                     whileHover={{ y: -4, scale: 1.035 }}
                     whileTap={{ scale: .98 }}
-                    className="flex h-[106px] min-w-0 flex-col items-center justify-center rounded-[22px] border border-white/30 bg-white/25 p-3 text-center backdrop-blur-md transition-colors"
+                    className="mock-lottery-team-card flex h-[108px] 3xl:h-[126px] min-w-0 flex-col items-center justify-center rounded-[24px] border border-white/30 bg-white/25 p-3 text-center backdrop-blur-md transition-colors"
                     style={{
                       boxShadow: active ? '0 16px 34px ' + pick.ownerColor + '22, inset 0 0 0 1px rgba(255,255,255,.65)' : '0 8px 22px rgba(0,0,0,.035)',
                       background: active ? 'rgba(255,255,255,.44)' : 'rgba(255,255,255,.25)'
                     }}
                   >
-                    <TeamLogoGlass teamId={pick.ownerAbbr} size="sm" showGlow={active || index < 4}/>
+                    <TeamLogoGlass teamId={pick.ownerAbbr} size="lg" showGlow={active || index < 4} className="mock-lottery-team-logo" />
                     <div className="mt-2 h-4 text-center font-mono text-[8px] font-black uppercase tracking-[.12em] text-muted">{pick.ownerAbbr}</div>
                   </motion.button>
                 )
@@ -568,40 +300,13 @@ function LotteryPanel({ onRun, selectedPick = 1, onSelectPick = () => {} }) {
     </section>
   )
 }
-function OddsRow({ team, index }) {
-  const oddsColor = index < 3 ? '#7c5ccf' : index < 8 ? '#5aaed6' : '#a89f95'
-  const width = (COMBOS[index] / 140) * 100
-  return (
-    <motion.div whileHover={{ y: -3, scale: 1.01 }} className="rounded-[26px] border border-white/60 bg-white/42 p-4 backdrop-blur-md" style={{ boxShadow: '0 8px 24px rgba(0,0,0,.035)' }}>
-      <div className="mb-3 flex items-center justify-between gap-3">
-        <div className="flex min-w-0 items-center gap-3">
-          <span className="font-mono text-xs font-black text-lo">#{index + 1}</span>
-          <TeamLogoGlass teamId={team.abbr} size="sm" showGlow={index < 4} />
-          <div className="min-w-0">
-            <div className="truncate font-sans text-sm font-black text-slate-800">{team.name}</div>
-            <div className="font-mono text-[9px] font-bold uppercase tracking-[.18em] text-muted">{team.record}</div>
-          </div>
-        </div>
-        <span className="rounded-full px-3 py-1 font-mono text-[10px] font-black" style={{ background: oddsColor + '18', color: oddsColor }}>{team.prob}% #1</span>
-      </div>
-      <div className="h-2 overflow-hidden rounded-full bg-white/60">
-        <motion.div initial={{ width: 0 }} animate={{ width: width + '%' }} transition={{ duration: .8, delay: index * .025 }} className="h-full rounded-full" style={{ background: oddsColor, boxShadow: '0 0 16px ' + oddsColor + '66' }} />
-      </div>
-      <div className="mt-2 flex justify-between font-mono text-[8px] font-bold uppercase tracking-[.14em] text-lo">
-        <span>{TRADE_MAP_LABELS[team.abbr] || 'Own pick'}</span>
-        <span>Top 4 draw</span>
-      </div>
-    </motion.div>
-  )
-}
-
 function ProjectedPickHero({ pick, onRun }) {
   return (
     <motion.div whileHover={{ y: -3, scale: 1.01 }} className="relative flex min-h-[340px] w-full flex-col justify-center overflow-hidden rounded-[32px] border border-white/45 bg-white/30 p-5 text-center backdrop-blur-xl" style={{ boxShadow: '0 18px 48px ' + (pick?.ownerColor || '#7c5ccf') + '20' }}>
       <span className="pointer-events-none absolute -right-10 -top-12 h-32 w-32 rounded-full blur-3xl" style={{ background: pick?.ownerColor || '#7c5ccf', opacity: .18 }} />
       <div className="relative font-mono text-[8px] font-black uppercase tracking-[.24em] text-lo">Projected #1 Pick</div>
       <div className="relative mt-3 flex justify-center"><TeamLogoGlass teamId={pick?.ownerAbbr} size="xl" showGlow /></div>
-      <div className="relative mt-3 font-display text-4xl font-black leading-none" style={{ color: pick?.ownerColor || '#7c5ccf' }}>#{pick?.pick}</div>
+      <div className="relative mt-3 font-display text-3xl font-black 3xl:text-4xl leading-none" style={{ color: pick?.ownerColor || '#7c5ccf' }}>#{pick?.pick}</div>
       <div className="relative mx-auto mt-2 flex h-16 max-w-[300px] items-center justify-center text-balance font-display text-2xl font-black leading-tight text-slate-800">{pick?.ownerName}</div>
       <div className="relative mt-3 flex flex-wrap justify-center gap-2">
         <span className="rounded-full border border-white/35 bg-white/35 px-3 py-1 font-mono text-[8px] font-black uppercase tracking-[.14em] text-muted">{getTeamTimelineLabel(pick?.ownerAbbr)}</span>
@@ -618,7 +323,7 @@ function DraftOrderStrip({ picks, activePick = 1, onSelect = () => {} }) {
       <div className="mb-3 flex items-center justify-between gap-3 px-2">
         <div>
           <div className="font-mono text-[9px] font-black uppercase tracking-[.26em] text-lo">Draft Order Strip</div>
-          <div className="mt-1 text-xs font-semibold text-muted">Clique em uma pick para destacar o contexto antes da simulação.</div>
+          <div className="mt-1 text-xs font-semibold text-muted">Clique em uma pick para destacar o contexto antes da simulacao.</div>
         </div>
         <span className="hidden rounded-full border border-white/30 bg-white/30 px-3 py-1.5 font-mono text-[8px] font-black uppercase tracking-[.16em] text-muted sm:inline-flex">Lottery #1-#14</span>
       </div>
@@ -665,14 +370,14 @@ function LotteryReveal({ picks, revealed, topProspects }) {
   const currentIndex = revealed[revealed.length - 1]
   const currentPick = typeof currentIndex === 'number' ? picks[currentIndex] : null
   return (
-    <section className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_360px]">
+    <section className="grid gap-4 3xl:gap-5 xl:grid-cols-[minmax(0,1.18fr)_300px] 3xl:grid-cols-[minmax(0,1.35fr)_350px]">
       <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .45, ease: [0.22, 1, 0.36, 1] }}>
-        <GlassPanel className="relative min-h-[680px] overflow-hidden p-7">
+        <GlassPanel className="relative min-h-[560px] overflow-hidden p-5 3xl:min-h-[680px] 3xl:p-7">
           <span className="pointer-events-none absolute left-1/2 top-0 h-56 w-56 -translate-x-1/2 rounded-full bg-violet-200/35 blur-3xl" />
           <div className="relative mb-6 flex flex-wrap items-end justify-between gap-4">
             <div>
               <div className="font-mono text-[10px] font-black uppercase tracking-[.32em] text-[#7c5ccf]">Live Reveal</div>
-              <h2 className="mt-2 font-display text-5xl font-black tracking-tight text-slate-800">Lottery Reveal</h2>
+              <h2 className="mt-2 font-display text-4xl font-black 3xl:text-5xl tracking-tight text-slate-800">Lottery Reveal</h2>
               <p className="mt-2 text-sm font-semibold text-muted">Revelando picks de #14 ate #1 com pausa dramatica no Top 4.</p>
             </div>
             <div className="rounded-full border border-white/40 bg-white/35 px-4 py-2 font-mono text-[9px] font-black uppercase tracking-[.18em] text-muted backdrop-blur-md">{revealed.length}/14 picks</div>
@@ -694,7 +399,7 @@ function LotteryReveal({ picks, revealed, topProspects }) {
                     <TeamLogoGlass teamId={currentPick.ownerAbbr} size={currentPick.pick <= 4 ? 'xl' : 'lg'} showGlow />
                     <div>
                       <div className="font-mono text-[9px] font-black uppercase tracking-[.24em] text-lo">Agora revelando</div>
-                      <div className="mt-1 font-display text-4xl font-black text-slate-800">Pick #{currentPick.pick}</div>
+                      <div className="mt-1 font-display text-3xl font-black 3xl:text-4xl text-slate-800">Pick #{currentPick.pick}</div>
                     </div>
                   </div>
                   <div className="text-right">
@@ -762,8 +467,8 @@ function LotteryWinnerHero({ pick, onDraft }) {
       <span className="pointer-events-none absolute -left-12 -top-16 h-44 w-44 rounded-full blur-3xl" style={{ background: pick?.ownerColor || '#7c5ccf', opacity: .16 }} />
       <div className="relative font-mono text-[10px] font-black uppercase tracking-[.32em] text-[#7c5ccf]">Draft Order Locked</div>
       <div className="relative mt-4 flex justify-center"><TeamLogoGlass teamId={pick?.ownerAbbr} size="xl" showGlow /></div>
-      <div className="relative mt-4 font-display text-7xl font-black leading-none text-slate-800">#{pick?.pick}</div>
-      <div className="relative mt-3 font-display text-4xl font-black" style={{ color: pick?.ownerColor }}>{pick?.ownerName}</div>
+      <div className="relative mt-4 font-display text-5xl font-black 3xl:text-7xl leading-none text-slate-800">#{pick?.pick}</div>
+      <div className="relative mt-3 font-display text-3xl font-black 3xl:text-4xl" style={{ color: pick?.ownerColor }}>{pick?.ownerName}</div>
       {pick?.viaAbbr && <div className="relative mt-2 font-mono text-[10px] font-bold uppercase tracking-[.18em] text-muted">via {pick.viaAbbr}</div>}
       <div className="relative mt-4 flex flex-wrap justify-center gap-2">
         <MovementBadge movement={movement} />
@@ -783,7 +488,7 @@ function LotteryResultSummary({ picks, onDraft }) {
   const first = picks[0]
   const selected = picks.find(p => p.pick === selectedPick) || first
   return (
-    <section className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_360px]">
+    <section className="grid gap-4 3xl:gap-5 xl:grid-cols-[minmax(0,1.18fr)_300px] 3xl:grid-cols-[minmax(0,1.35fr)_350px]">
       <GlassPanel className="p-7">
         <LotteryWinnerHero pick={first} onDraft={onDraft} />
         <div className="mt-6">
@@ -807,7 +512,7 @@ function LotteryResultSummary({ picks, onDraft }) {
           <ResultSpot title="Biggest Drop" pick={drop} />
           <div className="rounded-[28px] border border-white/60 bg-white/38 p-5 backdrop-blur-md">
             <div className="font-mono text-[9px] font-black uppercase tracking-[.22em] text-lo">Stayed Flat</div>
-            <div className="mt-3 font-display text-4xl font-black text-slate-800">{flat.length}</div>
+            <div className="mt-3 font-display text-3xl font-black 3xl:text-4xl text-slate-800">{flat.length}</div>
             <p className="mt-2 text-xs font-semibold leading-5 text-muted">Times mantidos na posicao esperada.</p>
           </div>
         </div>
@@ -829,34 +534,181 @@ function ResultSpot({ title, pick }) {
   )
 }
 
+function getWarRoomBestFit(owner, prospect, resolvedPicks) {
+  if (!owner?.ownerAbbr || !prospect) return null
+  const profile = getTeamProfile(owner.ownerAbbr)
+  if (!profile) return null
+  try {
+    return calculateBestFitForTeam(prospect, profile, getTeamPicks(owner.ownerAbbr, resolvedPicks || []))
+  } catch {
+    return null
+  }
+}
+
+function getWarRoomRecommendations(owner, available, resolvedPicks, limit = 3) {
+  if (!owner?.ownerAbbr || !available?.length) return []
+  const pickNo = Number(owner.pick || 30)
+  const tierValue = player => ({ ELITE: 100, LOTTERY: 86, ALL_STAR: 82, MID_1ST: 68, STARTER: 64, FRINGE: 56, SLEEPER: 42 }[player?.tier] || 50)
+  const boardValue = player => {
+    const rank = Number(player?.rank || 60)
+    const rankScore = Math.max(0, 100 - Math.max(0, rank - pickNo) * (pickNo <= 4 ? 13 : pickNo <= 10 ? 8 : 4))
+    return Math.round(rankScore * .58 + tierValue(player) * .42)
+  }
+  const rows = available
+    .map(player => ({ player, fit: getWarRoomBestFit(owner, player, resolvedPicks) }))
+    .filter(item => item.fit)
+    .sort((a, b) => {
+      const av = boardValue(a.player)
+      const bv = boardValue(b.player)
+      const aScore = a.fit.score * (pickNo <= 10 ? .58 : .72) + av * (pickNo <= 10 ? .42 : .28)
+      const bScore = b.fit.score * (pickNo <= 10 ? .58 : .72) + bv * (pickNo <= 10 ? .42 : .28)
+      const realism = Number(b.fit.isRealistic) - Number(a.fit.isRealistic)
+      return realism || bScore - aScore || a.player.rank - b.player.rank
+    })
+  const realistic = rows.filter(item => {
+    if (!item.fit.isRealistic) return false
+    if (pickNo <= 4) return item.player.rank <= 8 || ['ELITE', 'LOTTERY', 'ALL_STAR'].includes(item.player.tier)
+    if (pickNo <= 10) return item.player.rank <= 16 || ['ELITE', 'LOTTERY', 'ALL_STAR'].includes(item.player.tier)
+    return true
+  })
+  return (realistic.length >= limit ? realistic : rows).slice(0, limit)
+}
+
+function getDraftDecisionColor(scoreOrGrade) {
+  const value = typeof scoreOrGrade === 'number' ? scoreOrGrade : 0
+  const grade = typeof scoreOrGrade === 'string' ? scoreOrGrade : ''
+  if (value >= 90 || grade === 'Ideal Decision') return '#4f9577'
+  if (value >= 80 || grade === 'Strong Decision') return '#7c5ccf'
+  if (value >= 70 || grade === 'Good Decision') return '#5aaed6'
+  if (value >= 60 || grade === 'Acceptable Decision') return '#5ab6c8'
+  if (value >= 50 || grade === 'Situational Decision') return '#c9a941'
+  if (value >= 40 || grade === 'Risky Decision') return '#d88754'
+  return '#d96f7d'
+}
+
+function getWarRoomDraftDecision(owner, prospect, available) {
+  if (!owner?.ownerAbbr || !prospect) return null
+  try {
+    return calculateDraftDecision({
+      player: prospect,
+      teamId: owner.ownerAbbr,
+      currentPick: Number(owner.pick || 30),
+      availablePlayers: available || [],
+    })
+  } catch {
+    return null
+  }
+}
+
+function getWarRoomDecisionRecommendations(owner, available, limit = 3) {
+  if (!owner?.ownerAbbr || !available?.length) return []
+  try {
+    return rankAvailablePlayersForTeam(available, owner.ownerAbbr, Number(owner.pick || 30)).slice(0, limit)
+  } catch {
+    return []
+  }
+}
+
+function getWarRoomDraftDecisionAudit(owner, prospect, available) {
+  if (!owner?.ownerAbbr || !prospect) return null
+  try {
+    return getDraftDecisionAudit({
+      player: prospect,
+      teamId: owner.ownerAbbr,
+      currentPick: Number(owner.pick || 30),
+      availablePlayers: available || [],
+    })
+  } catch {
+    return null
+  }
+}
+
+function isDraftDebugEnabled() {
+  if (typeof window === 'undefined') return false
+  return new URLSearchParams(window.location.search).get('debugDraft') === '1'
+}
+
 function ProspectSelectionScreen({ currentOwner, selecting, available, rawAvailable, selectedProspect, filter, setFilter, setPreviewId, onPick, picks, resolvedPicks, toast, isSelecting }) {
+  const showDraftDebug = useMemo(() => isDraftDebugEnabled(), [])
   const selectedFit = getTeamDraftFit(currentOwner, selectedProspect, resolvedPicks)
-  const recommendations = getDraftRecommendations(currentOwner, rawAvailable, resolvedPicks)
+  const selectedBestFit = getWarRoomBestFit(currentOwner, selectedProspect, resolvedPicks)
+  const selectedDecision = useMemo(
+    () => getWarRoomDraftDecision(currentOwner, selectedProspect, rawAvailable),
+    [currentOwner, selectedProspect, rawAvailable],
+  )
+  const selectedAudit = useMemo(
+    () => showDraftDebug ? getWarRoomDraftDecisionAudit(currentOwner, selectedProspect, rawAvailable) : null,
+    [showDraftDebug, currentOwner, selectedProspect, rawAvailable],
+  )
+  const recommendations = useMemo(
+    () => getWarRoomDecisionRecommendations(currentOwner, rawAvailable),
+    [currentOwner, rawAvailable],
+  )
+  const activePick = (selecting ?? 0) + 1
   return (
-    <section className="relative grid gap-5 xl:grid-cols-[360px_minmax(0,1fr)_360px]">
-      <div className="xl:col-span-3"><WarRoomHeader owner={currentOwner} selecting={selecting} /></div>
-      <ProspectListPanel available={available} rawAvailable={rawAvailable} selectedId={selectedProspect?.id} owner={currentOwner} order={resolvedPicks} onHover={setPreviewId} onSelect={setPreviewId} />
-      <div className="xl:sticky xl:top-24 xl:h-[calc(100vh-112px)] xl:self-start xl:overflow-y-auto xl:overscroll-contain xl:pr-1 [scrollbar-gutter:stable]">
-        <ProspectHeroCard prospect={selectedProspect} owner={currentOwner} draftFit={selectedFit} isSelecting={isSelecting} onPick={() => selectedProspect && onPick(selectedProspect.id)} />
+    <section className="mock-war-room relative space-y-3">
+      <WarRoomHeader owner={currentOwner} selecting={selecting} />
+      <DraftProgressRail picks={resolvedPicks} selections={picks} activePick={activePick} />
+      <DraftFilterChips active={filter} setActive={(nextFilter) => { setFilter(nextFilter); setPreviewId(null) }} />
+
+      <div className="grid gap-3 xl:grid-cols-[minmax(260px,29%)_minmax(0,43%)_minmax(280px,28%)]">
+        <div className="xl:sticky xl:top-[8.5rem] xl:h-[calc(100vh-9.25rem)] xl:self-start">
+          <ProspectListPanel available={available} rawAvailable={rawAvailable} selectedId={selectedProspect?.id} owner={currentOwner} order={resolvedPicks} onHover={setPreviewId} onSelect={setPreviewId} />
+        </div>
+        <div className="xl:sticky xl:top-[8.5rem] xl:h-[calc(100vh-9.25rem)] xl:self-start xl:overflow-y-auto xl:overscroll-contain xl:pr-1 [scrollbar-gutter:stable]">
+          <ProspectHeroCard prospect={selectedProspect} owner={currentOwner} draftFit={selectedFit} bestFit={selectedBestFit} draftDecision={selectedDecision} draftAudit={selectedAudit} showDraftDebug={showDraftDebug} isSelecting={isSelecting} onPick={() => selectedProspect && onPick(selectedProspect.id)} />
+        </div>
+        <div className="xl:sticky xl:top-[8.5rem] xl:h-[calc(100vh-9.25rem)] xl:self-start xl:overflow-y-scroll xl:overscroll-contain xl:pr-2 [scrollbar-gutter:stable]">
+          <TeamOnTheClockPanel owner={currentOwner} prospect={selectedProspect} draftFit={selectedFit} bestFit={selectedBestFit} draftDecision={selectedDecision} recommendations={recommendations} selecting={selecting} picks={picks} resolvedPicks={resolvedPicks} onPreview={setPreviewId} onRecommendPick={id => onPick(id)} onAutoPick={() => recommendations[0]?.player ? onPick(recommendations[0].player.id) : selectedProspect && onPick(selectedProspect.id)} />
+        </div>
       </div>
-      <div className="xl:sticky xl:top-24 xl:h-[calc(100vh-112px)] xl:self-start xl:overflow-y-scroll xl:overscroll-contain xl:pr-2 [scrollbar-gutter:stable]">
-        <TeamOnTheClockPanel owner={currentOwner} prospect={selectedProspect} draftFit={selectedFit} recommendations={recommendations} selecting={selecting} picks={picks} resolvedPicks={resolvedPicks} onPreview={setPreviewId} onRecommendPick={id => onPick(id)} onAutoPick={() => recommendations[0]?.player ? onPick(recommendations[0].player.id) : selectedProspect && onPick(selectedProspect.id)} />
-      </div>
-      <div className="xl:col-span-3"><DraftFilterChips active={filter} setActive={setFilter} /></div>
       <PickConfirmationToast toast={toast} />
     </section>
   )
 }
 
+function DraftProgressRail({ picks, selections, activePick = 1 }) {
+  if (!picks?.length) return null
+  return (
+    <GlassPanel className="mock-draft-progress overflow-hidden p-4">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <div className="font-mono text-[9px] font-black uppercase tracking-[.24em] text-lo">Draft Board Timeline</div>
+          <div className="mt-1 text-xs font-semibold text-muted">Fluxo das 30 escolhas, com lottery, trades e picks ja confirmadas.</div>
+        </div>
+        <span className="rounded-full border border-white/35 bg-white/32 px-3 py-1.5 font-mono text-[8px] font-black uppercase tracking-[.15em] text-muted">Pick #{activePick}</span>
+      </div>
+      <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:thin]">
+        {picks.slice(0, TOTAL_PICKS).map((pick, index) => {
+          const no = index + 1
+          const active = no === activePick
+          const done = Boolean(selections[index])
+          return (
+            <div
+              key={pick.pick}
+              className={(active ? 'is-active ' : '') + (done ? 'is-done ' : '') + 'mock-draft-progress-pick relative flex min-w-[82px] flex-col items-center rounded-[20px] border px-3 py-2 text-center'}
+              style={{ '--team-color': pick.ownerColor || '#7c5ccf' }}
+            >
+              <span className="font-numeric text-xl font-extrabold leading-none">#{no}</span>
+              <TeamLogoGlass teamId={pick.ownerAbbr} size="sm" showGlow={active || no <= 4} className="mock-draft-timeline-logo" />
+              <span className="mt-1 max-w-full truncate font-mono text-[7px] font-black uppercase tracking-[.12em]">{pick.ownerAbbr}</span>
+            </div>
+          )
+        })}
+      </div>
+    </GlassPanel>
+  )
+}
+
 function ProspectListPanel({ available, rawAvailable, selectedId, owner, order, onHover, onSelect }) {
   return (
-    <GlassPanel className="max-h-[calc(100vh-190px)] overflow-hidden p-4">
-      <div className="mb-4 flex items-end justify-between gap-3">
-        <div><div className="font-mono text-[9px] font-black uppercase tracking-[.24em] text-lo">Available</div><h3 className="font-display text-2xl font-black text-slate-800">Prospect Pool</h3></div>
+    <GlassPanel className="mock-prospect-pool max-h-[calc(100vh-9.25rem)] overflow-hidden p-3">
+      <div className="mb-3 flex items-end justify-between gap-3">
+        <div><div className="font-mono text-[10px] font-black uppercase tracking-[.24em] text-lo">Available</div><h3 className="font-display text-2xl font-black text-slate-800">Prospect Pool</h3></div>
         <span className="rounded-full bg-white/45 px-3 py-1 font-mono text-[10px] font-black text-muted">{available.length}/{rawAvailable.length}</span>
       </div>
-      <div className="space-y-2 overflow-y-auto pr-1" style={{ maxHeight: 'calc(100vh - 285px)' }}>
-        {available.map((p, idx) => <ProspectOption key={p.id} prospect={p} fit={getTeamDraftFit(owner, p, order)} isBest={idx === 0} active={selectedId === p.id} onHover={() => onHover(p.id)} onClick={() => onSelect(p.id)} />)}
+      <div className="space-y-1.5 overflow-y-auto pr-1" style={{ maxHeight: 'calc(100vh - 13.25rem)' }}>
+        {available.map((p, idx) => <ProspectOption key={p.id} prospect={p} fit={getWarRoomBestFit(owner, p, order)} isBest={idx === 0} active={selectedId === p.id} onHover={() => onHover(p.id)} onClick={() => onSelect(p.id)} />)}
       </div>
     </GlassPanel>
   )
@@ -867,22 +719,24 @@ function ProspectOption({ prospect, fit, active, isBest, onHover, onClick }) {
   const image = getPlayerCutoutImage(prospect)
   const badge = getProspectListBadge(prospect, fit, isBest)
   const fitScore = fit?.score ? Math.round(fit.score) : null
+  const fitColor = fitScore ? getBestFitColor(fitScore) : tier.color
   return (
-    <motion.button type="button" onMouseEnter={onHover} onClick={onClick} whileHover={{ x: 4, scale: 1.01 }} className="flex w-full items-center gap-3 rounded-[22px] border px-3 py-3 text-left transition-all" style={{ background: active ? tier.bg : 'rgba(255,255,255,.34)', borderColor: active ? tier.color + '66' : 'rgba(255,255,255,.5)', boxShadow: active ? '0 10px 26px ' + tier.glow : 'none' }}>
-      <span className="w-8 font-mono text-xs font-black" style={{ color: tier.color }}>#{prospect.rank}</span>
-      <span className="flex h-12 w-12 shrink-0 items-end justify-center overflow-visible rounded-full">{image ? <img src={image} alt={prospect.name} className="player-cutout player-profile-cutout h-full w-full object-contain object-bottom" draggable="false" /> : <span className="mb-2 font-display text-sm font-black" style={{ color: tier.color }}>{initials(prospect.name)}</span>}</span>
-      <span className="min-w-0 flex-1"><span className="block truncate text-sm font-black text-slate-800">{prospect.name}</span><span className="mt-0.5 block truncate font-mono text-[8px] font-bold uppercase tracking-[.16em] text-muted">{prospect.position} / {prospect.team}</span><span className="mt-1 flex flex-wrap gap-1.5">{badge && <span className="rounded-full px-2 py-0.5 font-mono text-[7px] font-black uppercase tracking-[.12em]" style={{ background: badge.bg, color: badge.color }}>{badge.label}</span>}{isBest && <span className="rounded-full bg-white/45 px-2 py-0.5 font-mono text-[7px] font-black uppercase tracking-[.12em] text-[#7c5ccf]">Best Avail.</span>}</span></span>
-      <span className="flex shrink-0 flex-col items-end gap-1"><span className="rounded-full px-2 py-0.5 font-mono text-[7px] font-black uppercase tracking-[.12em]" style={{ background: tier.bg, color: tier.text }}>{tier.label}</span><span className="font-numeric text-2xl font-extrabold leading-none tracking-tight" style={{ color: fitScore ? tier.color : '#a09891' }}>{fitScore || '-'}</span><span className="font-mono text-[7px] font-black uppercase tracking-[.12em] text-lo">Fit</span></span>
+    <motion.button type="button" onPointerEnter={onHover} onFocus={onHover} onPointerDown={onClick} onClick={onClick} whileHover={{ x: 3, scale: 1.006 }} className="mock-prospect-option flex w-full items-center gap-2.5 rounded-[18px] border px-2.5 py-2 text-left transition-all" style={{ '--tier-color': tier.color, background: active ? tier.bg : 'rgba(255,255,255,.34)', borderColor: active ? tier.color + '66' : 'rgba(255,255,255,.5)', boxShadow: active ? '0 10px 24px ' + tier.glow : 'none' }}>
+      <span className="w-7 shrink-0 font-mono text-[11px] font-black tabular-nums" style={{ color: tier.color }}>#{prospect.rank}</span>
+      <span className="flex h-10 w-10 shrink-0 items-end justify-center overflow-visible rounded-full bg-white/18">{image ? <img src={image} alt={prospect.name} className="player-cutout player-profile-cutout h-[115%] w-[115%] object-contain object-bottom" draggable="false" /> : <span className="mb-2 font-display text-xs font-black" style={{ color: tier.color }}>{initials(prospect.name)}</span>}</span>
+      <span className="min-w-0 flex-1"><span className="block truncate text-[13px] font-black leading-tight text-slate-800">{prospect.name}</span><span className="mt-0.5 block truncate font-mono text-[7px] font-bold uppercase tracking-[.15em] text-muted">{prospect.position} / {prospect.team}</span><span className="mt-1 flex flex-wrap gap-1">{badge && <span className="rounded-full px-2 py-0.5 font-mono text-[7px] font-black uppercase tracking-[.12em]" style={{ background: badge.bg, color: badge.color }}>{badge.label}</span>}{fit?.tier && <span className="rounded-full bg-white/45 px-2 py-0.5 font-mono text-[7px] font-black uppercase tracking-[.12em] text-muted">{fit.tier.replace(' Fit','')}</span>}</span></span>
+      <span className="flex shrink-0 flex-col items-end gap-0.5"><span className="rounded-full px-2 py-0.5 font-mono text-[7px] font-black uppercase tracking-[.12em]" style={{ background: tier.bg, color: tier.text }}>{tier.label}</span><span className="font-numeric text-2xl font-extrabold leading-none tracking-tight tabular-nums" style={{ color: fitScore ? fitColor : '#a09891' }}>{fitScore || '-'}</span><span className="font-mono text-[7px] font-black uppercase tracking-[.12em] text-lo">Best Fit</span></span>
     </motion.button>
   )
 }
 
-function ProspectHeroCard({ prospect, owner, draftFit, isSelecting = false, onPick }) {
+function ProspectHeroCard({ prospect, owner, draftFit, bestFit, draftDecision, draftAudit, showDraftDebug = false, isSelecting = false, onPick }) {
+  const [showDetails, setShowDetails] = useState(false)
   if (!prospect) return <GlassPanel className="min-h-[620px] p-7" />
   const tier = getTierStyles(prospect.tier)
   const image = getPlayerCutoutImage(prospect)
   const bars = getWarRoomAttributes(prospect)
-  const fit = Math.round(draftFit?.score || getFitScore(owner, prospect))
+  const fit = Math.round(draftDecision?.score || bestFit?.score || draftFit?.score || getFitScore(owner, prospect))
   const metrics = getTopMetrics(prospect)
   const meta = getPlayerDecisionMeta(prospect)
   const contextBullets = getDraftContextBullets(draftFit, prospect)
@@ -893,37 +747,71 @@ function ProspectHeroCard({ prospect, owner, draftFit, isSelecting = false, onPi
   return (
     <AnimatePresence mode="wait">
       <motion.div key={prospect.id} initial={{ opacity: 0, y: 18, scale: .96 }} animate={{ opacity: isSelecting ? .48 : 1, y: 0, scale: isSelecting ? .975 : 1 }} exit={{ opacity: 0, y: -12, scale: .96 }} transition={{ duration: .3, ease: [0.22, 1, 0.36, 1] }} className="will-change-transform">
-        <GlassPanel className="relative min-h-[620px] overflow-hidden p-6" style={{ background: 'radial-gradient(circle at 50% 0%, ' + tier.glow + ', transparent 34%), linear-gradient(145deg, rgba(255,255,255,.66), ' + tier.bg + 'c4)' }}>
+        <GlassPanel className="mock-prospect-hero relative min-h-[520px] overflow-hidden p-4 2xl:p-5" style={{ '--tier-color': tier.color, background: 'radial-gradient(circle at 50% 0%, ' + tier.glow + ', transparent 34%), linear-gradient(145deg, rgba(255,255,255,.66), ' + tier.bg + 'c4)' }}>
           <span className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full blur-3xl" style={{ background: tier.color, opacity: .14 }} />
           <span className="pointer-events-none absolute -left-20 bottom-20 h-44 w-44 rounded-full bg-white/70 blur-3xl" />
-          <div className="relative space-y-7">
+          <div className="relative space-y-4">
             <DecisionHeader prospect={prospect} tier={tier} fit={fit} badge={badge} status={status} bullets={contextBullets} onPick={onPick} />
             <QuickStatsRow metrics={metrics} color={tier.color} />
 
-            <div className="grid gap-6 lg:grid-cols-[minmax(210px,.68fr)_minmax(0,1fr)]">
-              <div className="flex flex-col items-center text-center">
-                <div className="relative flex h-72 w-full max-w-[340px] items-end justify-center overflow-visible rounded-[40px] bg-white/18 backdrop-blur-md">
-                  <span className="pointer-events-none absolute inset-x-10 bottom-5 h-20 rounded-full blur-2xl" style={{ background: tier.color, opacity: .12 }} />
-                  {image ? <img src={image} alt={prospect.name} className="player-cutout player-profile-cutout relative z-10 h-full w-full object-contain object-bottom" draggable="false" /> : <span className="relative z-10 mb-20 font-display text-7xl font-black" style={{ color: tier.color }}>{initials(prospect.name)}</span>}
-                </div>
-                <div className="mt-3 grid w-full gap-2 sm:grid-cols-2 lg:grid-cols-1">
-                  <DecisionChip label="Primary" value={meta.primary} color={tier.color} />
-                  <DecisionChip label="Secondary" value={meta.secondary} color="#5aaed6" />
-                  <DecisionChip label="Best Trait" value={meta.best} color="#4f9577" />
-                  <DecisionChip label="Weakness" value={meta.weak} color="#d96f7d" />
-                </div>
-              </div>
+            <DraftDecisionPanel decision={draftDecision} fit={bestFit} draftFit={draftFit} fallbackScore={fit} color={getDraftDecisionColor(draftDecision?.score || fit)} status={status} />
+            {showDraftDebug && <DraftDecisionAuditPanel audit={draftAudit} accent={tier.color} />}
 
-              <div className="space-y-6">
-                <DraftDecisionPanel fit={draftFit} fallbackScore={fit} color={tier.color} status={status} />
-                <ArchetypeBars bars={bars} color={tier.color} />
-              </div>
+            <div className="rounded-[24px] border border-white/35 bg-white/20 backdrop-blur-md">
+              <button
+                type="button"
+                onClick={() => setShowDetails(prev => !prev)}
+                className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-white/20"
+              >
+                <span>
+                  <span className="block font-mono text-[9px] font-black uppercase tracking-[.22em] text-lo">Detalhes avancados</span>
+                  <span className="mt-1 block text-xs font-semibold text-muted">traits, barras de archetype e contexto de scout</span>
+                </span>
+                <span className="rounded-full bg-white/40 px-3 py-1 font-mono text-[10px] font-black uppercase tracking-[.14em]" style={{ color: tier.color }}>
+                  {showDetails ? 'Fechar ↑' : 'Abrir ↓'}
+                </span>
+              </button>
+              <AnimatePresence initial={false}>
+                {showDetails && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: .28, ease: [0.22, 1, 0.36, 1] }}
+                    className="overflow-hidden"
+                  >
+                    <div className="grid gap-4 border-t border-white/30 p-4 lg:grid-cols-[minmax(170px,.56fr)_minmax(0,1fr)]">
+                      <div className="flex flex-col items-center text-center">
+                        <div className="mt-3 grid w-full gap-2 sm:grid-cols-2">
+                          <DecisionChip label="Primary" value={meta.primary} color={tier.color} />
+                          <DecisionChip label="Secondary" value={meta.secondary} color="#5aaed6" />
+                          <DecisionChip label="Best Trait" value={meta.best} color="#4f9577" />
+                          <DecisionChip label="Weakness" value={meta.weak} color="#d96f7d" />
+                        </div>
+                      </div>
+
+                      <div className="space-y-4">
+                        <ArchetypeBars bars={bars} color={tier.color} />
+                        <div className="pt-1">
+                          <div className="font-mono text-[9px] font-black uppercase tracking-[.22em] text-lo">Contexto de scout</div>
+                          <p className="mt-2 max-w-4xl text-xs font-semibold leading-5 text-slate-600/70">{note}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
-            <div className="pt-2">
-              <div className="font-mono text-[9px] font-black uppercase tracking-[.22em] text-lo">Contexto de scout</div>
-              <p className="mt-3 max-w-4xl text-xs font-semibold leading-6 text-slate-600/70">{note}</p>
-            </div>
+            <button
+              type="button"
+              onClick={onPick}
+              className="group flex w-full items-center justify-center gap-2 rounded-full px-5 py-4 font-mono text-[11px] font-black uppercase tracking-[.2em] text-white transition-all duration-200 hover:-translate-y-0.5 active:scale-[.98]"
+              style={{ background: 'linear-gradient(135deg, ' + tier.color + ', ' + tier.color + 'dd)', boxShadow: '0 18px 38px ' + tier.glow }}
+            >
+              Selecionar jogador
+              <span className="transition-transform duration-200 group-hover:translate-x-1">{'->'}</span>
+            </button>
 
           </div>
         </GlassPanel>
@@ -933,8 +821,9 @@ function ProspectHeroCard({ prospect, owner, draftFit, isSelecting = false, onPi
 }
 
 function DecisionHeader({ prospect, tier, fit, badge, status, bullets, onPick }) {
+  const image = getPlayerCutoutImage(prospect)
   return (
-    <div className="relative rounded-[30px] border border-white/35 bg-white/22 p-5 backdrop-blur-xl">
+    <div className="relative rounded-[28px] border border-white/35 bg-white/22 p-4 backdrop-blur-xl">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
@@ -944,21 +833,17 @@ function DecisionHeader({ prospect, tier, fit, badge, status, bullets, onPick })
             {badge && <span className="rounded-full px-3 py-1.5 font-mono text-[8px] font-black uppercase tracking-[.16em]" style={{ background: badge.bg, color: badge.color }}>{badge.label}</span>}
             {status?.label && <span className="rounded-full px-3 py-1.5 font-mono text-[8px] font-black uppercase tracking-[.16em]" style={{ background: status.bg, color: status.tone }}>{status.label}</span>}
           </div>
-          <h2 className="mt-4 font-display text-5xl font-black leading-none tracking-tight text-slate-800 md:text-6xl">{prospect.name}</h2>
-          <div className="mt-3 text-sm font-bold text-slate-600/75">{prospect.age} anos / {prospect.height || '-'} / {prospect.weight || '-'}</div>
+          <h2 className="mt-3 font-display text-3xl font-black leading-none tracking-tight text-slate-800 md:text-5xl 3xl:text-5xl">{prospect.name}</h2>
+          <div className="mt-2 text-xs font-bold text-slate-600/75">{prospect.age} anos / {prospect.height || '-'} / {prospect.weight || '-'} / {prospect.wingspan || '-'}</div>
         </div>
-        <div className="shrink-0 rounded-[28px] border border-white/45 bg-white/30 p-4 text-center backdrop-blur-md shadow-[0_14px_34px_rgba(0,0,0,.05)]">
-          <div className="font-mono text-[8px] font-black uppercase tracking-[.2em] text-lo">Draft Fit</div>
-          <div className="mt-1 font-numeric text-6xl font-extrabold leading-none tracking-tight" style={{ color: tier.color }}>{fit}</div>
-          <div className="mt-1 font-mono text-[8px] font-black uppercase tracking-[.16em] text-muted">Score</div>
-          <button type="button" onClick={onPick} className="group mt-4 flex w-full min-w-[210px] items-center justify-center gap-2 rounded-full px-5 py-3.5 font-mono text-[10px] font-black uppercase tracking-[.18em] text-white transition-all duration-200 hover:-translate-y-0.5 active:scale-[.98]" style={{ background: 'linear-gradient(135deg, ' + tier.color + ', ' + tier.color + 'dd)', boxShadow: '0 16px 34px ' + tier.glow }}>
-            Selecionar
-            <span className="transition-transform duration-200 group-hover:translate-x-1">→</span>
-          </button>
+        <div className="mock-prospect-stage relative flex h-40 w-36 shrink-0 items-end justify-center overflow-visible rounded-[26px] border border-white/45 bg-white/22 p-2 text-center backdrop-blur-md shadow-[0_14px_34px_rgba(0,0,0,.05)] 3xl:h-48 3xl:w-44">
+          <span className="pointer-events-none absolute inset-x-6 bottom-4 h-14 rounded-full blur-2xl" style={{ background: tier.color, opacity: .14 }} />
+          <span className="absolute left-3 top-3 rounded-full bg-white/45 px-2 py-1 font-mono text-[7px] font-black uppercase tracking-[.12em]" style={{ color: getBestFitColor(fit) }}>{fit} fit</span>
+          {image ? <img src={image} alt={prospect.name} className="player-cutout player-profile-cutout relative z-10 h-full w-full object-contain object-bottom" draggable="false" /> : <span className="relative z-10 mb-14 font-display text-4xl font-black" style={{ color: tier.color }}>{initials(prospect.name)}</span>}
         </div>
       </div>
-      <div className="mt-5 grid gap-2 md:grid-cols-3">
-        {bullets.slice(0, 3).map((bullet, idx) => <div key={idx} className="flex gap-2 rounded-2xl bg-white/24 px-3 py-3 text-xs font-bold leading-5 text-slate-600/85"><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: tier.color }} />{bullet}</div>)}
+      <div className="mt-3 grid gap-2 md:grid-cols-3">
+        {bullets.slice(0, 3).map((bullet, idx) => <div key={idx} className="flex gap-2 rounded-2xl bg-white/24 px-3 py-2 text-[11px] font-bold leading-4 text-slate-600/85"><span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: tier.color }} />{bullet}</div>)}
       </div>
     </div>
   )
@@ -972,28 +857,378 @@ function QuickStatsRow({ metrics, color }) {
   )
 }
 
-function DraftDecisionPanel({ fit, fallbackScore, color, status }) {
-  const components = fit?.components || {}
+function DraftDecisionPanel({ decision, fit, draftFit, fallbackScore, color, status }) {
+  const breakdown = fit?.breakdown || {}
+  const draftComponents = draftFit?.components || {}
+  const decisionBreakdown = decision?.breakdown || {}
   const rows = [
-    ['Draft Range', components.draftRangeFit ?? fallbackScore, 'Valor da escolha vs range esperado'],
-    ['Availability', components.availabilityFit ?? fallbackScore, 'Chance real de estar disponível'],
-    ['Team Need', components.teamNeedFit ?? fallbackScore, 'Necessidade do elenco'],
-    ['Strategy Fit', components.teamStrategyFit ?? fallbackScore, 'Timeline e filosofia da equipe'],
+    ['Need Fit', decisionBreakdown.needFit ?? breakdown.teamNeedFit ?? draftComponents.teamNeedFit ?? fallbackScore, 'Necessidade real do elenco'],
+    ['Role Fit', decisionBreakdown.roleFit ?? breakdown.roleFit ?? fallbackScore, 'Papel disponivel no contexto'],
+    ['Draft Range', decisionBreakdown.draftRange ?? breakdown.draftRangeFit ?? draftComponents.draftRangeFit ?? fallbackScore, 'Valor da escolha vs range esperado'],
+    ['Strategy Fit', decisionBreakdown.strategyFit ?? breakdown.timelineFit ?? fallbackScore, 'Aderencia ao plano da franquia'],
+    ['Board Value', decisionBreakdown.boardValue ?? fallbackScore, 'Valor contra jogadores disponiveis'],
+    ['Risk Fit', decisionBreakdown.riskFit ?? breakdown.riskFit ?? fallbackScore, 'Tolerancia de risco do time'],
   ]
+  const score = Math.round(decision?.score || fallbackScore || 0)
+  const grade = decision?.grade || fit?.tier || status?.copy || status?.label || 'Draft Fit'
   return (
-    <div className="rounded-[32px] border border-white/45 bg-white/35 p-5 shadow-[0_22px_58px_rgba(0,0,0,.08)] backdrop-blur-xl">
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-        <div>
+    <div className="rounded-[28px] border border-white/45 bg-white/35 p-4 shadow-[0_18px_46px_rgba(0,0,0,.07)] backdrop-blur-xl">
+      <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
           <div className="font-mono text-[10px] font-black uppercase tracking-[.28em] text-lo">Draft Decision</div>
-          <p className="mt-1 text-xs font-semibold text-muted">Score calculado por range da escolha, disponibilidade, necessidade e estrategia editorial.</p>
+          <p className="mt-1 text-[11px] font-semibold text-muted">{decision?.summary || fit?.primaryReason || 'Score por contexto, papel, range e risco.'}</p>
+          {decision?.recommendationType && <div className="mt-2 inline-flex rounded-full bg-white/40 px-3 py-1 font-mono text-[8px] font-black uppercase tracking-[.14em] text-muted">{decision.recommendationType}</div>}
         </div>
-        {status?.label && <span className="rounded-full px-3 py-1.5 font-mono text-[8px] font-black uppercase tracking-[.14em]" style={{ background: status.bg, color: status.tone }}>{status.copy || status.label}</span>}
+        <div className="text-right">
+          <div className="font-numeric text-5xl font-extrabold leading-none tracking-tight tabular-nums" style={{ color }}>{score}</div>
+          <span className="mt-2 inline-flex rounded-full px-3 py-1.5 font-mono text-[8px] font-black uppercase tracking-[.14em]" style={{ background: color + '18', color }}>{grade}</span>
+        </div>
       </div>
-      <div className="space-y-4">
+      <div className="space-y-3">
         {rows.map(([label, value, copy], idx) => <DecisionBar key={label} label={label} value={value} copy={copy} color={idx < 2 ? color : '#5aaed6'} strong={idx < 2} />)}
+      </div>
+      <RosterContextPanel decision={decision} accent={color} />
+      {(decision?.positives?.length || decision?.warnings?.length) && (
+        <div className="mt-4 grid gap-3 md:grid-cols-2">
+          <DecisionNotes title="Positives" items={decision?.positives || []} color="#4f9577" />
+          <DecisionNotes title="Warnings" items={decision?.warnings || []} color="#d88754" />
+        </div>
+      )}
+    </div>
+  )
+}
+
+function RosterContextPanel({ decision, accent }) {
+  const context = decision?.debug?.rosterContext
+  if (!context) return null
+
+  const corePlayers = (context.corePlayers || decision?.debug?.corePlayers || []).slice(0, 3)
+  const injuredCore = context.injuredCore || []
+  const matchedNeeds = (context.matchedNeeds || decision?.debug?.matchedNeeds || []).slice(0, 2)
+  const missedNeeds = (context.missedNeeds || decision?.debug?.missedNeeds || []).slice(0, 2)
+  const shootingProfile = context.shootingProfile
+  const overlap = getOverlapRiskMeta(context.overlapRisk)
+  const shooting = getShootingProfileMeta(shootingProfile)
+  const rotationPath = context.notes?.rotationPath || getRotationPathFallback(context.roleAvailability)
+  const overlapCopy = context.notes?.overlap || overlap.copy
+  const hasContent = corePlayers.length || injuredCore.length || matchedNeeds.length || missedNeeds.length || shootingProfile
+
+  if (!hasContent) {
+    return (
+      <div className="mt-4 rounded-[22px] border border-white/50 bg-white/32 p-3 text-xs font-semibold text-muted shadow-black/5 backdrop-blur-xl ring-1 ring-white/40 dark:border-white/10 dark:bg-slate-950/50 dark:text-slate-400 dark:ring-white/10">
+        Contexto de elenco indisponivel para esta decisao.
+      </div>
+    )
+  }
+
+  return (
+    <div className="mt-4 rounded-[24px] border border-white/55 bg-white/42 p-3.5 shadow-[0_12px_34px_rgba(0,0,0,.05)] backdrop-blur-xl ring-1 ring-white/45 dark:border-white/10 dark:bg-slate-950/55 dark:ring-white/10">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <div className="font-mono text-[8px] font-black uppercase tracking-[.22em] text-lo">Roster Context</div>
+          <p className="mt-1 text-[11px] font-semibold text-slate-500 dark:text-slate-400">Elenco real, core considerado e caminho de minutos.</p>
+        </div>
+        {context.rosterFitScore != null && (
+          <span className="rounded-full bg-white/50 px-3 py-1 font-mono text-[8px] font-black uppercase tracking-[.14em] tabular-nums dark:bg-white/10" style={{ color: accent }}>
+            Roster Fit {Math.round(context.rosterFitScore)}
+          </span>
+        )}
+      </div>
+
+      <div className="grid gap-2.5 md:grid-cols-2">
+        <div className="rounded-[20px] border border-white/35 bg-white/24 p-3 backdrop-blur-md dark:border-white/10 dark:bg-white/5">
+          <ContextLabel label="Core Context" />
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {corePlayers.length ? corePlayers.map(name => <ContextChip key={name} label={name} tone="core" />) : <ContextChip label="Core neutro" tone="neutral" />}
+          </div>
+          {injuredCore.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {injuredCore.slice(0, 2).map(name => <ContextChip key={name} label={name + ' / contextual core'} tone="injured" />)}
+            </div>
+          )}
+        </div>
+
+        <div className="rounded-[20px] border border-white/35 bg-white/24 p-3 backdrop-blur-md dark:border-white/10 dark:bg-white/5">
+          <ContextLabel label="Rotation Path" />
+          <p className="mt-2 text-[11px] font-semibold leading-4 text-slate-600/85 dark:text-slate-300/80">{rotationPath}</p>
+        </div>
+
+        <div className="rounded-[20px] border border-white/35 bg-white/24 p-3 backdrop-blur-md dark:border-white/10 dark:bg-white/5">
+          <div className="flex items-center justify-between gap-2">
+            <ContextLabel label="Overlap Risk" />
+            <span className="rounded-full px-2.5 py-1 font-mono text-[8px] font-black uppercase tracking-[.13em]" style={{ background: overlap.bg, color: overlap.color }}>{overlap.label}</span>
+          </div>
+          <p className="mt-2 text-[11px] font-semibold leading-4 text-slate-600/85 dark:text-slate-300/80">{overlapCopy}</p>
+        </div>
+
+        <div className="rounded-[20px] border border-white/35 bg-white/24 p-3 backdrop-blur-md dark:border-white/10 dark:bg-white/5">
+          <ContextLabel label="Shooting Profile" />
+          {shootingProfile ? (
+            <>
+              <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                <ContextChip label={shooting.label} tone={shooting.tone} />
+                <ContextChip label={shootingProfile.confidence + ' confidence'} tone="neutral" />
+              </div>
+              <p className="mt-2 text-[11px] font-semibold leading-4 text-slate-600/85 dark:text-slate-300/80">{shooting.copy}</p>
+            </>
+          ) : (
+            <p className="mt-2 text-[11px] font-semibold leading-4 text-muted">Perfil de arremesso sem amostra suficiente.</p>
+          )}
+        </div>
+      </div>
+
+      {(matchedNeeds.length || missedNeeds.length) && (
+        <div className="mt-2.5 grid gap-2 md:grid-cols-2">
+          <NeedChipGroup title="Matched Needs" items={matchedNeeds} tone="matched" />
+          <NeedChipGroup title="Missed Needs" items={missedNeeds} tone="missed" />
+        </div>
+      )}
+    </div>
+  )
+}
+
+function DraftDecisionAuditPanel({ audit, accent }) {
+  if (!audit?.decision) {
+    return (
+      <div className="rounded-[24px] border border-dashed border-white/50 bg-white/26 p-4 text-xs font-semibold text-muted backdrop-blur-xl dark:border-white/10 dark:bg-slate-950/40">
+        Debug ativo, mas a auditoria desta decisao ainda nao esta disponivel.
+      </div>
+    )
+  }
+
+  const { decision, playerTraits = {}, teamNeeds = {}, rosterContext, rosterFit, shootingProfile, weights = {}, debug = {} } = audit
+  const rosterDebug = debug.rosterContext || {}
+  const breakdownRows = {
+    ...decision.breakdown,
+    rosterFit: debug.rosterFitScore ?? rosterFit?.rosterFitScore,
+  }
+
+  return (
+    <details className="rounded-[24px] border border-violet-200/60 bg-violet-50/35 p-3.5 shadow-[0_12px_34px_rgba(124,92,207,.08)] backdrop-blur-xl ring-1 ring-white/45 dark:border-violet-300/15 dark:bg-violet-400/10 dark:ring-white/10">
+      <summary className="cursor-pointer list-none">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div className="font-mono text-[8px] font-black uppercase tracking-[.22em] text-violet-600 dark:text-violet-200">Algorithm Audit / Dev</div>
+            <p className="mt-1 text-[11px] font-semibold text-slate-500 dark:text-slate-400">Visivel apenas com ?debugDraft=1.</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="rounded-full bg-white/55 px-3 py-1 font-mono text-[8px] font-black uppercase tracking-[.14em] tabular-nums dark:bg-white/10" style={{ color: accent }}>
+              {Math.round(decision.score)} / {decision.grade}
+            </span>
+            <span className="rounded-full bg-white/45 px-3 py-1 font-mono text-[8px] font-black uppercase tracking-[.14em] text-muted dark:bg-white/10">abrir</span>
+          </div>
+        </div>
+      </summary>
+
+      <div className="mt-4 space-y-3">
+        <AuditSection title="Decision">
+          <div className="grid gap-2 md:grid-cols-2">
+            <AuditLine label="Grade" value={decision.grade} />
+            <AuditLine label="Type" value={decision.recommendationType} />
+            <AuditLine label="Summary" value={decision.summary} wide />
+          </div>
+        </AuditSection>
+
+        <AuditSection title="Breakdown">
+          <AuditMetricGrid data={breakdownRows} color={accent} />
+        </AuditSection>
+
+        <div className="grid gap-3 md:grid-cols-2">
+          <AuditSection title="Positives">
+            <AuditList items={decision.positives} tone="matched" />
+          </AuditSection>
+          <AuditSection title="Warnings">
+            <AuditList items={decision.warnings} tone="missed" />
+          </AuditSection>
+        </div>
+
+        <div className="grid gap-3 md:grid-cols-2">
+          <AuditSection title="Needs">
+            <div className="mb-2 flex flex-wrap gap-1.5">
+              {(debug.matchedNeeds || []).slice(0, 5).map(item => <ContextChip key={item} label={'match: ' + item} tone="matched" />)}
+              {(debug.missedNeeds || []).slice(0, 5).map(item => <ContextChip key={item} label={'miss: ' + item} tone="missed" />)}
+            </div>
+            <AuditMetricGrid data={teamNeeds} color="#5aaed6" compact />
+          </AuditSection>
+          <AuditSection title="Roster">
+            <div className="flex flex-wrap gap-1.5">
+              {(rosterDebug.corePlayers || debug.corePlayers || []).slice(0, 6).map(name => <ContextChip key={name} label={name} tone="core" />)}
+              {(rosterDebug.injuredCore || []).slice(0, 3).map(name => <ContextChip key={name} label={name + ' / injured'} tone="injured" />)}
+            </div>
+            <div className="mt-3 grid gap-2">
+              <AuditLine label="Overlap" value={debug.overlapRisk ?? rosterDebug.overlapRisk} />
+              <AuditLine label="Role Availability" value={debug.roleAvailability ?? rosterDebug.roleAvailability} />
+              <AuditLine label="Roster Strengths" value={(debug.rosterStrengths || rosterContext?.rosterStrengths || []).slice(0, 3).join(' / ')} />
+              <AuditLine label="Roster Weaknesses" value={(debug.rosterWeaknesses || rosterContext?.rosterWeaknesses || []).slice(0, 3).join(' / ')} />
+            </div>
+          </AuditSection>
+        </div>
+
+        <div className="grid gap-3 md:grid-cols-2">
+          <AuditSection title="Shooting Profile">
+            <div className="flex flex-wrap gap-1.5">
+              <ContextChip label={shootingProfile?.label || rosterDebug.shootingProfile?.label || 'unknown'} tone={getShootingProfileMeta(shootingProfile || rosterDebug.shootingProfile).tone} />
+              <ContextChip label={(shootingProfile?.confidence || rosterDebug.shootingProfile?.confidence || 'low') + ' confidence'} tone="neutral" />
+              <ContextChip label={'score ' + Math.round(shootingProfile?.score ?? rosterDebug.shootingProfile?.score ?? 0)} tone="neutral" />
+            </div>
+            <AuditList items={[...(shootingProfile?.indicators || rosterDebug.shootingProfile?.indicators || []), ...(shootingProfile?.warnings || rosterDebug.shootingProfile?.warnings || [])].slice(0, 5)} tone="neutral" />
+          </AuditSection>
+          <AuditSection title="Bonuses / Penalties">
+            <AuditList items={(debug.appliedBonuses || []).map(item => '+ ' + item)} tone="matched" />
+            <AuditList items={(debug.appliedPenalties || []).map(item => '- ' + item)} tone="missed" />
+          </AuditSection>
+        </div>
+
+        <AuditSection title="Player Traits">
+          <AuditMetricGrid data={playerTraits} color={accent} compact />
+        </AuditSection>
+
+        <AuditSection title="Algorithm Weights">
+          <AuditMetricGrid data={weights} color="#7c5ccf" compact />
+        </AuditSection>
+
+        <details className="rounded-[18px] border border-white/30 bg-white/22 p-3 dark:border-white/10 dark:bg-white/5">
+          <summary className="cursor-pointer font-mono text-[8px] font-black uppercase tracking-[.18em] text-lo">Raw Audit JSON</summary>
+          <pre className="mt-3 max-h-72 overflow-auto whitespace-pre-wrap break-words rounded-2xl bg-slate-950/90 p-3 font-mono text-[10px] leading-4 text-slate-100">{JSON.stringify(audit, null, 2)}</pre>
+        </details>
+      </div>
+    </details>
+  )
+}
+
+function DecisionNotes({ title, items, color }) {
+  if (!items.length) return null
+  return (
+    <div className="rounded-[20px] border border-white/30 bg-white/22 p-3 backdrop-blur-md">
+      <div className="font-mono text-[8px] font-black uppercase tracking-[.18em]" style={{ color }}>{title}</div>
+      <div className="mt-2 space-y-1.5">
+        {items.slice(0, 3).map((item, index) => (
+          <div key={index} className="flex gap-2 text-[11px] font-semibold leading-4 text-slate-600/85">
+            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: color }} />
+            <span>{item}</span>
+          </div>
+        ))}
       </div>
     </div>
   )
+}
+
+function ContextLabel({ label }) {
+  return <div className="font-mono text-[8px] font-black uppercase tracking-[.18em] text-lo">{label}</div>
+}
+
+function ContextChip({ label, tone = 'neutral' }) {
+  const styles = {
+    core: 'bg-sky-100/60 text-sky-800 dark:bg-sky-400/15 dark:text-sky-200',
+    injured: 'bg-violet-100/65 text-violet-800 dark:bg-violet-400/15 dark:text-violet-200',
+    matched: 'bg-emerald-100/65 text-emerald-800 dark:bg-emerald-400/15 dark:text-emerald-200',
+    missed: 'bg-amber-100/70 text-amber-800 dark:bg-amber-400/15 dark:text-amber-200',
+    warning: 'bg-orange-100/70 text-orange-800 dark:bg-orange-400/15 dark:text-orange-200',
+    neutral: 'bg-white/48 text-slate-600 dark:bg-white/10 dark:text-slate-300',
+  }
+  return <span className={(styles[tone] || styles.neutral) + ' rounded-full px-2.5 py-1 font-mono text-[7px] font-black uppercase tracking-[.12em]'}>{label}</span>
+}
+
+function NeedChipGroup({ title, items, tone }) {
+  if (!items.length) return null
+  return (
+    <div className="rounded-[18px] border border-white/30 bg-white/20 p-2.5 backdrop-blur-md dark:border-white/10 dark:bg-white/5">
+      <ContextLabel label={title} />
+      <div className="mt-2 flex flex-wrap gap-1.5">
+        {items.slice(0, 2).map(item => <ContextChip key={item} label={item} tone={tone} />)}
+      </div>
+    </div>
+  )
+}
+
+function AuditSection({ title, children }) {
+  return (
+    <div className="rounded-[20px] border border-white/35 bg-white/24 p-3 backdrop-blur-md dark:border-white/10 dark:bg-white/5">
+      <ContextLabel label={title} />
+      <div className="mt-2">{children}</div>
+    </div>
+  )
+}
+
+function AuditLine({ label, value, wide = false }) {
+  const display = Array.isArray(value) ? value.join(' / ') : value
+  return (
+    <div className={(wide ? 'md:col-span-2 ' : '') + 'rounded-[16px] bg-white/28 px-3 py-2 dark:bg-white/5'}>
+      <div className="font-mono text-[7px] font-black uppercase tracking-[.14em] text-lo">{label}</div>
+      <div className="mt-1 break-words text-[11px] font-semibold leading-4 text-slate-600 dark:text-slate-300">{display || '-'}</div>
+    </div>
+  )
+}
+
+function AuditList({ items = [], tone = 'neutral' }) {
+  if (!items.length) return <div className="text-[11px] font-semibold text-muted">Sem dados nesta categoria.</div>
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {items.slice(0, 8).map((item, index) => <ContextChip key={String(item) + index} label={String(item)} tone={tone} />)}
+    </div>
+  )
+}
+
+function AuditMetricGrid({ data = {}, color = '#7c5ccf', compact = false }) {
+  const entries = Object.entries(data || {}).filter(([, value]) => value !== undefined && value !== null && value !== '')
+  if (!entries.length) return <div className="text-[11px] font-semibold text-muted">Sem metricas disponiveis.</div>
+  return (
+    <div className={(compact ? 'grid-cols-2 lg:grid-cols-3' : 'grid-cols-2 md:grid-cols-3') + ' grid gap-2'}>
+      {entries.map(([key, value]) => {
+        const numeric = Number(value)
+        const isNumeric = Number.isFinite(numeric)
+        const shown = isNumeric ? (Math.abs(numeric) <= 1 ? numeric.toFixed(2) : Math.round(numeric)) : String(value)
+        const width = isNumeric ? clamp(Math.abs(numeric) <= 1 ? numeric * 100 : numeric) : 0
+        return (
+          <div key={key} className="rounded-[16px] bg-white/28 px-3 py-2 dark:bg-white/5">
+            <div className="mb-1.5 flex items-center justify-between gap-2">
+              <span className="truncate font-mono text-[7px] font-black uppercase tracking-[.12em] text-lo">{formatAuditKey(key)}</span>
+              <span className="font-mono text-[10px] font-black tabular-nums" style={{ color }}>{shown}</span>
+            </div>
+            {isNumeric && (
+              <div className="h-1.5 overflow-hidden rounded-full bg-white/45 dark:bg-white/10">
+                <span className="block h-full rounded-full" style={{ width: width + '%', background: color }} />
+              </div>
+            )}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+function formatAuditKey(key) {
+  return String(key).replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').trim()
+}
+
+function getOverlapRiskMeta(value = 45) {
+  const safe = clamp(Number(value) || 0)
+  if (safe >= 68) return { label: 'High', color: '#c75f45', bg: 'rgba(251,146,60,.18)', copy: 'Risco alto de sobreposicao com papeis ja ocupados no elenco.' }
+  if (safe >= 46) return { label: 'Medium', color: '#b9832e', bg: 'rgba(245,158,11,.18)', copy: 'Risco medio: o papel inicial precisa ser bem definido para evitar redundancia.' }
+  return { label: 'Low', color: '#3f8f72', bg: 'rgba(16,185,129,.16)', copy: 'Baixo risco de sobreposicao funcional relevante.' }
+}
+
+function getRotationPathFallback(value = 55) {
+  const safe = clamp(Number(value) || 0)
+  if (safe >= 70) return 'Caminho de rotacao limpo para assumir papel complementar cedo.'
+  if (safe >= 48) return 'Caminho de rotacao viavel, mas dependente de funcao bem definida.'
+  return 'Caminho de minutos inicial mais congestionado pela composicao atual.'
+}
+
+function getShootingProfileMeta(profile) {
+  if (!profile) return { label: 'unknown shooter', tone: 'neutral', copy: 'Perfil de arremesso sem amostra suficiente.' }
+  const label = (profile.label || 'questionable').replace('-', ' ')
+  const indicator = profile.indicators?.[0]
+  if (profile.label === 'elite' || profile.label === 'strong') {
+    return { label: label + ' shooter', tone: 'matched', copy: indicator ? `Ajuda o espacamento: ${indicator}.` : 'Ajuda a lacuna de spacing da rotacao.' }
+  }
+  if (profile.label === 'solid') {
+    return { label: 'solid shooter', tone: 'core', copy: indicator ? `Arremesso funcional: ${indicator}.` : 'Oferece spacing funcional sem precisar de alto uso.' }
+  }
+  if (profile.label === 'questionable') {
+    return { label: 'questionable shooter', tone: 'missed', copy: profile.warnings?.[0] || 'O arremesso ainda exige contexto e volume para ganhar confianca.' }
+  }
+  return { label: 'non shooter', tone: 'warning', copy: profile.warnings?.[0] || 'Nao projeta como solucao primaria de spacing neste momento.' }
 }
 
 function DecisionBar({ label, value, copy, color, strong = false }) {
@@ -1007,7 +1242,7 @@ function DecisionBar({ label, value, copy, color, strong = false }) {
         </div>
         <span className="font-numeric text-3xl font-extrabold leading-none tracking-tight" style={{ color }}>{Math.round(safe)}</span>
       </div>
-      <div className={(strong ? 'h-4' : 'h-3') + ' overflow-hidden rounded-full border border-white/30 bg-white/38 shadow-inner'}>
+      <div className={(strong ? 'h-3.5' : 'h-2.5') + ' overflow-hidden rounded-full border border-white/30 bg-white/38 shadow-inner'}>
         <motion.div initial={{ width: 0 }} animate={{ width: safe + '%' }} transition={{ duration: .75, ease: [0.22, 1, 0.36, 1] }} className="h-full rounded-full" style={{ background: 'linear-gradient(90deg, ' + color + 'cc, ' + color + ')' }} />
       </div>
     </div>
@@ -1016,9 +1251,9 @@ function DecisionBar({ label, value, copy, color, strong = false }) {
 
 function ArchetypeBars({ bars, color }) {
   return (
-    <div className="rounded-[28px] border border-white/35 bg-white/20 p-5 backdrop-blur-md">
-      <div className="mb-5 flex flex-wrap justify-between gap-2"><span className="font-mono text-[9px] font-black uppercase tracking-[.22em] text-lo">Archetype Bars</span><span className="text-xs font-bold text-slate-500/80">perfil em 5 areas</span></div>
-      <div className="space-y-5">
+    <div className="rounded-[24px] border border-white/35 bg-white/20 p-4 backdrop-blur-md">
+      <div className="mb-4 flex flex-wrap justify-between gap-2"><span className="font-mono text-[9px] font-black uppercase tracking-[.22em] text-lo">Archetype Bars</span><span className="text-xs font-bold text-slate-500/80">perfil em 5 areas</span></div>
+      <div className="space-y-3.5">
         {bars.map(([label, value]) => {
           const featured = label === 'Scoring' || label === 'Shooting'
           return <AttributeBar key={label} label={label} value={value} color={featured ? color : '#7caec5'} featured={featured} />
@@ -1029,50 +1264,87 @@ function ArchetypeBars({ bars, color }) {
 }
 
 function DecisionChip({ label, value, color }) {
-  return <div className="rounded-[20px] border border-white/30 bg-white/20 px-3 py-3 backdrop-blur-md"><div className="font-mono text-[8px] font-black uppercase tracking-[.18em] text-lo">{label}</div><div className="mt-1 truncate text-sm font-black text-slate-800" style={{ color }}>{value || '-'}</div></div>
+  return <div className="rounded-[18px] border border-white/30 bg-white/20 px-3 py-2 backdrop-blur-md"><div className="font-mono text-[8px] font-black uppercase tracking-[.18em] text-lo">{label}</div><div className="mt-1 truncate text-xs font-black text-slate-800" style={{ color }}>{value || '-'}</div></div>
 }
 
-function TeamOnTheClockPanel({ owner, prospect, draftFit, recommendations, selecting, picks, resolvedPicks, onPreview, onRecommendPick, onAutoPick }) {
-  const fit = draftFit?.score || getFitScore(owner, prospect)
+function TeamOnTheClockPanel({ owner, prospect, draftFit, bestFit, draftDecision, recommendations, selecting, picks, resolvedPicks, onPreview, onRecommendPick, onAutoPick }) {
+  const fit = draftDecision?.score || bestFit?.score || draftFit?.score || getFitScore(owner, prospect)
   const remaining = resolvedPicks.filter((p, idx) => idx >= (selecting || 0) && p.ownerAbbr === owner?.ownerAbbr).length
+  const madePicks = resolvedPicks
+    .map((pick, idx) => ({ pickNo: idx + 1, pick, prospect: prospects.find(p => p.id === picks[idx]) }))
+    .filter(row => row.pick.ownerAbbr === owner?.ownerAbbr && row.prospect)
   const needs = getTeamNeedChips(owner?.ownerAbbr)
   const glow = owner?.ownerColor || '#7c5ccf'
   return (
     <motion.div
       animate={{ scale: [1, 1.012, 1], boxShadow: ['0 8px 30px rgba(0,0,0,.04)', '0 18px 48px ' + glow + '24', '0 8px 30px rgba(0,0,0,.04)'] }}
       transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
-      className="will-change-transform rounded-[34px] border border-white/60 bg-white/48 p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] backdrop-blur-xl"
+      className="mock-team-clock will-change-transform rounded-[30px] border border-white/60 bg-white/48 p-4 shadow-[0_8px_30px_rgb(0,0,0,0.04)] backdrop-blur-xl"
       style={{ background: owner?.ownerColor ? 'radial-gradient(circle at 50% 0%, '+owner.ownerColor+'1f, transparent 40%), rgba(255,255,255,.48)' : undefined }}
     >
       <div className="flex items-center justify-between gap-3">
-        <div className="font-mono text-[9px] font-black uppercase tracking-[.24em] text-lo">On The Clock</div>
+        <div>
+          <div className="font-mono text-[10px] font-black uppercase tracking-[.24em] text-lo">On The Clock</div>
+          <div className="mt-1 font-display text-2xl font-black text-slate-800">Team Command Panel</div>
+        </div>
         <TeamLogoGlass teamId={owner?.ownerAbbr} size="lg" showGlow />
       </div>
-      <div className="mt-3 rounded-[30px] border border-white/45 bg-white/30 p-5 backdrop-blur-md">
+      <div className="mt-3 rounded-[26px] border border-white/45 bg-white/30 p-4 backdrop-blur-md">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <div className="font-numeric text-5xl font-extrabold tracking-tight" style={{ color: owner?.ownerColor }}>#{owner?.pick}</div>
-            <div className="mt-2 font-display text-2xl font-black text-slate-800">{owner?.ownerName}</div>
+            <div className="font-numeric text-3xl font-extrabold tracking-tight 3xl:text-4xl" style={{ color: owner?.ownerColor }}>#{owner?.pick}</div>
+            <div className="mt-1 font-display text-xl font-black text-slate-800">{owner?.ownerName}</div>
             <div className="mt-1 font-mono text-[9px] font-bold uppercase tracking-[.18em] text-muted">{owner?.viaAbbr ? 'via ' + owner.viaAbbr : owner?.originalTeam?.record || 'First round'}</div>
           </div>
           <motion.span animate={{ opacity: [.75, 1, .75] }} transition={{ duration: 1.8, repeat: Infinity }} className="rounded-full bg-white/45 px-3 py-1.5 font-mono text-[8px] font-black uppercase tracking-[.16em] text-muted">On the Clock</motion.span>
         </div>
-        <p className="mt-4 text-xs font-semibold leading-5 text-muted">Escolha baseada em board, estrategia e necessidade.</p>
+        <p className="mt-3 text-xs font-semibold leading-5 text-muted">Escolha baseada em board, estrategia e necessidade.</p>
       </div>
-      <div className="mt-5 grid gap-3">
+      <div className="mt-4 grid grid-cols-3 gap-2">
         <InfoLine label="Status" value={selecting !== null ? 'Escolhendo agora' : 'Draft completo'} />
         <InfoLine label="Picks restantes" value={remaining || 0} />
-        <InfoLine label="Fit selecionado" value={fit} accent={fit >= 82 ? '#7c5ccf' : '#5aaed6'} />
+        <InfoLine label="Decision" value={Math.round(fit)} accent={getDraftDecisionColor(fit)} />
       </div>
-      <div className="mt-5 rounded-[24px] border border-white/55 bg-white/30 p-4">
+      <TeamPreviousPicks rows={madePicks} color={owner?.ownerColor || '#7c5ccf'} />
+      <div className="mt-4 rounded-[22px] border border-white/55 bg-white/30 p-3">
         <div className="font-mono text-[9px] font-black uppercase tracking-[.2em] text-lo">Team Needs</div>
         <div className="mt-3 flex flex-wrap gap-2">{needs.map(x => <span key={x} className="rounded-full bg-white/45 px-3 py-1 font-mono text-[8px] font-black uppercase tracking-[.12em] text-muted">{x}</span>)}</div>
       </div>
       <DecisionContextCard owner={owner} />
       <DraftRecommendationsPanel owner={owner} recommendations={recommendations} onPreview={onPreview} onPick={onRecommendPick} />
-      <button type="button" onClick={onAutoPick} className="mt-5 w-full rounded-full px-5 py-3 font-mono text-[10px] font-black uppercase tracking-[.18em] text-slate-700" style={{ background: '#edeae4', boxShadow: '4px 4px 10px #d4d0ca, -4px -4px 10px #fff' }}>Auto pick melhor fit</button>
+      <button type="button" onClick={onAutoPick} className="mt-4 w-full rounded-full px-5 py-3 font-mono text-[10px] font-black uppercase tracking-[.18em] text-slate-700" style={{ background: '#edeae4', boxShadow: '4px 4px 10px #d4d0ca, -4px -4px 10px #fff' }}>Auto pick melhor decisao</button>
       <DraftSummary picks={picks} resolvedPicks={resolvedPicks} />
     </motion.div>
+  )
+}
+
+function TeamPreviousPicks({ rows, color }) {
+  return (
+    <div className="mock-team-picks-made mt-5 rounded-[24px] border border-white/55 bg-white/30 p-4">
+      <div className="flex items-center justify-between gap-3">
+        <div className="font-mono text-[9px] font-black uppercase tracking-[.2em] text-lo">Escolhas do time</div>
+        <span className="rounded-full bg-white/38 px-2.5 py-1 font-mono text-[8px] font-black uppercase tracking-[.14em] text-muted">{rows.length}</span>
+      </div>
+      {rows.length ? (
+        <div className="mt-3 grid gap-2">
+          {rows.map(row => {
+            const tier = getTierStyles(row.prospect.tier)
+            return (
+              <div key={row.pickNo} className="flex items-center gap-3 rounded-[18px] bg-white/28 px-3 py-2">
+                <span className="w-8 shrink-0 font-numeric text-lg font-extrabold leading-none" style={{ color }}>#{row.pickNo}</span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-xs font-black text-slate-800">{row.prospect.name}</span>
+                  <span className="block truncate font-mono text-[7px] font-black uppercase tracking-[.14em] text-muted">{row.prospect.position} / rank #{row.prospect.rank}</span>
+                </span>
+                <span className="rounded-full px-2 py-1 font-mono text-[7px] font-black uppercase tracking-[.12em]" style={{ background: tier.bg, color: tier.text }}>{tier.label}</span>
+              </div>
+            )
+          })}
+        </div>
+      ) : (
+        <p className="mt-3 text-xs font-semibold leading-5 text-muted">Este time ainda nao fez nenhuma escolha neste mock.</p>
+      )}
+    </div>
   )
 }
 
@@ -1093,45 +1365,64 @@ function DecisionContextCard({ owner }) {
 
 function DraftRecommendationsPanel({ owner, recommendations, onPreview, onPick }) {
   return (
-    <div className="mt-5 rounded-[28px] border border-white/55 bg-white/28 p-4 backdrop-blur-md">
-      <div className="font-mono text-[9px] font-black uppercase tracking-[.22em] text-lo">Recomendacoes para {owner?.ownerAbbr}</div>
-      <p className="mt-1 text-xs font-semibold leading-5 text-muted">Baseado em pick, disponibilidade, estrategia e necessidades do elenco.</p>
-      <motion.div initial="hidden" animate="show" variants={{ hidden: {}, show: { transition: { staggerChildren: .07, delayChildren: .05 } } }} className="mt-4 grid gap-3">
-        {recommendations.length ? recommendations.map((item, index) => <DraftRecommendationCard key={item.player.id} item={item} index={index} onPreview={onPreview} onPick={onPick} />) : <div className="rounded-[22px] bg-white/35 p-4 text-sm font-bold text-muted">Sem encaixe forte por range de escolha; exibindo melhores disponiveis.</div>}
+    <div className="mt-4 rounded-[26px] border border-white/55 bg-white/28 p-3 backdrop-blur-md">
+      <div className="font-mono text-[9px] font-black uppercase tracking-[.22em] text-lo">Recommendation for {owner?.ownerAbbr}</div>
+      <p className="mt-1 text-[11px] font-semibold leading-4 text-muted">Draft Decision por necessidade, papel, range, board value e risco.</p>
+      <motion.div initial="hidden" animate="show" variants={{ hidden: {}, show: { transition: { staggerChildren: .06, delayChildren: .04 } } }} className="mt-3 grid gap-2.5">
+        {recommendations.length ? recommendations.map((item, index) => <DraftRecommendationCard key={item.player.id} item={item} index={index} onPreview={onPreview} onPick={onPick} />) : <div className="rounded-[22px] bg-white/35 p-4 text-sm font-bold text-muted">Selecione um prospecto para gerar a decisao da war room.</div>}
       </motion.div>
     </div>
   )
 }
 
 function DraftRecommendationCard({ item, index, onPreview, onPick }) {
-  const { player, fit } = item
+  const { player, decision } = item
   const tier = getTierStyles(player.tier)
-  const status = getDraftFitStatus(fit)
+  const scoreColor = getDraftDecisionColor(decision.score)
+  const bars = [
+    ['Need', decision.breakdown?.needFit],
+    ['Board', decision.breakdown?.boardValue],
+    ['Range', decision.breakdown?.draftRange],
+    ['Role', decision.breakdown?.roleFit],
+    ['Risk', decision.breakdown?.riskFit],
+  ]
   return (
-    <motion.div variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { duration: .28, ease: [0.22, 1, 0.36, 1] } } }} onMouseEnter={() => onPreview(player.id)} whileHover={{ y: -4, scale: 1.02 }} className="will-change-transform rounded-[24px] border border-white/45 bg-white/34 p-3 backdrop-blur-md transition-shadow duration-200 hover:shadow-[0_16px_42px_rgba(124,92,207,.14)]">
+    <motion.div variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: .25, ease: [0.22, 1, 0.36, 1] } } }} onPointerEnter={() => onPreview(player.id)} whileHover={{ y: -3, scale: 1.012 }} className="will-change-transform rounded-[22px] border border-white/45 bg-white/34 p-3 backdrop-blur-md transition-shadow duration-200 hover:shadow-[0_16px_42px_rgba(124,92,207,.14)]">
       <div className="flex items-start gap-3">
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-mono text-[10px] font-black" style={{ background: index === 0 ? '#eee9fb' : 'rgba(255,255,255,.45)', color: index === 0 ? '#5d46a3' : '#8b837c' }}>#{index + 1}</div>
         <div className="min-w-0 flex-1">
-          <div className="flex items-center justify-between gap-2"><div className="truncate text-sm font-black text-slate-800">{player.name}</div><span className="font-numeric text-2xl font-extrabold tracking-tight" style={{ color: tier.color }}>{Math.round(fit.score)}</span></div>
-          <div className="mt-1 font-mono text-[8px] font-bold uppercase tracking-[.15em] text-muted">rank #{player.rank} / {player.position} / {fit.label}</div>
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-            <span className="rounded-full border border-white/40 px-2 py-1 font-mono text-[7px] font-black uppercase tracking-[.12em]" style={{background:status.bg,color:status.tone}}>{status.label}</span>
-            <span className="font-mono text-[7px] font-black uppercase tracking-[.12em] text-lo">{status.copy}</span>
+          <div className="flex items-center justify-between gap-2"><div className="truncate text-sm font-black text-slate-800">{player.name}</div><span className="font-numeric text-2xl font-extrabold tracking-tight tabular-nums" style={{ color: scoreColor }}>{Math.round(decision.score)}</span></div>
+          <div className="mt-1 font-mono text-[8px] font-bold uppercase tracking-[.15em] text-muted">rank #{player.rank} / {player.position} / {decision.grade}</div>
+          <p className="mt-2 text-[11px] font-semibold leading-4 text-slate-600">{decision.recommendationType}</p>
+          <p className="mt-1 text-[11px] font-semibold leading-4 text-muted">{decision.summary}</p>
+          <div className="mt-2 grid gap-1.5">
+            {bars.map(([label, value]) => <CompactFitBar key={label} label={label} value={value} color={scoreColor} />)}
           </div>
-          <p className="mt-2 text-xs font-semibold leading-5 text-slate-600">{fit.pickContext}</p>
-          <DraftFitBreakdown fit={fit} color={tier.color} compact />
-          <div className="mt-2 space-y-1">{fit.reasons?.slice(0,3).map((reason,i)=><p key={i} className="text-xs font-semibold leading-5 text-muted">{reason}</p>)}</div>
-          <div className="mt-2 flex flex-wrap gap-1.5">{fit.flags?.slice(0,3).map(flag => <span key={flag} className="rounded-full bg-white/45 px-2 py-1 font-mono text-[7px] font-black uppercase tracking-[.12em] text-muted">{flag}</span>)}</div>
+          <div className="mt-2 flex flex-wrap gap-1.5">{decision.positives?.slice(0,2).map(flag => <span key={flag} className="rounded-full bg-white/45 px-2 py-1 font-mono text-[7px] font-black uppercase tracking-[.12em] text-muted">{flag}</span>)}{decision.warnings?.slice(0,1).map(flag => <span key={flag} className="rounded-full bg-amber-100/50 px-2 py-1 font-mono text-[7px] font-black uppercase tracking-[.12em] text-amber-700">{flag}</span>)}</div>
         </div>
       </div>
-      <button type="button" onClick={() => onPick(player.id)} className="mt-3 w-full rounded-full px-4 py-2 font-mono text-[8px] font-black uppercase tracking-[.16em] transition-transform hover:-translate-y-0.5" style={{ background: tier.color, color: 'white', boxShadow: '0 12px 24px ' + tier.glow }}>{index === 0 ? 'Selecionar melhor encaixe' : 'Selecionar'}</button>
+      <button type="button" onClick={() => onPick(player.id)} className="mt-3 w-full rounded-full px-4 py-2 font-mono text-[8px] font-black uppercase tracking-[.16em] transition-transform hover:-translate-y-0.5" style={{ background: tier.color, color: 'white', boxShadow: '0 12px 24px ' + tier.glow }}>{index === 0 ? 'Selecionar melhor decisao' : 'Selecionar'}</button>
     </motion.div>
+  )
+}
+
+function CompactFitBar({ label, value, color }) {
+  const safe = clamp(Number(value) || 0)
+  return (
+    <div className="grid grid-cols-[72px_1fr_28px] items-center gap-2">
+      <span className="truncate font-mono text-[7px] font-black uppercase tracking-[.12em] text-muted">{label}</span>
+      <span className="h-1.5 overflow-hidden rounded-full bg-white/38">
+        <span className="block h-full rounded-full" style={{ width: safe + '%', background: color }} />
+      </span>
+      <span className="text-right font-numeric text-[10px] font-black tabular-nums text-slate-700">{Math.round(safe)}</span>
+    </div>
   )
 }
 function DraftFilterChips({ active, setActive }) {
   return (
-    <GlassPanel className="flex flex-wrap items-center gap-2 p-4">
-      {FILTERS.map(([id, label]) => <button key={id} type="button" onClick={() => setActive(id)} className="rounded-full px-4 py-2 font-mono text-[9px] font-black uppercase tracking-[.16em] transition-transform hover:-translate-y-0.5" style={{ background: active === id ? '#eee9fb' : 'rgba(255,255,255,.36)', color: active === id ? '#5d46a3' : '#8b837c', boxShadow: active === id ? '3px 3px 8px #d4d0ca, -3px -3px 8px #fff' : 'none' }}>{label}</button>)}
+    <GlassPanel className="mock-draft-filters flex flex-wrap items-center gap-1.5 p-2.5">
+      <span className="mr-1 rounded-full bg-white/30 px-3 py-2 font-mono text-[8px] font-black uppercase tracking-[.18em] text-lo">Board Mode</span>
+      {FILTERS.map(([id, label]) => <button key={id} type="button" onClick={() => setActive(id)} className="h-8 rounded-full px-3 font-mono text-[8px] font-black uppercase tracking-[.14em] transition-transform hover:-translate-y-0.5" style={{ background: active === id ? '#eee9fb' : 'rgba(255,255,255,.36)', color: active === id ? '#5d46a3' : '#8b837c', boxShadow: active === id ? '3px 3px 8px #d4d0ca, -3px -3px 8px #fff' : 'none' }}>{label}</button>)}
     </GlassPanel>
   )
 }
@@ -1195,17 +1486,17 @@ function DynamicTeamBackdrop({ team, intensity = .1 }) {
 function WarRoomHeader({ owner, selecting }) {
   if (!owner) return null
   return (
-    <motion.div initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .38, ease: [0.22, 1, 0.36, 1] }} className="relative overflow-hidden rounded-[34px] border border-white/50 bg-white/36 p-5 backdrop-blur-xl" style={{ boxShadow: '0 20px 58px ' + (owner.ownerColor || '#7c5ccf') + '18' }}>
+    <motion.div initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .38, ease: [0.22, 1, 0.36, 1] }} className="relative overflow-hidden rounded-[28px] border border-white/50 bg-white/36 p-4 backdrop-blur-xl" style={{ boxShadow: '0 18px 46px ' + (owner.ownerColor || '#7c5ccf') + '18' }}>
       <span className="pointer-events-none absolute -right-12 -top-16 h-40 w-40 rounded-full blur-3xl" style={{ background: owner.ownerColor || '#7c5ccf', opacity: .18 }} />
       <div className="relative flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <TeamLogoGlass teamId={owner.ownerAbbr} size="lg" showGlow />
+          <TeamLogoGlass teamId={owner.ownerAbbr} size="md" showGlow />
           <div>
             <div className="font-mono text-[9px] font-black uppercase tracking-[.26em] text-lo">War Room</div>
-            <h2 className="mt-1 font-display text-4xl font-black tracking-tight text-slate-800">Pick #{(selecting ?? 0) + 1} / {owner.ownerName} is on the clock</h2>
+            <h2 className="mt-1 font-display text-2xl font-black tracking-tight text-slate-800 3xl:text-3xl">Pick #{(selecting ?? 0) + 1} / {owner.ownerName} is on the clock</h2>
           </div>
         </div>
-        <div className="flex items-center gap-2 rounded-full border border-white/40 bg-white/30 px-4 py-2 backdrop-blur-md">
+        <div className="flex items-center gap-2 rounded-full border border-white/40 bg-white/30 px-3 py-2 backdrop-blur-md">
           <span className="h-2 w-2 rounded-full" style={{ background: owner.ownerColor || '#7c5ccf', boxShadow: '0 0 16px ' + (owner.ownerColor || '#7c5ccf') }} />
           <span className="font-mono text-[9px] font-black uppercase tracking-[.18em] text-muted">Decision window</span>
         </div>
@@ -1231,12 +1522,12 @@ function PickConfirmScene({ overlay }) {
   const tier = getTierStyles(prospect?.tier)
   const image = prospect ? getPlayerCutoutImage(prospect) : null
   return (
-    <motion.div {...motionPresets.heroReveal} className="relative z-10 w-full max-w-5xl overflow-hidden rounded-[42px] border border-white/55 bg-white/45 p-8 text-center shadow-[0_30px_90px_rgba(0,0,0,.12)] backdrop-blur-2xl">
+    <motion.div {...motionPresets.heroReveal} className="relative z-10 w-full max-w-5xl overflow-hidden rounded-[42px] border border-white/55 bg-white/45 p-5 text-center 3xl:p-8 shadow-[0_30px_90px_rgba(0,0,0,.12)] backdrop-blur-2xl">
       <span className="pointer-events-none absolute left-1/2 top-0 h-72 w-72 -translate-x-1/2 rounded-full blur-3xl" style={{ background: team?.ownerColor || '#7c5ccf', opacity: .18 }} />
       <div className="relative font-mono text-[10px] font-black uppercase tracking-[.32em] text-lo">Pick #{overlay.pickNo}</div>
       <div className="relative mt-3 flex flex-wrap items-center justify-center gap-5"><TeamLogoGlass teamId={team?.ownerAbbr} size="xl" showGlow />{image && <div className="flex h-44 w-44 items-end justify-center overflow-visible rounded-[34px]"><img src={image} alt={prospect.name} className="player-cutout player-profile-cutout h-full w-full object-contain object-bottom" draggable="false" /></div>}</div>
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .18 }} className="relative mt-5 font-mono text-[10px] font-black uppercase tracking-[.24em]" style={{ color: team?.ownerColor || '#7c5ccf' }}>{team?.ownerName} seleciona</motion.div>
-      <motion.h2 initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .28 }} className="relative mt-2 font-display text-7xl font-black leading-none tracking-tight text-slate-800">{prospect?.name || 'Pick confirmado'}</motion.h2>
+      <motion.h2 initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .28 }} className="relative mt-2 font-display text-5xl font-black 3xl:text-7xl leading-none tracking-tight text-slate-800">{prospect?.name || 'Pick confirmado'}</motion.h2>
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .4 }} className="relative mt-5 flex flex-wrap justify-center gap-2"><span className="rounded-full bg-white/45 px-4 py-2 font-mono text-[9px] font-black uppercase tracking-[.16em] text-muted">{prospect?.position || '-'}</span><span className="rounded-full px-4 py-2 font-mono text-[9px] font-black uppercase tracking-[.16em]" style={{ background: tier.bg, color: tier.text }}>{tier.label}</span><span className="rounded-full bg-white/45 px-4 py-2 font-mono text-[9px] font-black uppercase tracking-[.16em] text-muted">{prospect?.team || '-'}</span></motion.div>
     </motion.div>
   )
@@ -1245,11 +1536,11 @@ function PickConfirmScene({ overlay }) {
 function NextPickScene({ overlay }) {
   const team = overlay.team
   return (
-    <motion.div {...motionPresets.heroReveal} className="relative z-10 w-full max-w-3xl overflow-hidden rounded-[38px] border border-white/55 bg-white/45 p-8 text-center shadow-[0_30px_90px_rgba(0,0,0,.10)] backdrop-blur-2xl">
+    <motion.div {...motionPresets.heroReveal} className="relative z-10 w-full max-w-3xl overflow-hidden rounded-[38px] border border-white/55 bg-white/45 p-5 text-center 3xl:p-8 shadow-[0_30px_90px_rgba(0,0,0,.10)] backdrop-blur-2xl">
       <div className="font-mono text-[10px] font-black uppercase tracking-[.32em] text-lo">Next on the clock</div>
       <div className="mt-5 flex justify-center"><TeamLogoGlass teamId={team?.ownerAbbr} size="xl" showGlow /></div>
-      <div className="mt-5 font-display text-6xl font-black text-slate-800">Pick #{overlay.pickNo}</div>
-      <div className="mt-2 font-display text-4xl font-black" style={{ color: team?.ownerColor || '#7c5ccf' }}>{team?.ownerName}</div>
+      <div className="mt-5 font-display text-4xl font-black 3xl:text-5xl 3xl:text-6xl text-slate-800">Pick #{overlay.pickNo}</div>
+      <div className="mt-2 font-display text-3xl font-black 3xl:text-4xl" style={{ color: team?.ownerColor || '#7c5ccf' }}>{team?.ownerName}</div>
     </motion.div>
   )
 }
@@ -1306,13 +1597,13 @@ function getDraftInsights(rows) {
     {
       title: 'Steal of the Draft',
       main: steal?.prospect?.name || '-',
-      detail: steal ? 'Caiu ' + getValueDelta(steal) + ' posições: saiu apenas na #' + steal.pickNo + ' mesmo projetado como #' + steal.prospect.rank + ', gerando valor real para ' + steal.pick.ownerName + '.' : 'Nenhum jogador caiu pelo menos 6 posições em relação ao board.' ,
+      detail: steal ? 'Caiu ' + getValueDelta(steal) + ' posicoes: saiu apenas na #' + steal.pickNo + ' mesmo projetado como #' + steal.prospect.rank + ', gerando valor real para ' + steal.pick.ownerName + '.' : 'Nenhum jogador caiu pelo menos 6 posicoes em relacao ao board.' ,
       color: '#4f9577',
     },
     {
       title: 'Reach monitorado',
       main: reach?.prospect?.name || '-',
-      detail: reach ? 'Saiu ' + Math.abs(getValueDelta(reach)) + ' posições antes do projetado: pick #' + reach.pickNo + ' para um jogador ranqueado como #' + reach.prospect.rank + '.' : 'Nenhuma escolha ficou 6+ posições acima do board.' ,
+      detail: reach ? 'Saiu ' + Math.abs(getValueDelta(reach)) + ' posicoes antes do projetado: pick #' + reach.pickNo + ' para um jogador ranqueado como #' + reach.prospect.rank + '.' : 'Nenhuma escolha ficou 6+ posicoes acima do board.' ,
       color: '#d96f7d',
     },
     {
@@ -1339,15 +1630,42 @@ function DraftResultsScreen({ picks, resolvedPicks, onReset, onHome }) {
   const first = rows[0]
   const firstTier = getTierStyles(first?.prospect?.tier)
   const insights = getDraftInsights(rows)
+  const shareRef = useRef(null)
+  const [exporting, setExporting] = useState(false)
+
+  const exportImage = async () => {
+    if (!shareRef.current || exporting) return
+    setExporting(true)
+    await new Promise(resolve => window.requestAnimationFrame(() => window.requestAnimationFrame(resolve)))
+    try {
+      if (document.fonts?.ready) await document.fonts.ready
+      const dataUrl = await toPng(shareRef.current, {
+        cacheBust: true,
+        pixelRatio: 2,
+        width: 1080,
+        height: 1350,
+        canvasWidth: 1080,
+        canvasHeight: 1350,
+        backgroundColor: document.documentElement.classList.contains('theme-dark') ? '#101722' : '#edeae4',
+      })
+      const link = document.createElement('a')
+      link.download = 'nba-draft-2026-mock-draft.png'
+      link.href = dataUrl
+      link.click()
+    } finally {
+      setExporting(false)
+    }
+  }
+
   return (
-    <motion.section initial={{ opacity: 0, y: 22 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .55, ease: 'easeOut' }} className="mx-auto max-w-7xl space-y-6">
-      <GlassPanel className="relative overflow-hidden p-8 text-center" style={{ background: 'radial-gradient(circle at 50% 0%, rgba(124,92,207,.18), transparent 36%), linear-gradient(145deg, rgba(255,255,255,.66), rgba(238,233,251,.52))' }}>
+    <motion.section initial={{ opacity: 0, y: 22 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .55, ease: 'easeOut' }} className="mx-auto max-w-[1480px] space-y-5 3xl:max-w-7xl 3xl:space-y-6">
+      <GlassPanel className="mock-results-hero relative overflow-hidden p-5 text-center 3xl:p-8" style={{ background: 'radial-gradient(circle at 50% 0%, rgba(124,92,207,.18), transparent 36%), linear-gradient(145deg, rgba(255,255,255,.66), rgba(238,233,251,.52))' }}>
         <div className="absolute left-8 top-8 rounded-full bg-white/45 px-4 py-2 font-mono text-[9px] font-black uppercase tracking-[.2em] text-muted">Draft Results</div>
         <div className="font-mono text-[10px] font-black uppercase tracking-[.28em]" style={{ color: firstTier.color }}>Pick #1</div>
-        <h1 className="mt-3 font-display text-5xl font-black tracking-tight text-slate-800 md:text-7xl">Draft Finalizado</h1>
-        <div className="mx-auto mt-6 max-w-3xl rounded-[34px] border border-white/65 bg-white/45 p-6 shadow-[0_18px_50px_rgb(0,0,0,0.05)] backdrop-blur-xl">
+        <h1 className="mt-3 font-display text-4xl font-black 3xl:text-5xl tracking-tight text-slate-800 3xl:text-7xl">Draft Finalizado</h1>
+        <div className="mx-auto mt-6 max-w-2xl rounded-[30px] 3xl:max-w-3xl 3xl:rounded-[34px] border border-white/65 bg-white/45 p-5 3xl:p-6 shadow-[0_18px_50px_rgb(0,0,0,0.05)] backdrop-blur-xl">
           <div className="font-mono text-[10px] font-black uppercase tracking-[.22em] text-muted">{first?.pick?.ownerName || '-'}</div>
-          <div className="mt-2 font-display text-4xl font-black tracking-tight text-slate-800">{first?.prospect?.name || 'Pick nao registrado'}</div>
+          <div className="mt-2 font-display text-3xl font-black 3xl:text-4xl tracking-tight text-slate-800">{first?.prospect?.name || 'Pick nao registrado'}</div>
           <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
             <span className="rounded-full px-4 py-1.5 font-mono text-[9px] font-black uppercase tracking-[.16em]" style={{ background: firstTier.bg, color: firstTier.text }}>{firstTier.label}</span>
             <span className="rounded-full bg-white/55 px-4 py-1.5 font-mono text-[9px] font-black uppercase tracking-[.16em] text-muted">{first?.prospect?.position || '-'}</span>
@@ -1370,11 +1688,69 @@ function DraftResultsScreen({ picks, resolvedPicks, onReset, onHome }) {
           <div className="grid gap-3 sm:grid-cols-3">
             <PremiumButton onClick={onReset} color="#7c5ccf" strong>Simular novamente</PremiumButton>
             <PremiumButton onClick={onHome} color="#5aaed6">Voltar ao inicio</PremiumButton>
-            <button type="button" onClick={() => navigator?.clipboard?.writeText('Meu Mock Draft 2026 foi finalizado no Rookies Brasil.')} className="rounded-full bg-white/44 px-6 py-3 font-mono text-[10px] font-black uppercase tracking-[.18em] text-muted transition-transform hover:-translate-y-0.5">Compartilhar resultado</button>
+            <button type="button" onClick={exportImage} className="rounded-full bg-white/44 px-6 py-3 font-mono text-[10px] font-black uppercase tracking-[.18em] text-muted transition-transform hover:-translate-y-0.5">{exporting ? 'Gerando imagem...' : 'Exportar imagem'}</button>
           </div>
         </GlassPanel>
       </motion.div>
+      <div className="mock-draft-share-capture" aria-hidden="true">
+        <div ref={shareRef}>
+          <MockDraftShareCard rows={rows} insights={insights} />
+        </div>
+      </div>
     </motion.section>
+  )
+}
+
+function MockDraftShareCard({ rows, insights }) {
+  const top = rows.slice(0, 30)
+  const date = new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date())
+  return (
+    <section className="mock-draft-share-card">
+      <div className="mock-share-watermark">2026</div>
+      <header className="mock-share-header">
+        <div>
+          <div className="mock-share-kicker">Rookies Brasil / Mock Draft Simulator</div>
+          <h1>NBA Draft 2026 Mock Draft</h1>
+          <p>Resultado editorial com ordem simulada, encaixes de time e leitura de valor da primeira rodada.</p>
+        </div>
+        <div className="mock-share-badge">
+          <span>Round</span>
+          <strong>1</strong>
+        </div>
+      </header>
+      <div className="mock-share-insights">
+        {insights.slice(0, 4).map(item => (
+          <div key={item.title} style={{ '--insight': item.color }}>
+            <span>{item.title}</span>
+            <strong>{item.main}</strong>
+          </div>
+        ))}
+      </div>
+      <main className="mock-share-grid">
+        {top.map(row => {
+          const tier = getTierStyles(row.prospect?.tier)
+          return (
+            <div key={row.pickNo} className="mock-share-row" style={{ '--row-color': row.pick.ownerColor || tier.color }}>
+              <div className="mock-share-pick">#{String(row.pickNo).padStart(2, '0')}</div>
+              <div className="mock-share-team">
+                <TeamLogoGlass teamId={row.pick.ownerAbbr} size="sm" showGlow={false} />
+                <span>{row.pick.ownerAbbr}</span>
+              </div>
+              <div className="mock-share-player">
+                <strong>{row.prospect?.name || 'Sem escolha'}</strong>
+                <span>{row.prospect?.position || '-'} / {row.prospect?.team || '-'} / rank #{row.prospect?.rank || '-'}</span>
+              </div>
+              <div className="mock-share-tier" style={{ color: tier.text, background: tier.bg }}>{tier.label}</div>
+            </div>
+          )
+        })}
+      </main>
+      <footer className="mock-share-footer">
+        <span>NBA Draft 2026 mock draft board</span>
+        <span>{date}</span>
+        <strong>rookies brasil</strong>
+      </footer>
+    </section>
   )
 }
 
@@ -1385,7 +1761,7 @@ function DraftPickList({ rows }) {
   }, {})
 
   return (
-    <GlassPanel className="p-5">
+    <GlassPanel className="mock-draft-results p-5">
       <div className="mb-4 flex items-center justify-between gap-3">
         <div>
           <div className="font-mono text-[9px] font-black uppercase tracking-[.24em] text-lo">Lista completa do draft</div>
@@ -1399,7 +1775,7 @@ function DraftPickList({ rows }) {
           const band = row.pickNo <= 5 ? 'rgba(124,92,207,.12)' : row.pickNo <= 14 ? 'rgba(90,174,214,.10)' : 'rgba(255,255,255,.28)'
           const grade = teamGrades[row.pick.ownerAbbr || row.pick.ownerName] || 'C'
           return (
-            <motion.div key={row.pickNo} whileHover={{ x: 4, scale: 1.006 }} className="grid items-center gap-3 rounded-[24px] border border-white/45 px-4 py-3 transition-all md:grid-cols-[64px_48px_1fr_1.15fr_92px_76px]" style={{ background: band }}>
+            <motion.div key={row.pickNo} whileHover={{ x: 4, scale: 1.006 }} className="mock-draft-result-row grid items-center gap-3 rounded-[24px] border border-white/45 px-4 py-3 transition-all md:grid-cols-[64px_48px_1fr_1.15fr_92px_76px]" style={{ '--pick-color': row.pickNo <= 5 ? '#7c5ccf' : '#4f86ad', background: band }}>
               <div className="font-numeric text-2xl font-extrabold tracking-tight" style={{ color: row.pickNo <= 5 ? '#7c5ccf' : '#4f86ad' }}>#{row.pickNo}</div>
               <TeamLogoGlass teamId={row.pick.ownerAbbr} size="md" showGlow={row.pickNo <= 14} />
               <div className="min-w-0"><div className="truncate text-sm font-black text-slate-800">{row.pick.ownerName}</div><div className="mt-0.5 font-mono text-[8px] font-bold uppercase tracking-[.16em] text-muted">{row.pick.viaAbbr ? 'via ' + row.pick.viaAbbr : row.pick.originalTeam?.record || 'First round'}</div></div>
@@ -1438,18 +1814,3 @@ function TeamDraftSummaryCard({ team, color, rows }) {
     </div>
   )
 }
-
-function HeroMeta({ label, value, color }) { return <div className="rounded-2xl bg-white/35 px-3 py-3 text-center"><div className="font-mono text-[9px] font-black uppercase tracking-[.18em] text-lo">{label}</div><div className="mt-1 font-mono text-sm font-black" style={{ color }}>{value || '-'}</div></div> }
-function AttributeBar({ label, value, color, featured = false }) { return <div><div className="mb-2 flex justify-between font-mono font-black uppercase tracking-[.14em]"><span className={featured ? 'text-[10px] text-slate-700' : 'text-[8px] text-lo'}>{label}</span><span className={featured ? 'text-[11px] text-slate-800' : 'text-[9px] text-slate-600'}>{Math.round(value)}</span></div><div className={(featured ? 'h-3.5' : 'h-2.5') + ' overflow-hidden rounded-full bg-white/50 shadow-inner'}><motion.div initial={{ width: 0 }} animate={{ width: clamp(value) + '%' }} transition={{ duration: .75, ease: [0.22, 1, 0.36, 1] }} className="h-full rounded-full" style={{ background: color, opacity: featured ? 1 : .72 }} /></div></div> }
-function InfoLine({ label, value, accent }) { return <div className="flex items-center justify-between rounded-2xl bg-white/32 px-3 py-2"><span className="font-mono text-[9px] font-black uppercase tracking-[.16em] text-lo">{label}</span><span className="font-mono text-xs font-black" style={{ color: accent || '#3f3a36' }}>{value}</span></div> }
-function MovementBadge({ movement }) { return <span className="rounded-full px-3 py-1 font-mono text-[9px] font-black uppercase tracking-[.14em]" style={{ background: movement.tone + '18', color: movement.tone }}>{movement.label}</span> }
-function GlassPanel({ children, className = '', style }) { return <div className={'rounded-[34px] border border-white/60 bg-white/48 shadow-[0_8px_30px_rgb(0,0,0,0.04)] backdrop-blur-xl ' + className} style={style}>{children}</div> }
-function PremiumButton({ onClick, color, children, strong }) { return <button onClick={onClick} className="rounded-full px-6 py-3 font-mono text-[10px] font-black uppercase tracking-[.18em] transition-transform hover:-translate-y-0.5 active:scale-95" style={{ background: '#edeae4', color, fontWeight: strong ? 900 : 700, boxShadow: '5px 5px 13px #d4d0ca, -5px -5px 13px #ffffff, inset 0 0 0 1px ' + color + '33' }}>{children}</button> }
-function StatusPill({ children }) { return <div className="rounded-full bg-white/44 px-4 py-2 font-mono text-[10px] font-black uppercase tracking-[.18em] text-muted backdrop-blur-md">{children}</div> }
-function Skeleton({ w = '75%' }) { return <div className="h-2 rounded-full" style={{ width: w, background: '#d8d4ce', animation: 'pulse 1.5s ease infinite' }} /> }
-
-
-
-
-
-

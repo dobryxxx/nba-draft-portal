@@ -1,5 +1,6 @@
-﻿import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
+import { Moon, Sun } from 'lucide-react'
 import Sidebar from './components/Sidebar'
 import Home from './views/Home'
 import ProspectList from './views/ProspectList'
@@ -10,13 +11,14 @@ import PlayerProfile from './views/PlayerProfile'
 import { prospects as baseProspects } from './data/prospects'
 
 const VIEWS = {
-  prospects: { id: 'prospects', label: 'Prospect DB', icon: '●' },
-  bigboard: { id: 'bigboard', label: 'Big Board', icon: '▦' },
-  mockdraft: { id: 'mockdraft', label: 'Mock Draft Sim', icon: '◎' },
-  dataquality: { id: 'dataquality', label: 'Data Quality', icon: '✓' },
+  prospects: { id: 'prospects', label: 'Prospect DB', icon: 'DB' },
+  bigboard: { id: 'bigboard', label: 'Big Board', icon: 'BB' },
+  mockdraft: { id: 'mockdraft', label: 'Mock Draft Sim', icon: 'MD' },
+  dataquality: { id: 'dataquality', label: 'Data Quality', icon: 'DQ' },
 }
 
 const STORAGE_KEY = 'nba-draft-2026-custom-board-v2'
+const THEME_KEY = 'nba-draft-2026-theme'
 
 const withRanks = (items) =>
   items.map((prospect, index) => ({ ...prospect, rank: index + 1 }))
@@ -68,6 +70,11 @@ export default function App() {
   const [time, setTime] = useState(() => new Date().toLocaleTimeString('pt-BR'))
   const [prospects, setProspects] = useState(loadProspects)
   const [selectedPlayerId, setSelectedPlayerId] = useState(null)
+  const contentRef = useRef(null)
+  const [theme, setTheme] = useState(() => {
+    if (typeof window === 'undefined') return 'light'
+    return window.localStorage.getItem(THEME_KEY) || 'light'
+  })
 
   useEffect(() => {
     const t = setInterval(() => setTime(new Date().toLocaleTimeString('pt-BR')), 1000)
@@ -77,6 +84,30 @@ export default function App() {
   useEffect(() => {
     setProspects(current => withRanks(current.map(hydrateProspect)))
   }, [])
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('theme-dark', theme === 'dark')
+    window.localStorage.setItem(THEME_KEY, theme)
+  }, [theme])
+
+  useEffect(() => {
+    const resetScroll = () => {
+      if (!contentRef.current) return
+      contentRef.current.scrollTop = 0
+      contentRef.current.scrollLeft = 0
+    }
+
+    resetScroll()
+    const frame = window.requestAnimationFrame(resetScroll)
+    const timer = window.setTimeout(resetScroll, 80)
+    const lateTimer = window.setTimeout(resetScroll, 260)
+
+    return () => {
+      window.cancelAnimationFrame(frame)
+      window.clearTimeout(timer)
+      window.clearTimeout(lateTimer)
+    }
+  }, [selectedPlayerId, activeView])
 
   useEffect(() => {
     const tiers = prospects.reduce((acc, prospect) => {
@@ -119,12 +150,20 @@ export default function App() {
   const selectedPlayer = prospects.find(p => p.id === selectedPlayerId)
   const pageKey = selectedPlayer ? `player-${selectedPlayer.id}` : activeView
   const isProspectDatabase = !selectedPlayer && activeView === 'prospects'
+  const isPlayerProfile = Boolean(selectedPlayer)
   const pageMotion = isProspectDatabase
     ? {
         initial: { opacity: 0, y: 10 },
         animate: { opacity: 1, y: 0 },
         exit: { opacity: 0, y: -6 },
         transition: { duration: 0.28, ease: [0.22, 1, 0.36, 1] },
+      }
+    : isPlayerProfile
+    ? {
+        initial: { opacity: 0, y: 8, scale: 0.995 },
+        animate: { opacity: 1, y: 0, scale: 1 },
+        exit: { opacity: 0, y: -6, scale: 0.995 },
+        transition: { duration: 0.22, ease: [0.22, 1, 0.36, 1] },
       }
     : {
         initial: { opacity: 0, y: 18, scale: 0.985, filter: 'blur(8px)' },
@@ -148,7 +187,7 @@ export default function App() {
       case 'home':
         return <Home onNavigate={setActiveView} prospectCount={prospects.length} prospects={prospects} />
       case 'prospects':
-        return <ProspectList prospects={prospects} onReorder={moveProspect} onTierChange={updateTier} onSelectProspect={setSelectedPlayerId} onOpenBoard={() => setActiveView('bigboard')} />
+        return <ProspectList prospects={prospects} onReorder={moveProspect} onTierChange={updateTier} onSelectProspect={setSelectedPlayerId} onOpenBoard={() => setActiveView('bigboard')} time={time} isDark={isDark} onToggleTheme={() => setTheme(isDark ? 'light' : 'dark')} />
       case 'bigboard':
         return <BigBoard prospects={prospects} onReorder={moveProspect} onTierChange={updateTier} onSelectProspect={setSelectedPlayerId} />
       case 'mockdraft':
@@ -156,43 +195,58 @@ export default function App() {
       case 'dataquality':
         return <DataQualityReview prospects={prospects} />
       default:
-        return <ProspectList prospects={prospects} onReorder={moveProspect} onTierChange={updateTier} onSelectProspect={setSelectedPlayerId} onOpenBoard={() => setActiveView('bigboard')} />
+        return <ProspectList prospects={prospects} onReorder={moveProspect} onTierChange={updateTier} onSelectProspect={setSelectedPlayerId} onOpenBoard={() => setActiveView('bigboard')} time={time} isDark={isDark} onToggleTheme={() => setTheme(isDark ? 'light' : 'dark')} />
     }
   }
 
+  const isDark = theme === 'dark'
+
   return (
-    <div className="flex h-screen overflow-hidden" style={{ background: '#edeae4' }}>
+    <div className="app-shell flex h-screen overflow-hidden" style={{ background: 'var(--color-bg-app)' }}>
       <Sidebar views={VIEWS} activeView={activeView} onNavigate={setActiveView} />
 
       <main className="flex-1 flex flex-col overflow-hidden">
-        <header
-          className="flex-shrink-0 flex items-center justify-between px-6 py-3"
-          style={{
-            background: '#edeae4',
-            boxShadow: '0 3px 10px #d4d0ca, 0 -1px 0 #fff',
-            zIndex: 10,
-          }}
-        >
-          <div className="flex items-center gap-3">
-            <span className="font-mono text-[10px] text-muted tracking-widest">NBA DRAFT /</span>
-            <span className="font-sans text-sm font-semibold text-ink">
-              {selectedPlayer ? selectedPlayer.name : VIEWS[activeView]?.label}
-            </span>
-          </div>
+        {!isProspectDatabase && (
+          <header
+            className="app-header flex-shrink-0 flex items-center justify-between gap-4 px-6 py-3"
+            style={{
+              background: 'var(--color-bg-app)',
+              boxShadow: 'var(--shadow-header)',
+              zIndex: 10,
+            }}
+          >
+            <div className="flex items-center gap-3">
+              <span className="font-mono text-[10px] text-muted tracking-widest">NBA DRAFT /</span>
+              <span className="font-sans text-sm font-semibold text-ink">
+                {selectedPlayer ? selectedPlayer.name : VIEWS[activeView]?.label}
+              </span>
+            </div>
 
-          <div className="flex items-center gap-3">
-            <StatusChip label="Draft" value="2026" color="#a79be8" bg="#f1effc" />
-            <StatusChip label="Classe" value={`${prospects.length} picks`} color="#8bbfe8" bg="#edf7fd" />
-            <StatusChip label="Modo" value="Custom" color="#8bcfb4" bg="#edf9f3" />
-            <span className="font-mono text-xs text-muted ml-2 tabular-nums">{time}</span>
-          </div>
-        </header>
+            <div className="flex items-center gap-3">
+              <StatusChip label="Draft" value="2026" color="#a79be8" bg="#f1effc" />
+              <StatusChip label="Classe" value={`${prospects.length} picks`} color="#8bbfe8" bg="#edf7fd" />
+              <StatusChip label="Modo" value="Custom" color="#8bcfb4" bg="#edf9f3" />
+              <span className="font-mono text-xs text-muted ml-2 tabular-nums">{time}</span>
+              <button
+                type="button"
+                onClick={() => setTheme(isDark ? 'light' : 'dark')}
+                className="theme-toggle ml-1 inline-flex h-10 items-center gap-2 rounded-full border border-white/35 px-3 font-mono text-[9px] font-black uppercase tracking-[.16em] transition-all duration-200 hover:-translate-y-[1px]"
+                aria-label={isDark ? 'Ativar modo claro' : 'Ativar modo noturno'}
+                aria-pressed={isDark}
+              >
+                {isDark ? <Sun size={15} /> : <Moon size={15} />}
+                <span className="hidden sm:inline">{isDark ? 'Light' : 'Dark'}</span>
+              </button>
+            </div>
+          </header>
+        )}
 
-        <div className="flex-1 overflow-y-auto">
+        <div ref={contentRef} className="flex-1 overflow-y-auto">
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={pageKey}
-              className="min-h-full"
+              className={isPlayerProfile ? 'page-layer player-profile-layer min-h-full' : 'page-layer min-h-full'}
+              style={{ position: 'relative', zIndex: isPlayerProfile ? 30 : 1 }}
               initial={pageMotion.initial}
               animate={pageMotion.animate}
               exit={pageMotion.exit}
@@ -213,10 +267,10 @@ function StatusChip({ label, value, color, bg }) {
       className="flex items-center gap-1.5 px-3 py-1 rounded-pill"
       style={{
         background: bg,
-        boxShadow: '2px 2px 5px #d4d0ca, -2px -2px 5px #ffffff',
+        boxShadow: 'var(--shadow-chip)',
       }}
     >
-      <span className="font-sans text-[10px] font-medium" style={{ color: color + 'aa' }}>{label}</span>
+      <span className="font-sans text-[10px] font-bold" style={{ color: color + 'aa' }}>{label}</span>
       <span className="font-mono text-[10px] font-bold" style={{ color }}>{value}</span>
     </div>
   )

@@ -494,7 +494,7 @@ export const prospects = [
     "weight": "185 lbs",
     "wingspan": "6'7\"",
     "tier": "LOTTERY",
-    "rank": 6,
+    "rank": 7,
     "stats": {
       "ppg": 17.3,
       "rpg": 4.1,
@@ -573,7 +573,7 @@ export const prospects = [
     "weight": "190 lbs",
     "wingspan": "6'7\"",
     "tier": "LOTTERY",
-    "rank": 7,
+    "rank": 8,
     "stats": {
       "ppg": 18.2,
       "rpg": 3.3,
@@ -883,7 +883,7 @@ export const prospects = [
     "weight": "240 lbs",
     "wingspan": "7'4\"",
     "tier": "LOTTERY",
-    "rank": 11,
+    "rank": 12,
     "stats": {
       "ppg": 15.1,
       "rpg": 6.9,
@@ -989,7 +989,7 @@ export const prospects = [
     "weight": "225 lbs",
     "wingspan": "7'0\"",
     "tier": "LOTTERY",
-    "rank": 12,
+    "rank": 13,
     "stats": {
       "ppg": 11.8,
       "rpg": 6.5,
@@ -1068,7 +1068,7 @@ export const prospects = [
     "weight": "220 lbs",
     "wingspan": "6'11\"",
     "tier": "LOTTERY",
-    "rank": 13,
+    "rank": 14,
     "stats": {
       "ppg": 16.4,
       "rpg": 5.2,
@@ -1147,7 +1147,7 @@ export const prospects = [
     "weight": "205 lbs",
     "wingspan": "7'0\"",
     "tier": "MID_1ST",
-    "rank": 17,
+    "rank": 15,
     "stats": {
       "ppg": 15.6,
       "rpg": 6.1,
@@ -1226,7 +1226,7 @@ export const prospects = [
     "weight": "175 lbs",
     "wingspan": "6'10\"",
     "tier": "MID_1ST",
-    "rank": 18,
+    "rank": 16,
     "stats": {
       "ppg": 17.4,
       "rpg": 4.8,
@@ -1305,7 +1305,7 @@ export const prospects = [
     "weight": "190 lbs",
     "wingspan": "6'6\"",
     "tier": "MID_1ST",
-    "rank": 19,
+    "rank": 17,
     "stats": {
       "ppg": 19.8,
       "rpg": 2.6,
@@ -1411,7 +1411,7 @@ export const prospects = [
     "weight": "255 lbs",
     "wingspan": "7'5\"",
     "tier": "MID_1ST",
-    "rank": 20,
+    "rank": 18,
     "stats": {
       "ppg": 5,
       "rpg": 5,
@@ -1490,7 +1490,7 @@ export const prospects = [
     "weight": "220 lbs",
     "wingspan": "7'1\"",
     "tier": "MID_1ST",
-    "rank": 20,
+    "rank": 19,
     "stats": {
       "ppg": null,
       "rpg": null,
@@ -1569,7 +1569,7 @@ export const prospects = [
     "weight": "240 lbs",
     "wingspan": "7'4\"",
     "tier": "MID_1ST",
-    "rank": 21,
+    "rank": 20,
     "stats": {
       "ppg": 11.4,
       "rpg": 6.3,
@@ -1648,7 +1648,7 @@ export const prospects = [
     "weight": "210 lbs",
     "wingspan": "6'11\"",
     "tier": "MID_1ST",
-    "rank": 22,
+    "rank": 21,
     "stats": {
       "ppg": 12.6,
       "rpg": 5.9,
@@ -1727,7 +1727,7 @@ export const prospects = [
     "weight": "180 lbs",
     "wingspan": "6'10\"",
     "tier": "MID_1ST",
-    "rank": 24,
+    "rank": 22,
     "stats": {
       "ppg": 11.2,
       "rpg": 4.3,
@@ -1806,7 +1806,7 @@ export const prospects = [
     "weight": "205 lbs",
     "wingspan": "6'10\"",
     "tier": "MID_1ST",
-    "rank": 26,
+    "rank": 23,
     "stats": {
       "ppg": 18.9,
       "rpg": 4.7,
@@ -1885,7 +1885,7 @@ export const prospects = [
     "weight": "235 lbs",
     "wingspan": "6'11\"",
     "tier": "MID_1ST",
-    "rank": 27,
+    "rank": 24,
     "stats": {
       "ppg": 14.1,
       "rpg": 7.3,
@@ -1964,7 +1964,7 @@ export const prospects = [
     "weight": "205 lbs",
     "wingspan": "6'7\"",
     "tier": "MID_1ST",
-    "rank": 28,
+    "rank": 25,
     "stats": {
       "ppg": 14.2,
       "rpg": 3.5,
@@ -2043,7 +2043,7 @@ export const prospects = [
     "weight": "240 lbs",
     "wingspan": "6'10\"",
     "tier": "MID_1ST",
-    "rank": 28,
+    "rank": 26,
     "stats": {
       "ppg": 16.4,
       "rpg": 7.4,
@@ -2149,7 +2149,7 @@ export const prospects = [
     "weight": "225 lbs",
     "wingspan": "7'2\"",
     "tier": "MID_1ST",
-    "rank": 29,
+    "rank": 27,
     "stats": {
       "ppg": 13.4,
       "rpg": 7.2,
@@ -2228,7 +2228,7 @@ export const prospects = [
     "weight": "185 lbs",
     "wingspan": "6'6\"",
     "tier": "MID_1ST",
-    "rank": 29,
+    "rank": 28,
     "stats": {
       "ppg": 13.8,
       "rpg": 4.4,
@@ -2307,7 +2307,7 @@ export const prospects = [
     "weight": "225 lbs",
     "wingspan": "6'11\"",
     "tier": "MID_1ST",
-    "rank": 30,
+    "rank": 29,
     "stats": {
       "ppg": 16.9,
       "rpg": 3.1,
@@ -2380,7 +2380,7 @@ export const prospects = [
     "weight": "200 lbs",
     "wingspan": "6'9\"",
     "tier": "SLEEPER",
-    "rank": 32,
+    "rank": 30,
     "stats": {
       "ppg": 15.1,
       "rpg": 4.6,
@@ -2453,7 +2453,7 @@ export const prospects = [
     "weight": "190 lbs",
     "wingspan": "6'8\"",
     "tier": "SLEEPER",
-    "rank": 33,
+    "rank": 31,
     "stats": {
       "ppg": 13.5,
       "rpg": 3.4,
@@ -2506,7 +2506,7 @@ export const prospects = [
     "weight": "185 lbs",
     "wingspan": "6'7\"",
     "tier": "SLEEPER",
-    "rank": 34,
+    "rank": 32,
     "stats": {
       "ppg": 16.4,
       "rpg": 3.9,
@@ -2585,7 +2585,7 @@ export const prospects = [
     "weight": "240 lbs",
     "wingspan": "7'4\"",
     "tier": "SLEEPER",
-    "rank": 35,
+    "rank": 33,
     "stats": {
       "ppg": 12.4,
       "rpg": 7.1,
@@ -2664,7 +2664,7 @@ export const prospects = [
     "weight": "215 lbs",
     "wingspan": "7'1\"",
     "tier": "SLEEPER",
-    "rank": 37,
+    "rank": 34,
     "stats": {
       "ppg": 15.3,
       "rpg": 6.2,
@@ -2743,7 +2743,7 @@ export const prospects = [
     "weight": "215 lbs",
     "wingspan": "7'0\"",
     "tier": "SLEEPER",
-    "rank": 42,
+    "rank": 35,
     "stats": {
       "ppg": 15.8,
       "rpg": 6.7,
@@ -2822,7 +2822,7 @@ export const prospects = [
     "weight": "210 lbs",
     "wingspan": "6'11\"",
     "tier": "SLEEPER",
-    "rank": 45,
+    "rank": 36,
     "stats": {
       "ppg": 14.6,
       "rpg": 5.4,
@@ -2901,7 +2901,7 @@ export const prospects = [
     "weight": "245 lbs",
     "wingspan": "7'3\"",
     "tier": "SLEEPER",
-    "rank": 46,
+    "rank": 37,
     "stats": {
       "ppg": 10.8,
       "rpg": 7.8,
@@ -2980,7 +2980,7 @@ export const prospects = [
     "weight": "235 lbs",
     "wingspan": "7'3\"",
     "tier": "SLEEPER",
-    "rank": 49,
+    "rank": 38,
     "stats": {
       "ppg": 11.2,
       "rpg": 7.6,
@@ -3059,7 +3059,7 @@ export const prospects = [
       "weight": "180 lbs",
       "wingspan": "",
       "tier": "SLEEPER",
-      "rank": 50,
+      "rank": 39,
       "eligibilityStatus": "official_early_entry",
       "archetype": "Tempo Guard / Table Setter",
       "stats": {
@@ -3148,7 +3148,7 @@ export const prospects = [
       "weight": "190 lbs",
       "wingspan": "",
       "tier": "SLEEPER",
-      "rank": 51,
+      "rank": 40,
       "eligibilityStatus": "official_early_entry",
       "archetype": "Lead Guard / Advantage Passer",
       "stats": {
@@ -3237,7 +3237,7 @@ export const prospects = [
       "weight": "205 lbs",
       "wingspan": "",
       "tier": "SLEEPER",
-      "rank": 52,
+      "rank": 41,
       "eligibilityStatus": "official_early_entry",
       "archetype": "Athletic Connector / Slashing Wing",
       "stats": {
@@ -3326,7 +3326,7 @@ export const prospects = [
       "weight": "215 lbs",
       "wingspan": "",
       "tier": "SLEEPER",
-      "rank": 53,
+      "rank": 42,
       "eligibilityStatus": "official_early_entry",
       "archetype": "Scoring Wing / Slasher",
       "stats": {
@@ -3415,7 +3415,7 @@ export const prospects = [
       "weight": "198 lbs",
       "wingspan": "",
       "tier": "SLEEPER",
-      "rank": 54,
+      "rank": 43,
       "eligibilityStatus": "official_early_entry",
       "archetype": "Big Guard / International Connector",
       "stats": {
@@ -3504,7 +3504,7 @@ export const prospects = [
       "weight": "200 lbs",
       "wingspan": "",
       "tier": "SLEEPER",
-      "rank": 55,
+      "rank": 44,
       "eligibilityStatus": "official_early_entry",
       "archetype": "Development Big / Stretch Frontcourt",
       "stats": {
@@ -3591,7 +3591,7 @@ export const prospects = [
       "weight": "240 lbs",
       "wingspan": "",
       "tier": "SLEEPER",
-      "rank": 56,
+      "rank": 45,
       "eligibilityStatus": "official_early_entry",
       "archetype": "Oversized Development Center",
       "stats": {

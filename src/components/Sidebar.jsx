@@ -50,7 +50,7 @@ export default function Sidebar({ views, activeView, onNavigate }) {
                 2026 Class
               </span>
             </div>
-            <div className="mt-4 font-sans text-xl font-extrabold leading-tight tracking-tight text-slate-800">
+            <div className="mt-4 font-brand text-2xl font-extrabold leading-none tracking-tight text-slate-800">
               Rookies Brasil
             </div>
             <div className="mt-1 font-mono text-[9px] font-black uppercase tracking-[.24em] text-muted">
@@ -104,7 +104,7 @@ export default function Sidebar({ views, activeView, onNavigate }) {
                       <Icon size={17} strokeWidth={2.35} />
                     </span>
                     <span className="min-w-0 flex-1">
-                      <span className={['block truncate text-sm text-slate-700', isActive ? 'font-extrabold' : 'font-bold'].join(' ')}>{label}</span>
+                      <span className={['block truncate font-sans text-sm text-slate-700', isActive ? 'font-extrabold' : 'font-bold'].join(' ')}>{label}</span>
                       <span className="mt-0.5 block truncate font-mono text-[8px] font-black uppercase tracking-[.14em] text-muted">{item.hint}</span>
                     </span>
                     {isActive && <span className="h-2 w-2 rounded-full bg-[#7c5ccf] shadow-[0_0_14px_rgba(124,92,207,.5)]" />}

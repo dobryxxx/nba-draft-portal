@@ -1,6 +1,8 @@
 node_modules/
 dist/
 .npm-cache/
+.venv/
+src/vendor/react-prebundled/
 *.log
 *.bak-codex-*
 .DS_Store
