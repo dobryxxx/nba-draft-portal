@@ -99,10 +99,10 @@ function resolveSlug(prospectOrName) {
 
 export function getPlayerImage(prospectOrName) {
   const slug = resolveSlug(prospectOrName)
-  return publicCutoutSlugs.has(slug) ? `./player-cutouts/${slug}.png` : imageBySlug[slug] || null
+  return publicCutoutSlugs.has(slug) ? `/player-cutouts/${slug}.png` : imageBySlug[slug] || null
 }
 
 export function getPlayerCutoutImage(prospectOrName) {
   const slug = resolveSlug(prospectOrName)
-  return publicCutoutSlugs.has(slug) ? `./player-cutouts/${slug}.png` : cleanCutoutBySlug[slug] || imageBySlug[slug] || null
+  return publicCutoutSlugs.has(slug) ? `/player-cutouts/${slug}.png` : cleanCutoutBySlug[slug] || imageBySlug[slug] || null
 }
