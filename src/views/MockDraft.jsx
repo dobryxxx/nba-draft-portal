@@ -81,7 +81,6 @@ export default function MockDraft() {
 
   const runSimulation = useCallback(() => {
     clearLotteryTimers()
-    setPhase(PHASE.ANIMATING)
     setRevealed([])
     setPicks({})
     setPickNotes({})
@@ -97,29 +96,8 @@ export default function MockDraft() {
     const all = buildAllPicks(order)
     setLotteryOrder(order)
     setResolved(all)
-
-    const scheduleLotteryStep = (callback, delay) => {
-      const timer = setTimeout(callback, delay)
-      lotteryTimersRef.current.push(timer)
-    }
-
-    const revealSequence = Array.from({ length: 14 }, (_, step) => 13 - step)
-    revealSequence.forEach((pickIndex, step) => {
-      const pickNumber = pickIndex + 1
-      const revealDelay = pickNumber > 4
-        ? step * 380 + 420
-        : 5200 + (4 - pickNumber) * 1550
-
-      scheduleLotteryStep(() => {
-        setRevealed(prev => prev.includes(pickIndex) ? prev : [...prev, pickIndex])
-      }, revealDelay)
-    })
-
-    scheduleLotteryStep(() => {
-      setRevealed(Array.from({ length: 14 }, (_, i) => i))
-      setPhase(PHASE.DONE)
-      lotteryTimersRef.current = []
-    }, 10650)
+    setRevealed(Array.from({ length: 14 }, (_, i) => i))
+    setPhase(PHASE.DONE)
   }, [buildAllPicks, clearLotteryTimers])
 
   const startDrafting = () => {
@@ -219,11 +197,11 @@ export default function MockDraft() {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <div className="font-display text-2xl font-black tracking-tight text-slate-800">Mock Draft Simulator</div>
-            <div className="mt-0.5 font-mono text-[9px] font-bold uppercase tracking-[.22em] text-muted">NBA Draft 2026 / Lottery Event / War Room Mode</div>
+            <div className="mt-0.5 font-mono text-[9px] font-bold uppercase tracking-[.22em] text-muted">NBA Draft 2026 / Ordem definida / War Room Mode</div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {phase !== PHASE.IDLE && <PremiumButton onClick={resetAll} color="#a09891">Reset</PremiumButton>}
-            {phase === PHASE.IDLE && <PremiumButton onClick={runSimulation} color="#7c5ccf" strong>Simular Loteria</PremiumButton>}
+            {phase === PHASE.IDLE && <PremiumButton onClick={runSimulation} color="#7c5ccf" strong>Carregar ordem oficial</PremiumButton>}
             {phase === PHASE.DONE && <PremiumButton onClick={startDrafting} color="#4f9577" strong>Seguir para o Draft</PremiumButton>}
             {draftFinished && <StatusPill>Draft finalizado</StatusPill>}
             {!draftFinished && phase === PHASE.DRAFTING && <StatusPill>{selecting !== null ? 'Pick ' + (selecting + 1) + ' / ' + TOTAL_PICKS : 'Draft concluido'}</StatusPill>}
@@ -283,12 +261,12 @@ function LotteryPanel({ onRun, selectedPick = 1, onSelectPick = () => {} }) {
         <div className="relative grid min-h-[440px] gap-4 3xl:min-h-[560px] 3xl:gap-6 xl:grid-cols-[minmax(0,1fr)_320px] 3xl:grid-cols-[minmax(0,1fr)_370px]">
           <div className="flex flex-col justify-center">
             <motion.div initial={{ opacity: 0, y: 18, filter: 'blur(8px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} transition={{ duration: .55, ease: [0.22, 1, 0.36, 1] }}>
-              <div className="font-mono text-[10px] font-black uppercase tracking-[.32em] text-[#7c5ccf]">Lottery Room</div>
-              <h2 className="mt-3 max-w-3xl font-display text-4xl font-black 2xl:text-5xl 3xl:text-6xl leading-[.94] tracking-tight text-slate-800">Simule a ordem do Draft e faça as suas escolhas</h2>
-              <p className="mt-5 max-w-2xl text-base font-semibold leading-7 text-muted">Entre na sala da loteria: probabilidades, tensão e o primeiro grande ponto de virada da classe de 2026.</p>
+              <div className="font-mono text-[10px] font-black uppercase tracking-[.32em] text-[#7c5ccf]">Draft Order Locked</div>
+              <h2 className="mt-3 max-w-3xl font-display text-4xl font-black 2xl:text-5xl 3xl:text-6xl leading-[.94] tracking-tight text-slate-800">A loteria está definida. Agora começa a War Room.</h2>
+              <p className="mt-5 max-w-2xl text-base font-semibold leading-7 text-muted">A ordem oficial das 14 primeiras escolhas já está travada, incluindo Clippers via Pacers, Hawks via Pelicans e Thunder via Clippers.</p>
               <div className="mt-8 flex flex-wrap items-center gap-3">
-                <PremiumButton onClick={onRun} color="#7c5ccf" strong>Revelar ordem</PremiumButton>
-                <span className="rounded-full border border-white/35 bg-white/30 px-4 py-2 font-mono text-[9px] font-black uppercase tracking-[.16em] text-muted backdrop-blur-md">14 lottery teams</span>
+                <PremiumButton onClick={onRun} color="#7c5ccf" strong>Carregar ordem oficial</PremiumButton>
+                <span className="rounded-full border border-white/35 bg-white/30 px-4 py-2 font-mono text-[9px] font-black uppercase tracking-[.16em] text-muted backdrop-blur-md">14 picks definidas</span>
               </div>
             </motion.div>
             <motion.div variants={motionPresets.cardStagger} initial="hidden" animate="show" className="mt-9 grid grid-cols-4 gap-3 sm:grid-cols-7">
@@ -326,7 +304,7 @@ function ProjectedPickHero({ pick, onRun }) {
   return (
     <motion.div whileHover={{ y: -3, scale: 1.01 }} className="relative flex min-h-[340px] w-full flex-col justify-center overflow-hidden rounded-[32px] border border-white/45 bg-white/30 p-5 text-center backdrop-blur-xl" style={{ boxShadow: '0 18px 48px ' + (pick?.ownerColor || '#7c5ccf') + '20' }}>
       <span className="pointer-events-none absolute -right-10 -top-12 h-32 w-32 rounded-full blur-3xl" style={{ background: pick?.ownerColor || '#7c5ccf', opacity: .18 }} />
-      <div className="relative font-mono text-[8px] font-black uppercase tracking-[.24em] text-lo">Projected #1 Pick</div>
+      <div className="relative font-mono text-[8px] font-black uppercase tracking-[.24em] text-lo">Official #1 Pick</div>
       <div className="relative mt-3 flex justify-center"><TeamLogoGlass teamId={pick?.ownerAbbr} size="xl" showGlow /></div>
       <div className="relative mt-3 font-display text-3xl font-black 3xl:text-4xl leading-none" style={{ color: pick?.ownerColor || '#7c5ccf' }}>#{pick?.pick}</div>
       <div className="relative mx-auto mt-2 flex h-16 max-w-[300px] items-center justify-center text-balance font-display text-2xl font-black leading-tight text-slate-800">{pick?.ownerName}</div>
@@ -334,7 +312,7 @@ function ProjectedPickHero({ pick, onRun }) {
         <span className="rounded-full border border-white/35 bg-white/35 px-3 py-1 font-mono text-[8px] font-black uppercase tracking-[.14em] text-muted">{getTeamTimelineLabel(pick?.ownerAbbr)}</span>
         <span className="rounded-full border border-white/35 bg-white/35 px-3 py-1 font-mono text-[8px] font-black uppercase tracking-[.14em] text-muted">{getTeamPriorityLabel(pick?.ownerAbbr)}</span>
       </div>
-      <button type="button" onClick={onRun} className="relative mt-4 rounded-full px-5 py-2.5 font-mono text-[9px] font-black uppercase tracking-[.18em] text-white transition-transform hover:-translate-y-0.5 active:scale-95" style={{ background: pick?.ownerColor || '#7c5ccf', boxShadow: '0 14px 30px ' + (pick?.ownerColor || '#7c5ccf') + '30' }}>Sortear ordem</button>
+      <button type="button" onClick={onRun} className="relative mt-4 rounded-full px-5 py-2.5 font-mono text-[9px] font-black uppercase tracking-[.18em] text-white transition-transform hover:-translate-y-0.5 active:scale-95" style={{ background: pick?.ownerColor || '#7c5ccf', boxShadow: '0 14px 30px ' + (pick?.ownerColor || '#7c5ccf') + '30' }}>Ver ordem oficial</button>
     </motion.div>
   )
 }
@@ -344,10 +322,10 @@ function DraftOrderStrip({ picks, activePick = 1, onSelect = () => {} }) {
     <section className="relative -mx-2 overflow-hidden rounded-[30px] border border-white/35 bg-white/20 p-3 backdrop-blur-md">
       <div className="mb-3 flex items-center justify-between gap-3 px-2">
         <div>
-          <div className="font-mono text-[9px] font-black uppercase tracking-[.26em] text-lo">Draft Order Strip</div>
-          <div className="mt-1 text-xs font-semibold text-muted">Clique em uma pick para destacar o contexto antes da simulacao.</div>
+          <div className="font-mono text-[9px] font-black uppercase tracking-[.26em] text-lo">Ordem oficial da loteria</div>
+          <div className="mt-1 text-xs font-semibold text-muted">Clique em uma pick para destacar o contexto antes do draft.</div>
         </div>
-        <span className="hidden rounded-full border border-white/30 bg-white/30 px-3 py-1.5 font-mono text-[8px] font-black uppercase tracking-[.16em] text-muted sm:inline-flex">Lottery #1-#14</span>
+        <span className="hidden rounded-full border border-white/30 bg-white/30 px-3 py-1.5 font-mono text-[8px] font-black uppercase tracking-[.16em] text-muted sm:inline-flex">Picks #1-#14</span>
       </div>
       <div className="flex gap-3 overflow-x-auto px-2 pb-2 [scrollbar-width:thin]">
         {picks.slice(0, 14).map(pick => {
@@ -378,7 +356,7 @@ function DraftOrderStrip({ picks, activePick = 1, onSelect = () => {} }) {
                 <TeamLogoGlass teamId={pick.ownerAbbr} size={top4 ? 'md' : 'sm'} showGlow={top4 || active} />
                 <div className="min-w-0">
                   <div className={(top4 ? 'text-lg' : 'text-sm') + ' font-black text-slate-800'}>{pick.ownerAbbr}</div>
-                  <div className="truncate font-mono text-[7px] font-black uppercase tracking-[.14em] text-lo">{top4 ? 'Top 4 draw' : 'Lottery'}</div>
+                  <div className="truncate font-mono text-[7px] font-black uppercase tracking-[.14em] text-lo">{top4 ? 'Top 4 definido' : 'Loteria'}</div>
                 </div>
               </div>
             </motion.button>
@@ -530,12 +508,12 @@ function LotteryResultSummary({ picks, onDraft }) {
           </div>
         </div>
         <div className="mt-6 grid gap-4 lg:grid-cols-3">
-          <ResultSpot title="Biggest Winner" pick={winner} />
-          <ResultSpot title="Biggest Drop" pick={drop} />
+          <ResultSpot title="Maior salto" pick={winner} />
+          <ResultSpot title="Maior queda" pick={drop} />
           <div className="rounded-[28px] border border-white/60 bg-white/38 p-5 backdrop-blur-md">
-            <div className="font-mono text-[9px] font-black uppercase tracking-[.22em] text-lo">Stayed Flat</div>
+            <div className="font-mono text-[9px] font-black uppercase tracking-[.22em] text-lo">Sem movimento</div>
             <div className="mt-3 font-display text-3xl font-black 3xl:text-4xl text-slate-800">{flat.length}</div>
-            <p className="mt-2 text-xs font-semibold leading-5 text-muted">Times mantidos na posicao esperada.</p>
+            <p className="mt-2 text-xs font-semibold leading-5 text-muted">Times mantidos na posição projetada.</p>
           </div>
         </div>
       </GlassPanel>

@@ -13,6 +13,7 @@ export const TRADE_MAP = {
 }
 
 export const COMBOS = [140, 140, 140, 125, 105, 90, 75, 60, 45, 30, 20, 15, 10, 5]
+export const OFFICIAL_LOTTERY_ORDER = ['WAS', 'UTA', 'MEM', 'CHI', 'IND', 'BKN', 'SAC', 'NOP', 'DAL', 'MIL', 'GSW', 'LAC', 'MIA', 'CHA']
 export const PHASE = { IDLE: 'idle', ANIMATING: 'animating', DONE: 'done', DRAFTING: 'drafting' }
 export const SCENE = { LOTTERY_INTRO: 'lotteryIntro', LOTTERY_REVEAL: 'lotteryReveal', DRAFT_ORDER: 'draftOrder', WAR_ROOM: 'warRoom', PICK_CONFIRM: 'pickConfirm', NEXT_PICK: 'nextPickTransition', DRAFT_RESULTS: 'draftResults' }
 export const TOTAL_PICKS = 30
@@ -87,14 +88,9 @@ export function pickOne(pool, exclude) {
 }
 
 export function runLottery() {
-  const pool = buildPool()
-  const top4 = []
-  for (let i = 0; i < 4; i++) {
-    const winner = pickOne(pool, top4)
-    if (winner != null) top4.push(winner)
-  }
-  const rest = LOTTERY_TEAMS.filter(t => !top4.includes(t.id)).sort((a, b) => a.slotOrder - b.slotOrder).map(t => t.id)
-  return [...top4, ...rest]
+  return OFFICIAL_LOTTERY_ORDER
+    .map(abbr => LOTTERY_TEAMS.find(team => team.abbr === abbr)?.id)
+    .filter(Boolean)
 }
 
 export const teamById = id => LOTTERY_TEAMS.find(t => t.id === id)
@@ -108,7 +104,11 @@ export function getSceneFromState(phase, draftFinished) {
   return SCENE.LOTTERY_INTRO
 }
 export function buildProjectedLotteryPicks() {
-  return LOTTERY_TEAMS.map((team, i) => ({ pick: i + 1, isLottery: true, isTop4: i < 4, ownerName: team.name, ownerAbbr: team.abbr, ownerColor: team.color, originalTeam: team }))
+  return runLottery().map((teamId, i) => {
+    const team = teamById(teamId)
+    const trade = applyTradeRules(team, i + 1)
+    return { pick: i + 1, isLottery: true, isTop4: i < 4, originalTeam: team, ...trade }
+  })
 }
 
 export function getTeamTimelineLabel(teamId) {

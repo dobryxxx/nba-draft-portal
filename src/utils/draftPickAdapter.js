@@ -2,6 +2,7 @@ import { LOTTERY_TEAMS, PICKS_15_30 } from '../data/prospects.js';
 
 const lotteryTeams = LOTTERY_TEAMS;
 const fixedFirstRoundPicks = PICKS_15_30;
+const officialLotteryOrder = ['WAS', 'UTA', 'MEM', 'CHI', 'IND', 'BKN', 'SAC', 'NOP', 'DAL', 'MIL', 'GSW', 'LAC', 'MIA', 'CHA'];
 
 const isTeamId = value => typeof value === 'string' && /^[A-Z]{2,3}$/.test(value);
 const normalizePlayerId = playerId => playerId === null || playerId === undefined || playerId === '' ? undefined : String(playerId);
@@ -85,7 +86,9 @@ export function buildDraftOrderFromLotteryResult(lotteryResult) {
 }
 
 function getDefaultLotteryResult() {
-  return [...lotteryTeams].sort((a, b) => a.slotOrder - b.slotOrder).map(team => team.id);
+  return officialLotteryOrder
+    .map(abbr => lotteryTeams.find(team => team.abbr === abbr)?.id)
+    .filter(Boolean);
 }
 
 export function getCurrentDraftOrder(currentOrder) {

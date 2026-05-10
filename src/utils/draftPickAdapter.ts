@@ -49,6 +49,7 @@ type TradeResult = {
 
 const lotteryTeams = LOTTERY_TEAMS as LotteryTeam[];
 const fixedFirstRoundPicks = PICKS_15_30 as FixedFirstRoundPick[];
+const officialLotteryOrder: TeamId[] = ['WAS', 'UTA', 'MEM', 'CHI', 'IND', 'BKN', 'SAC', 'NOP', 'DAL', 'MIL', 'GSW', 'LAC', 'MIA', 'CHA'];
 
 const isTeamId = (value: unknown): value is TeamId =>
   typeof value === 'string' && /^[A-Z]{2,3}$/.test(value);
@@ -167,9 +168,9 @@ export function buildDraftOrderFromLotteryResult(lotteryResult: number[]): Norma
 }
 
 function getDefaultLotteryResult(): number[] {
-  return [...lotteryTeams]
-    .sort((a, b) => a.slotOrder - b.slotOrder)
-    .map(team => team.id);
+  return officialLotteryOrder
+    .map(abbr => lotteryTeams.find(team => team.abbr === abbr)?.id)
+    .filter((id): id is number => typeof id === 'number');
 }
 
 export function getCurrentDraftOrder(currentOrder?: DraftOrderInput): NormalizedDraftPick[] {

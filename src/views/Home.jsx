@@ -154,7 +154,7 @@ function HeroMetric({ label, value, color }) {
 
 function QuickActions({ onNavigate }) {
   const actions = [
-    { id: 'mockdraft', title: 'Mock Draft', icon: Target, color: '#7c5ccf', description: 'Entre na War Room, rode a loteria e tome decisões pick a pick.' },
+    { id: 'mockdraft', title: 'Mock Draft', icon: Target, color: '#7c5ccf', description: 'Entre na War Room com a ordem da loteria definida e tome decisões pick a pick.' },
     { id: 'bigboard', title: 'Big Board', icon: BarChart3, color: '#5aaed6', description: 'Organize tiers, reordene jogadores e construa seu ranking customizado.' },
     { id: 'prospects', title: 'Prospect Database', icon: Database, color: '#4f9577', description: 'Explore perfis, stats, scouting e contexto de cada prospecto.' },
   ]

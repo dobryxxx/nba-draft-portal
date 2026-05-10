@@ -1,4 +1,4 @@
-﻿import { Activity, BarChart3, CheckSquare, Database, FileText, Layers, PanelLeftClose, Target } from 'lucide-react'
+﻿import { Activity, BarChart3, Database, FileText, Layers, PanelLeftClose, Target } from 'lucide-react'
 import { cn, glass, layout, motion as motionTokens, typography } from '../styles/designSystem'
 
 const NAV_SECTIONS = [
@@ -12,13 +12,12 @@ const NAV_SECTIONS = [
   {
     title: 'SIMULATION',
     items: [
-      { id: 'mockdraft', fallbackLabel: 'Mock Draft', icon: Target, hint: 'Lottery e War Room' },
+      { id: 'mockdraft', fallbackLabel: 'Mock Draft', icon: Target, hint: 'Ordem e War Room' },
     ],
   },
   {
     title: 'INTEL',
     items: [
-      { id: 'dataquality', fallbackLabel: 'Data Quality', icon: CheckSquare, hint: 'Controle editorial da DB' },
       { id: 'draftintel', fallbackLabel: 'Draft Intel', icon: FileText, hint: 'Relatorios em breve', disabled: true },
     ],
   },
