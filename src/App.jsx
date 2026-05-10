@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Moon, Sun } from 'lucide-react'
+import { Menu, Moon, PanelLeftClose, Sun } from 'lucide-react'
 import Sidebar from './components/Sidebar'
 import Home from './views/Home'
 import ProspectList from './views/ProspectList'
@@ -70,6 +70,7 @@ export default function App() {
   const [time, setTime] = useState(() => new Date().toLocaleTimeString('pt-BR'))
   const [prospects, setProspects] = useState(loadProspects)
   const [selectedPlayerId, setSelectedPlayerId] = useState(null)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const contentRef = useRef(null)
   const [theme, setTheme] = useState(() => {
     if (typeof window === 'undefined') return 'light'
@@ -203,7 +204,31 @@ export default function App() {
 
   return (
     <div className="app-shell flex h-screen overflow-hidden" style={{ background: 'var(--color-bg-app)' }}>
-      <Sidebar views={VIEWS} activeView={activeView} onNavigate={setActiveView} />
+      <Sidebar
+        views={VIEWS}
+        activeView={activeView}
+        isOpen={isSidebarOpen}
+        onToggle={() => setIsSidebarOpen(open => !open)}
+        onNavigate={(view) => {
+          setActiveView(view)
+          if (window.innerWidth < 1024) setIsSidebarOpen(false)
+        }}
+      />
+
+      {!isSidebarOpen && (
+        <motion.button
+          type="button"
+          className="sidebar-reopen-button fixed left-4 top-4 z-[80] inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/60 bg-white/65 text-slate-800 shadow-[0_18px_46px_rgba(40,36,32,.12),inset_1px_1px_0_rgba(255,255,255,.78)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_22px_60px_rgba(124,92,207,.18),inset_1px_1px_0_rgba(255,255,255,.84)] dark:border-white/10 dark:bg-slate-950/60 dark:text-white dark:shadow-black/30"
+          onClick={() => setIsSidebarOpen(true)}
+          aria-label="Abrir menu lateral"
+          initial={{ opacity: 0, x: -14, scale: 0.9 }}
+          animate={{ opacity: 1, x: 0, scale: 1 }}
+          exit={{ opacity: 0, x: -10, scale: 0.94 }}
+          transition={{ type: 'spring', stiffness: 280, damping: 24 }}
+        >
+          <Menu size={19} strokeWidth={2.4} />
+        </motion.button>
+      )}
 
       <main className="flex-1 flex flex-col overflow-hidden">
         {!isProspectDatabase && (
@@ -216,6 +241,15 @@ export default function App() {
             }}
           >
             <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setIsSidebarOpen(open => !open)}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/45 bg-white/35 text-slate-700 shadow-[inset_1px_1px_0_rgba(255,255,255,.72)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/55 dark:border-white/10 dark:bg-slate-950/45 dark:text-white"
+                aria-label={isSidebarOpen ? 'Esconder menu lateral' : 'Abrir menu lateral'}
+                aria-pressed={isSidebarOpen}
+              >
+                {isSidebarOpen ? <PanelLeftClose size={17} strokeWidth={2.4} /> : <Menu size={17} strokeWidth={2.4} />}
+              </button>
               <span className="font-mono text-[10px] text-muted tracking-widest">NBA DRAFT /</span>
               <span className="font-sans text-sm font-semibold text-ink">
                 {selectedPlayer ? selectedPlayer.name : VIEWS[activeView]?.label}

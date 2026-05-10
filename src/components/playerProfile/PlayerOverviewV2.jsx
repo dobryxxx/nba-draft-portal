@@ -14,6 +14,7 @@ import {
   Zap,
 } from 'lucide-react'
 import TeamLogoGlass from '../TeamLogoGlass'
+import { mergeProspectWithManualIntelligence } from '../../data/prospectDraftIntelligence.ts'
 import { getBestFitsForPlayer, getBestFitColor } from '../../utils/bestFitAlgorithm'
 import {
   buildProjectionInputFromProspect,
@@ -35,6 +36,8 @@ import {
   getNBATranslation,
   getOverviewCopy,
   getPlayerArchetype,
+  getResolvedCeilingLabel,
+  getResolvedFloorLabel,
   num,
   resolveOutcomeScores,
 } from '../../utils/playerProfileLogic'
@@ -76,15 +79,15 @@ function outcomeRelationCopy(floor, ceiling) {
   const floorText = floor < 50
     ? 'Exige desenvolvimento forte antes de confiar em minutos NBA'
     : floor < 60
-      ? 'Precisa ser testado em contextos com menos pressao para garantir rotacao'
+      ? 'Precisa ser testado em contextos com menos pressao para garantir rotação'
       : floor < 70
-        ? 'Ja consegue impactar cedo se o papel for limpo'
+        ? 'Já consegue impactar cedo se o papel for limpo'
         : 'Entra na liga com base forte para minutos relevantes'
 
   const ceilingText = ceiling < 60
     ? 'mas dificilmente vira diferencial em jogos importantes.'
     : ceiling < 70
-      ? 'e pode se tornar uma peca funcional de rotacao.'
+      ? 'e pode se tornar uma peca funcional de rotação.'
       : ceiling < 80
         ? 'e pode virar diferencial real em uma equipe vencedora.'
         : ceiling < 90
@@ -212,10 +215,10 @@ function tagTone(tag, accent) {
 function CinematicProspectHero({ player, accent, tier, floor, ceiling }) {
   const tags = getStyleTags(player)
   const metrics = [
-    { label: 'Piso', value: getFloorLabel(floor), score: floor, color: '#e8a6a6', Icon: Shield, sub: 'Base funcional de minutos NBA.' },
-    { label: 'Teto', value: getCeilingLabel(ceiling), score: ceiling, color: accent, Icon: TrendingUp, sub: 'Se o desenvolvimento bater.' },
-    { label: 'Overall', value: 'Draft Grade', score: Math.round((floor + ceiling) / 2), color: '#6fbf9c', Icon: BadgeCheck, sub: 'Media entre piso e teto. Quanto maior, melhor.' },
-    { label: 'Risco', value: riskProfile(floor, ceiling)[0], score: ceiling - floor, color: riskProfile(floor, ceiling)[2], Icon: AlertTriangle, sub: 'Distancia entre piso e teto. Quanto menor, melhor.' },
+    { label: 'Piso', value: getResolvedFloorLabel(player, floor), score: floor, color: '#e8a6a6', Icon: Shield, sub: 'Base funcional de minutos NBA.' },
+    { label: 'Teto', value: getResolvedCeilingLabel(player, ceiling), score: ceiling, color: accent, Icon: TrendingUp, sub: 'Se o desenvolvimento bater.' },
+    { label: 'Overall', value: 'Draft Grade', score: Math.round((floor + ceiling) / 2), color: '#6fbf9c', Icon: BadgeCheck, sub: 'Média entre piso e teto. Quanto maior, melhor.' },
+    { label: 'Risco', value: riskProfile(floor, ceiling)[0], score: ceiling - floor, color: riskProfile(floor, ceiling)[2], Icon: AlertTriangle, sub: 'Distância entre piso e teto. Quanto menor, melhor.' },
   ]
 
   return (
@@ -367,7 +370,7 @@ function PlayerDNASection({ player, accent }) {
         <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
           <div>
             <SectionLabel>Player DNA</SectionLabel>
-            <h2 className="mt-1 font-headline text-3xl font-black tracking-tight text-slate-950">Pontos de Observa��o</h2>
+            <h2 className="mt-1 font-headline text-3xl font-black tracking-tight text-slate-950">Pontos de Observação</h2>
           </div>
         </div>
         <div className="grid gap-3 xl:grid-cols-2">
@@ -380,7 +383,7 @@ function PlayerDNASection({ player, accent }) {
   )
 }
 
-function OutcomeVisualizer({ floor, ceiling, setFloor, setCeiling, accent }) {
+function OutcomeVisualizer({ player, floor, ceiling, setFloor, setCeiling, accent }) {
   const delta = ceiling - floor
   const [risk, , riskColor] = riskProfile(floor, ceiling)
   const floorPct = scoreToTrack(floor)
@@ -432,8 +435,8 @@ function OutcomeVisualizer({ floor, ceiling, setFloor, setCeiling, accent }) {
               onChange={e => setCeiling(Math.max(Number(e.target.value), floor + 1))}
               className="overview-v2-range-input absolute left-0 right-0 top-[28px] z-20 w-full"
             />
-            <Marker label="Piso" value={floor} pct={floorPct} color="#e8a6a6" title={getFloorLabel(floor)} />
-            <Marker label="Teto" value={ceiling} pct={ceilingPct} color={accent} title={getCeilingLabel(ceiling)} />
+            <Marker label="Piso" value={floor} pct={floorPct} color="#e8a6a6" title={getResolvedFloorLabel(player, floor)} />
+            <Marker label="Teto" value={ceiling} pct={ceilingPct} color={accent} title={getResolvedCeilingLabel(player, ceiling)} />
           </div>
           <div className="mt-2 grid grid-cols-6 gap-2">
             {OUTCOME_LABELS.map(([label]) => (
@@ -486,7 +489,7 @@ function ProjectionOutcomePanel({ player, floor, ceiling, accent }) {
   const scale = [
     ['G-League', 35],
     ['Fundo', 40],
-    ['Rotacao', 50],
+    ['Rotação', 50],
     ['Starter', 60],
     ['All-Star', 70],
     ['Franchise', 80],
@@ -586,7 +589,7 @@ function DraftDecisionPanel({ player, accent }) {
         <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
           <div>
             <SectionLabel>War Room Recommendation</SectionLabel>
-            <h2 className="mt-1 font-headline text-3xl font-black tracking-tight text-slate-950 dark:text-white">Best team context</h2>
+            <h2 className="mt-1 font-headline text-3xl font-black tracking-tight text-slate-950 dark:text-white">Melhores Encaixes</h2>
             <p className="mt-2 max-w-2xl text-sm font-medium leading-6 text-slate-500 dark:text-slate-400">
               Best Fit Score mede contexto: necessidade, papel, desenvolvimento, timeline, esquema, range de pick e risco.
             </p>
@@ -706,13 +709,13 @@ function NBATranslationPanel({ player, accent }) {
   const cards = getNBATranslation(player)
   const icons = [LineChart, Gem, AlertTriangle]
   const colors = [accent, '#8bbfe8', '#e8a6a6']
-  const labels = ['Initial Role', 'Ideal Fit', 'Main Risk']
+  const labels = ['Papel Inicial', 'Encaixe Ideal', 'Principal Risco']
 
   return (
     <GlassShell className="h-full rounded-[38px] p-5 md:p-6">
       <div className="relative flex h-full flex-col">
         <SectionLabel>NBA Translation</SectionLabel>
-        <h2 className="mt-1 font-headline text-3xl font-black tracking-tight text-slate-950">Role, ecosystem, concern</h2>
+        <h2 className="mt-1 font-headline text-3xl font-black tracking-tight text-slate-950">Papel, ecossistema, preocupação</h2>
         <div className="mt-5 grid flex-1 content-center gap-3">
           {cards.map(([, value], index) => {
             const Icon = icons[index]
@@ -738,14 +741,15 @@ function NBATranslationPanel({ player, accent }) {
 }
 
 export default function PlayerOverviewV2({ p, badges, accent, tier }) {
-  const resolved = resolveOutcomeScores(p)
+  const player = useMemo(() => mergeProspectWithManualIntelligence(p || {}), [p])
+  const resolved = resolveOutcomeScores(player)
   const [floor, setFloor] = useState(resolved.floor)
   const [ceiling, setCeiling] = useState(resolved.ceiling)
 
   useEffect(() => {
     setFloor(resolved.floor)
     setCeiling(resolved.ceiling)
-  }, [p.id, resolved.floor, resolved.ceiling])
+  }, [player.id, resolved.floor, resolved.ceiling])
 
   return (
     <motion.div
@@ -755,14 +759,14 @@ export default function PlayerOverviewV2({ p, badges, accent, tier }) {
       animate="show"
       data-badge-count={badges?.length || 0}
     >
-      <CinematicProspectHero player={p} accent={accent} tier={tier} floor={floor} ceiling={ceiling} />
+      <CinematicProspectHero player={player} accent={accent} tier={tier} floor={floor} ceiling={ceiling} />
       <div className="grid items-stretch gap-5 xl:grid-cols-[minmax(0,1fr)_380px] 3xl:grid-cols-[minmax(0,1fr)_420px]">
-        <ExecutiveDraftRead player={p} accent={accent} floor={floor} ceiling={ceiling} />
-        <NBATranslationPanel player={p} accent={accent} />
+        <ExecutiveDraftRead player={player} accent={accent} floor={floor} ceiling={ceiling} />
+        <NBATranslationPanel player={player} accent={accent} />
       </div>
-      <PlayerDNASection player={p} accent={accent} />
-      <ProjectionOutcomePanel player={p} floor={floor} ceiling={ceiling} accent={accent} />
-      <DraftDecisionPanel player={p} accent={accent} />
+      <PlayerDNASection player={player} accent={accent} />
+      <ProjectionOutcomePanel player={player} floor={floor} ceiling={ceiling} accent={accent} />
+      <DraftDecisionPanel player={player} accent={accent} />
     </motion.div>
   )
 }

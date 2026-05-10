@@ -3050,625 +3050,625 @@ export const prospects = [
     "accentColor": "#f59e0b"
   },
   {
-      "id": 57,
-      "name": "Elliot Cadeau",
-      "position": "PG",
-      "team": "Michigan",
-      "age": 21.8,
-      "height": "6'1\"",
-      "weight": "180 lbs",
-      "wingspan": "",
-      "tier": "SLEEPER",
-      "rank": 39,
-      "eligibilityStatus": "official_early_entry",
-      "archetype": "Tempo Guard / Table Setter",
-      "stats": {
-          "ppg": 10.5,
-          "rpg": 2.7,
-          "apg": 5.9,
-          "fgp": 41.1,
-          "threep": 37.6,
-          "ftp": 70.9,
-          "per": 14.7,
-          "ts": 54.3,
-          "usg": 21.4,
-          "efg": 50.9,
-          "astTo": 2.44,
-          "blkPct": null,
-          "stlPct": null,
-          "games": 40,
-          "fgm": 3.4,
-          "fga": 8.3,
-          "threepm": 1.6,
-          "threepa": 4.3,
-          "ftm": 2.1,
-          "fta": 2.9
+    "id": 57,
+    "name": "Elliot Cadeau",
+    "position": "PG",
+    "team": "Michigan",
+    "age": 21.8,
+    "height": "6'1\"",
+    "weight": "180 lbs",
+    "wingspan": "",
+    "tier": "SLEEPER",
+    "rank": 39,
+    "eligibilityStatus": "official_early_entry",
+    "archetype": "Tempo Guard / Table Setter",
+    "stats": {
+      "ppg": 10.5,
+      "rpg": 2.7,
+      "apg": 5.9,
+      "fgp": 41.1,
+      "threep": 37.6,
+      "ftp": 70.9,
+      "per": 14.7,
+      "ts": 54.3,
+      "usg": 21.4,
+      "efg": 50.9,
+      "astTo": 2.44,
+      "blkPct": null,
+      "stlPct": null,
+      "games": 40,
+      "fgm": 3.4,
+      "fga": 8.3,
+      "threepm": 1.6,
+      "threepa": 4.3,
+      "ftm": 2.1,
+      "fta": 2.9
+    },
+    "scouting": {
+      "strengths": [
+        "Playmaking funcional: 5.9 assistencias com AST/TO de 2.44.",
+        "Melhora real como arremessador de volume: 37.6% de tres em 4.3 tentativas.",
+        "Controla ritmo e organiza posses no half court."
+      ],
+      "weaknesses": [
+        "Tamanho e finalizacao no aro ainda limitam a margem NBA.",
+        "Pontuacao propria depende mais de contexto do que de vantagem fisica."
+      ],
+      "notes": "Cadeau entra na board como um armador de mesa, com valor ligado a ritmo, passe e organizacao. A melhora no arremesso recoloca seu perfil no radar, mas a traducao NBA ainda depende de provar que consegue punir defesas fisicas sem perder eficiencia.",
+      "attributes": {
+        "Athleticism": 5.7,
+        "Shooting": 6.8,
+        "Playmaking": 8.1,
+        "Defense": 5.2,
+        "Rebounding": 3.8,
+        "BBIQ": 7.7
       },
-      "scouting": {
-          "strengths": [
-              "Playmaking funcional: 5.9 assistencias com AST/TO de 2.44.",
-              "Melhora real como arremessador de volume: 37.6% de tres em 4.3 tentativas.",
-              "Controla ritmo e organiza posses no half court."
-          ],
-          "weaknesses": [
-              "Tamanho e finalizacao no aro ainda limitam a margem NBA.",
-              "Pontuacao propria depende mais de contexto do que de vantagem fisica."
-          ],
-          "notes": "Cadeau entra na board como um armador de mesa, com valor ligado a ritmo, passe e organizacao. A melhora no arremesso recoloca seu perfil no radar, mas a traducao NBA ainda depende de provar que consegue punir defesas fisicas sem perder eficiencia.",
-          "attributes": {
-              "Athleticism": 5.7,
-              "Shooting": 6.8,
-              "Playmaking": 8.1,
-              "Defense": 5.2,
-              "Rebounding": 3.8,
-              "BBIQ": 7.7
-          },
-          "evaluation": {
-              "version": "official_addition_v1",
-              "floor": {
-                  "score": 45,
-                  "label": "Deep bench",
-                  "note": ""
-              },
-              "ceiling": {
-                  "score": 62,
-                  "label": "Rotation",
-                  "note": ""
-              },
-              "risk": {
-                  "level": "High",
-                  "reason": "Size/finishing translation",
-                  "note": ""
-              },
-              "tools": {
-                  "shooting": "Plus",
-                  "creation": "Plus",
-                  "defense": "Question",
-                  "rebounding": "Question",
-                  "efficiency": "Solid"
-              },
-              "note": "Adicionado apos lista oficial de early entry."
-          }
-      },
-      "accentColor": "#f59e0b",
-      "dataSources": {
-          "officialStatus": "NBA early entry list 2026",
-          "traditionalStats": "Tankathon 2026 Draft Profile",
-          "traditionalStatsUrl": "https://www.tankathon.com/players/elliot-cadeau",
-          "lastVerified": "2026-04-30"
+      "evaluation": {
+        "version": "official_addition_v1",
+        "floor": {
+          "score": 45,
+          "label": "Deep bench",
+          "note": ""
+        },
+        "ceiling": {
+          "score": 62,
+          "label": "Rotation",
+          "note": ""
+        },
+        "risk": {
+          "level": "High",
+          "reason": "Size/finishing translation",
+          "note": ""
+        },
+        "tools": {
+          "shooting": "Plus",
+          "creation": "Plus",
+          "defense": "Question",
+          "rebounding": "Question",
+          "efficiency": "Solid"
+        },
+        "note": "Adicionado apos lista oficial de early entry."
       }
+    },
+    "accentColor": "#f59e0b",
+    "dataSources": {
+      "officialStatus": "NBA early entry list 2026",
+      "traditionalStats": "Tankathon 2026 Draft Profile",
+      "traditionalStatsUrl": "https://www.tankathon.com/players/elliot-cadeau",
+      "lastVerified": "2026-04-30"
+    }
   },
   {
-      "id": 58,
-      "name": "Jeremy Fears Jr.",
-      "position": "PG",
-      "team": "Michigan State",
-      "age": 21.2,
-      "height": "6'2\"",
-      "weight": "190 lbs",
-      "wingspan": "",
-      "tier": "SLEEPER",
-      "rank": 40,
-      "eligibilityStatus": "official_early_entry",
-      "archetype": "Lead Guard / Advantage Passer",
-      "stats": {
-          "ppg": 15.2,
-          "rpg": 2.4,
-          "apg": 9.4,
-          "fgp": 43.1,
-          "threep": 32.1,
-          "ftp": 88.5,
-          "per": 22.9,
-          "ts": 57.6,
-          "usg": 24.3,
-          "efg": 47.9,
-          "astTo": 3.86,
-          "blkPct": null,
-          "stlPct": null,
-          "games": 35,
-          "fgm": 4.5,
-          "fga": 10.4,
-          "threepm": 1,
-          "threepa": 3.1,
-          "ftm": 5.3,
-          "fta": 5.9
+    "id": 58,
+    "name": "Jeremy Fears Jr.",
+    "position": "PG",
+    "team": "Michigan State",
+    "age": 21.2,
+    "height": "6'2\"",
+    "weight": "190 lbs",
+    "wingspan": "",
+    "tier": "SLEEPER",
+    "rank": 40,
+    "eligibilityStatus": "official_early_entry",
+    "archetype": "Lead Guard / Advantage Passer",
+    "stats": {
+      "ppg": 15.2,
+      "rpg": 2.4,
+      "apg": 9.4,
+      "fgp": 43.1,
+      "threep": 32.1,
+      "ftp": 88.5,
+      "per": 22.9,
+      "ts": 57.6,
+      "usg": 24.3,
+      "efg": 47.9,
+      "astTo": 3.86,
+      "blkPct": null,
+      "stlPct": null,
+      "games": 35,
+      "fgm": 4.5,
+      "fga": 10.4,
+      "threepm": 1,
+      "threepa": 3.1,
+      "ftm": 5.3,
+      "fta": 5.9
+    },
+    "scouting": {
+      "strengths": [
+        "Criacao para terceiros de elite: 9.4 APG e AST/TO de 3.86.",
+        "Pressiona a linha de lance livre e converte 88.5%.",
+        "Perfil de lead guard com leitura e controle de jogo."
+      ],
+      "weaknesses": [
+        "Arremesso de tres ainda precisa estabilizar para abrir teto NBA.",
+        "Tamanho cria margem menor em matchups fisicos."
+      ],
+      "notes": "Fears volta ao radar como um armador de alto volume de criacao, com passe, controle de erro e pressao de lance livre como base do perfil. O swing esta no arremesso: se o jumper for respeitado, o valor de rotacao cresce rapidamente.",
+      "attributes": {
+        "Athleticism": 6.1,
+        "Shooting": 5.8,
+        "Playmaking": 9,
+        "Defense": 5.7,
+        "Rebounding": 3.5,
+        "BBIQ": 8.1
       },
-      "scouting": {
-          "strengths": [
-              "Criacao para terceiros de elite: 9.4 APG e AST/TO de 3.86.",
-              "Pressiona a linha de lance livre e converte 88.5%.",
-              "Perfil de lead guard com leitura e controle de jogo."
-          ],
-          "weaknesses": [
-              "Arremesso de tres ainda precisa estabilizar para abrir teto NBA.",
-              "Tamanho cria margem menor em matchups fisicos."
-          ],
-          "notes": "Fears volta ao radar como um armador de alto volume de criacao, com passe, controle de erro e pressao de lance livre como base do perfil. O swing esta no arremesso: se o jumper for respeitado, o valor de rotacao cresce rapidamente.",
-          "attributes": {
-              "Athleticism": 6.1,
-              "Shooting": 5.8,
-              "Playmaking": 9,
-              "Defense": 5.7,
-              "Rebounding": 3.5,
-              "BBIQ": 8.1
-          },
-          "evaluation": {
-              "version": "official_addition_v1",
-              "floor": {
-                  "score": 50,
-                  "label": "Deep bench",
-                  "note": ""
-              },
-              "ceiling": {
-                  "score": 68,
-                  "label": "Starter",
-                  "note": ""
-              },
-              "risk": {
-                  "level": "Moderate",
-                  "reason": "Shooting consistency",
-                  "note": ""
-              },
-              "tools": {
-                  "shooting": "Question",
-                  "creation": "Elite",
-                  "defense": "Solid",
-                  "rebounding": "Question",
-                  "efficiency": "Plus"
-              },
-              "note": "Adicionado apos lista oficial de early entry."
-          }
-      },
-      "accentColor": "#f59e0b",
-      "dataSources": {
-          "officialStatus": "NBA early entry list 2026",
-          "traditionalStats": "Tankathon 2026 Draft Profile",
-          "traditionalStatsUrl": "https://www.tankathon.com/players/jeremy-fears-jr",
-          "lastVerified": "2026-04-30"
+      "evaluation": {
+        "version": "official_addition_v1",
+        "floor": {
+          "score": 50,
+          "label": "Deep bench",
+          "note": ""
+        },
+        "ceiling": {
+          "score": 68,
+          "label": "Starter",
+          "note": ""
+        },
+        "risk": {
+          "level": "Moderate",
+          "reason": "Shooting consistency",
+          "note": ""
+        },
+        "tools": {
+          "shooting": "Question",
+          "creation": "Elite",
+          "defense": "Solid",
+          "rebounding": "Question",
+          "efficiency": "Plus"
+        },
+        "note": "Adicionado apos lista oficial de early entry."
       }
+    },
+    "accentColor": "#f59e0b",
+    "dataSources": {
+      "officialStatus": "NBA early entry list 2026",
+      "traditionalStats": "Tankathon 2026 Draft Profile",
+      "traditionalStatsUrl": "https://www.tankathon.com/players/jeremy-fears-jr",
+      "lastVerified": "2026-04-30"
+    }
   },
   {
-      "id": 59,
-      "name": "Billy Richmond III",
-      "position": "SG/SF",
-      "team": "Arkansas",
-      "age": 20.4,
-      "height": "6'6\"",
-      "weight": "205 lbs",
-      "wingspan": "",
-      "tier": "SLEEPER",
-      "rank": 41,
-      "eligibilityStatus": "official_early_entry",
-      "archetype": "Athletic Connector / Slashing Wing",
-      "stats": {
-          "ppg": 11.2,
-          "rpg": 4.3,
-          "apg": 2,
-          "fgp": 56.3,
-          "threep": 25.9,
-          "ftp": 78.4,
-          "per": null,
-          "ts": null,
-          "usg": null,
-          "efg": 58.8,
-          "astTo": 1.6,
-          "blkPct": null,
-          "stlPct": null,
-          "games": 37,
-          "fgm": 4.6,
-          "fga": 8.2,
-          "threepm": 0.4,
-          "threepa": 1.6,
-          "ftm": 1.6,
-          "fta": 2
+    "id": 59,
+    "name": "Billy Richmond III",
+    "position": "SG/SF",
+    "team": "Arkansas",
+    "age": 20.4,
+    "height": "6'6\"",
+    "weight": "205 lbs",
+    "wingspan": "",
+    "tier": "SLEEPER",
+    "rank": 41,
+    "eligibilityStatus": "official_early_entry",
+    "archetype": "Athletic Connector / Slashing Wing",
+    "stats": {
+      "ppg": 11.2,
+      "rpg": 4.3,
+      "apg": 2,
+      "fgp": 56.3,
+      "threep": 25.9,
+      "ftp": 78.4,
+      "per": null,
+      "ts": null,
+      "usg": null,
+      "efg": 58.8,
+      "astTo": 1.6,
+      "blkPct": null,
+      "stlPct": null,
+      "games": 37,
+      "fgm": 4.6,
+      "fga": 8.2,
+      "threepm": 0.4,
+      "threepa": 1.6,
+      "ftm": 1.6,
+      "fta": 2
+    },
+    "scouting": {
+      "strengths": [
+        "Finalizacao eficiente para guard/wing: 56.3% FG.",
+        "Contribui em multiplas areas sem exigir alto uso.",
+        "Tamanho e atletismo sustentam traducao defensiva situacional."
+      ],
+      "weaknesses": [
+        "Arremesso de tres ainda nao abre spacing confiavel.",
+        "Precisa transformar flashes de criacao em vantagem repetivel."
+      ],
+      "notes": "Richmond e um wing atletico de energia, com boa eficiencia dentro do arco e contribuicao secundaria em rebote, passe e defesa. Para virar peca de rotacao NBA, precisa transformar o arremesso de tres de ponto fraco em ferramenta ao menos funcional.",
+      "attributes": {
+        "Athleticism": 7.1,
+        "Shooting": 4.8,
+        "Playmaking": 5.4,
+        "Defense": 6.2,
+        "Rebounding": 5.7,
+        "BBIQ": 5.8
       },
-      "scouting": {
-          "strengths": [
-              "Finalizacao eficiente para guard/wing: 56.3% FG.",
-              "Contribui em multiplas areas sem exigir alto uso.",
-              "Tamanho e atletismo sustentam traducao defensiva situacional."
-          ],
-          "weaknesses": [
-              "Arremesso de tres ainda nao abre spacing confiavel.",
-              "Precisa transformar flashes de criacao em vantagem repetivel."
-          ],
-          "notes": "Richmond e um wing atletico de energia, com boa eficiencia dentro do arco e contribuicao secundaria em rebote, passe e defesa. Para virar peca de rotacao NBA, precisa transformar o arremesso de tres de ponto fraco em ferramenta ao menos funcional.",
-          "attributes": {
-              "Athleticism": 7.1,
-              "Shooting": 4.8,
-              "Playmaking": 5.4,
-              "Defense": 6.2,
-              "Rebounding": 5.7,
-              "BBIQ": 5.8
-          },
-          "evaluation": {
-              "version": "official_addition_v1",
-              "floor": {
-                  "score": 45,
-                  "label": "Deep bench",
-                  "note": ""
-              },
-              "ceiling": {
-                  "score": 64,
-                  "label": "Rotation",
-                  "note": ""
-              },
-              "risk": {
-                  "level": "High",
-                  "reason": "Shooting development",
-                  "note": ""
-              },
-              "tools": {
-                  "shooting": "Question",
-                  "creation": "Solid",
-                  "defense": "Solid",
-                  "rebounding": "Solid",
-                  "efficiency": "Plus"
-              },
-              "note": "Adicionado apos lista oficial de early entry."
-          }
-      },
-      "accentColor": "#f59e0b",
-      "dataSources": {
-          "officialStatus": "NBA early entry list 2026",
-          "traditionalStats": "ESPN player stats",
-          "traditionalStatsUrl": "https://www.espn.com/mens-college-basketball/player/stats/_/id/5060732/billy-richmond-iii",
-          "lastVerified": "2026-04-30"
+      "evaluation": {
+        "version": "official_addition_v1",
+        "floor": {
+          "score": 45,
+          "label": "Deep bench",
+          "note": ""
+        },
+        "ceiling": {
+          "score": 64,
+          "label": "Rotation",
+          "note": ""
+        },
+        "risk": {
+          "level": "High",
+          "reason": "Shooting development",
+          "note": ""
+        },
+        "tools": {
+          "shooting": "Question",
+          "creation": "Solid",
+          "defense": "Solid",
+          "rebounding": "Solid",
+          "efficiency": "Plus"
+        },
+        "note": "Adicionado apos lista oficial de early entry."
       }
+    },
+    "accentColor": "#f59e0b",
+    "dataSources": {
+      "officialStatus": "NBA early entry list 2026",
+      "traditionalStats": "ESPN player stats",
+      "traditionalStatsUrl": "https://www.espn.com/mens-college-basketball/player/stats/_/id/5060732/billy-richmond-iii",
+      "lastVerified": "2026-04-30"
+    }
   },
   {
-      "id": 60,
-      "name": "Andrej Stojakovic",
-      "position": "SG/SF",
-      "team": "Illinois",
-      "age": 21.8,
-      "height": "6'7\"",
-      "weight": "215 lbs",
-      "wingspan": "",
-      "tier": "SLEEPER",
-      "rank": 42,
-      "eligibilityStatus": "official_early_entry",
-      "archetype": "Scoring Wing / Slasher",
-      "stats": {
-          "ppg": 13.5,
-          "rpg": 4.5,
-          "apg": 1,
-          "fgp": 50,
-          "threep": 24.4,
-          "ftp": 80.5,
-          "per": 20.1,
-          "ts": 57.8,
-          "usg": 25,
-          "efg": 53,
-          "astTo": 0.77,
-          "blkPct": null,
-          "stlPct": null,
-          "games": 34,
-          "fgm": 4.9,
-          "fga": 9.9,
-          "threepm": 0.6,
-          "threepa": 2.4,
-          "ftm": 3,
-          "fta": 3.8
+    "id": 60,
+    "name": "Andrej Stojakovic",
+    "position": "SG/SF",
+    "team": "Illinois",
+    "age": 21.8,
+    "height": "6'7\"",
+    "weight": "215 lbs",
+    "wingspan": "",
+    "tier": "SLEEPER",
+    "rank": 42,
+    "eligibilityStatus": "official_early_entry",
+    "archetype": "Scoring Wing / Slasher",
+    "stats": {
+      "ppg": 13.5,
+      "rpg": 4.5,
+      "apg": 1,
+      "fgp": 50,
+      "threep": 24.4,
+      "ftp": 80.5,
+      "per": 20.1,
+      "ts": 57.8,
+      "usg": 25,
+      "efg": 53,
+      "astTo": 0.77,
+      "blkPct": null,
+      "stlPct": null,
+      "games": 34,
+      "fgm": 4.9,
+      "fga": 9.9,
+      "threepm": 0.6,
+      "threepa": 2.4,
+      "ftm": 3,
+      "fta": 3.8
+    },
+    "scouting": {
+      "strengths": [
+        "Pontua com eficiencia de dois pontos e pressiona a defesa atacando closeouts.",
+        "Tamanho de wing NBA com pedigree de shotmaking.",
+        "Produziu 13.5 PPG em papel de rotacao forte."
+      ],
+      "weaknesses": [
+        "3P% de 24.4 cria uma pergunta central de traducao.",
+        "AST/TO baixo limita leitura como criador secundario."
+      ],
+      "notes": "Stojakovic e um scorer de wing que ganhou tracao como peca ofensiva em Illinois, especialmente atacando o aro e punindo vantagens. A avaliacao depende quase toda do jumper: se o arremesso voltar ao nivel esperado, o pacote fisico-ofensivo ganha valor de segunda rodada.",
+      "attributes": {
+        "Athleticism": 6.4,
+        "Shooting": 4.7,
+        "Playmaking": 3.8,
+        "Defense": 5.3,
+        "Rebounding": 5.8,
+        "BBIQ": 5
       },
-      "scouting": {
-          "strengths": [
-              "Pontua com eficiencia de dois pontos e pressiona a defesa atacando closeouts.",
-              "Tamanho de wing NBA com pedigree de shotmaking.",
-              "Produziu 13.5 PPG em papel de rotacao forte."
-          ],
-          "weaknesses": [
-              "3P% de 24.4 cria uma pergunta central de traducao.",
-              "AST/TO baixo limita leitura como criador secundario."
-          ],
-          "notes": "Stojakovic e um scorer de wing que ganhou tracao como peca ofensiva em Illinois, especialmente atacando o aro e punindo vantagens. A avaliacao depende quase toda do jumper: se o arremesso voltar ao nivel esperado, o pacote fisico-ofensivo ganha valor de segunda rodada.",
-          "attributes": {
-              "Athleticism": 6.4,
-              "Shooting": 4.7,
-              "Playmaking": 3.8,
-              "Defense": 5.3,
-              "Rebounding": 5.8,
-              "BBIQ": 5
-          },
-          "evaluation": {
-              "version": "official_addition_v1",
-              "floor": {
-                  "score": 45,
-                  "label": "Deep bench",
-                  "note": ""
-              },
-              "ceiling": {
-                  "score": 65,
-                  "label": "Starter",
-                  "note": ""
-              },
-              "risk": {
-                  "level": "High",
-                  "reason": "Shooting consistency",
-                  "note": ""
-              },
-              "tools": {
-                  "shooting": "Question",
-                  "creation": "Solid",
-                  "defense": "Question",
-                  "rebounding": "Solid",
-                  "efficiency": "Solid"
-              },
-              "note": "Adicionado apos lista oficial de early entry."
-          }
-      },
-      "accentColor": "#f59e0b",
-      "dataSources": {
-          "officialStatus": "NBA early entry list 2026",
-          "traditionalStats": "Tankathon 2026 Draft Profile",
-          "traditionalStatsUrl": "https://www.tankathon.com/players/andrej-stojakovic",
-          "lastVerified": "2026-04-30"
+      "evaluation": {
+        "version": "official_addition_v1",
+        "floor": {
+          "score": 45,
+          "label": "Deep bench",
+          "note": ""
+        },
+        "ceiling": {
+          "score": 65,
+          "label": "Starter",
+          "note": ""
+        },
+        "risk": {
+          "level": "High",
+          "reason": "Shooting consistency",
+          "note": ""
+        },
+        "tools": {
+          "shooting": "Question",
+          "creation": "Solid",
+          "defense": "Question",
+          "rebounding": "Solid",
+          "efficiency": "Solid"
+        },
+        "note": "Adicionado apos lista oficial de early entry."
       }
+    },
+    "accentColor": "#f59e0b",
+    "dataSources": {
+      "officialStatus": "NBA early entry list 2026",
+      "traditionalStats": "Tankathon 2026 Draft Profile",
+      "traditionalStatsUrl": "https://www.tankathon.com/players/andrej-stojakovic",
+      "lastVerified": "2026-04-30"
+    }
   },
   {
-      "id": 61,
-      "name": "Sergio de Larrea",
-      "position": "PG/SG",
-      "team": "Valencia",
-      "age": 20.5,
-      "height": "6'6\"",
-      "weight": "198 lbs",
-      "wingspan": "",
-      "tier": "SLEEPER",
-      "rank": 43,
-      "eligibilityStatus": "official_early_entry",
-      "archetype": "Big Guard / International Connector",
-      "stats": {
-          "ppg": 6.7,
-          "rpg": 2,
-          "apg": 2.8,
-          "fgp": 45.1,
-          "threep": 41.3,
-          "ftp": 80,
-          "per": 17.8,
-          "ts": 60.5,
-          "usg": 22.4,
-          "efg": 54.7,
-          "astTo": 1.83,
-          "blkPct": null,
-          "stlPct": null,
-          "games": 50,
-          "fgm": 2,
-          "fga": 4.5,
-          "threepm": 0.9,
-          "threepa": 2.1,
-          "ftm": 1.8,
-          "fta": 2.3
+    "id": 61,
+    "name": "Sergio de Larrea",
+    "position": "PG/SG",
+    "team": "Valencia",
+    "age": 20.5,
+    "height": "6'6\"",
+    "weight": "198 lbs",
+    "wingspan": "",
+    "tier": "SLEEPER",
+    "rank": 43,
+    "eligibilityStatus": "official_early_entry",
+    "archetype": "Big Guard / International Connector",
+    "stats": {
+      "ppg": 6.7,
+      "rpg": 2,
+      "apg": 2.8,
+      "fgp": 45.1,
+      "threep": 41.3,
+      "ftp": 80,
+      "per": 17.8,
+      "ts": 60.5,
+      "usg": 22.4,
+      "efg": 54.7,
+      "astTo": 1.83,
+      "blkPct": null,
+      "stlPct": null,
+      "games": 50,
+      "fgm": 2,
+      "fga": 4.5,
+      "threepm": 0.9,
+      "threepa": 2.1,
+      "ftm": 1.8,
+      "fta": 2.3
+    },
+    "scouting": {
+      "strengths": [
+        "Tamanho raro para combo guard: 6'6\" com leitura de passe.",
+        "41.3% de tres em contexto profissional europeu.",
+        "TS% de 60.5 sustenta eficiencia mesmo em minutos curtos."
+      ],
+      "weaknesses": [
+        "Baixo volume de minutos exige cuidado na traducao estatistica.",
+        "Precisa ganhar forca e acelerar reads contra pressao NBA."
+      ],
+      "notes": "De Larrea e um guard internacional de tamanho, passe e arremesso, com perfil de draft-and-stash ou desenvolvimento paciente. O valor esta na combinacao de 6'6\", tomada de decisao e eficiencia como jogador jovem em ambiente profissional.",
+      "attributes": {
+        "Athleticism": 5.7,
+        "Shooting": 7.7,
+        "Playmaking": 7,
+        "Defense": 5.8,
+        "Rebounding": 4.6,
+        "BBIQ": 7.2
       },
-      "scouting": {
-          "strengths": [
-              "Tamanho raro para combo guard: 6'6\" com leitura de passe.",
-              "41.3% de tres em contexto profissional europeu.",
-              "TS% de 60.5 sustenta eficiencia mesmo em minutos curtos."
-          ],
-          "weaknesses": [
-              "Baixo volume de minutos exige cuidado na traducao estatistica.",
-              "Precisa ganhar forca e acelerar reads contra pressao NBA."
-          ],
-          "notes": "De Larrea e um guard internacional de tamanho, passe e arremesso, com perfil de draft-and-stash ou desenvolvimento paciente. O valor esta na combinacao de 6'6\", tomada de decisao e eficiencia como jogador jovem em ambiente profissional.",
-          "attributes": {
-              "Athleticism": 5.7,
-              "Shooting": 7.7,
-              "Playmaking": 7,
-              "Defense": 5.8,
-              "Rebounding": 4.6,
-              "BBIQ": 7.2
-          },
-          "evaluation": {
-              "version": "official_addition_v1",
-              "floor": {
-                  "score": 45,
-                  "label": "Deep bench",
-                  "note": ""
-              },
-              "ceiling": {
-                  "score": 70,
-                  "label": "Starter",
-                  "note": ""
-              },
-              "risk": {
-                  "level": "Moderate",
-                  "reason": "International translation",
-                  "note": ""
-              },
-              "tools": {
-                  "shooting": "Plus",
-                  "creation": "Plus",
-                  "defense": "Solid",
-                  "rebounding": "Question",
-                  "efficiency": "Plus"
-              },
-              "note": "Adicionado apos lista oficial de early entry."
-          }
-      },
-      "accentColor": "#f59e0b",
-      "dataSources": {
-          "officialStatus": "NBA early entry list 2026",
-          "traditionalStats": "Tankathon 2026 Draft Profile",
-          "traditionalStatsUrl": "https://www.tankathon.com/players/sergio-de-larrea",
-          "lastVerified": "2026-04-30"
+      "evaluation": {
+        "version": "official_addition_v1",
+        "floor": {
+          "score": 45,
+          "label": "Deep bench",
+          "note": ""
+        },
+        "ceiling": {
+          "score": 70,
+          "label": "Starter",
+          "note": ""
+        },
+        "risk": {
+          "level": "Moderate",
+          "reason": "International translation",
+          "note": ""
+        },
+        "tools": {
+          "shooting": "Plus",
+          "creation": "Plus",
+          "defense": "Solid",
+          "rebounding": "Question",
+          "efficiency": "Plus"
+        },
+        "note": "Adicionado apos lista oficial de early entry."
       }
+    },
+    "accentColor": "#f59e0b",
+    "dataSources": {
+      "officialStatus": "NBA early entry list 2026",
+      "traditionalStats": "Tankathon 2026 Draft Profile",
+      "traditionalStatsUrl": "https://www.tankathon.com/players/sergio-de-larrea",
+      "lastVerified": "2026-04-30"
+    }
   },
   {
-      "id": 62,
-      "name": "Alexandros Samodurov",
-      "position": "PF/C",
-      "team": "Panathinaikos",
-      "age": 21,
-      "height": "6'11\"",
-      "weight": "200 lbs",
-      "wingspan": "",
-      "tier": "SLEEPER",
-      "rank": 44,
-      "eligibilityStatus": "official_early_entry",
-      "archetype": "Development Big / Stretch Frontcourt",
-      "stats": {
-          "ppg": 3.3,
-          "rpg": 1.7,
-          "apg": 0.6,
-          "fgp": 55.1,
-          "threep": 26.7,
-          "ftp": 72.2,
-          "per": null,
-          "ts": null,
-          "usg": null,
-          "efg": null,
-          "astTo": null,
-          "blkPct": null,
-          "stlPct": null,
-          "games": 13,
-          "fgm": null,
-          "fga": null,
-          "threepm": null,
-          "threepa": null
+    "id": 62,
+    "name": "Alexandros Samodurov",
+    "position": "PF/C",
+    "team": "Panathinaikos",
+    "age": 21,
+    "height": "6'11\"",
+    "weight": "200 lbs",
+    "wingspan": "",
+    "tier": "SLEEPER",
+    "rank": 44,
+    "eligibilityStatus": "official_early_entry",
+    "archetype": "Development Big / Stretch Frontcourt",
+    "stats": {
+      "ppg": 3.3,
+      "rpg": 1.7,
+      "apg": 0.6,
+      "fgp": 55.1,
+      "threep": 26.7,
+      "ftp": 72.2,
+      "per": null,
+      "ts": null,
+      "usg": null,
+      "efg": null,
+      "astTo": null,
+      "blkPct": null,
+      "stlPct": null,
+      "games": 13,
+      "fgm": null,
+      "fga": null,
+      "threepm": null,
+      "threepa": null
+    },
+    "scouting": {
+      "strengths": [
+        "Tamanho legitimo de frontcourt com mobilidade para PF/C.",
+        "Finaliza bem em volume baixo e tem flashes de spacing.",
+        "Experiencia em estrutura profissional de alto nivel."
+      ],
+      "weaknesses": [
+        "Baixo volume de minutos reduz confianca na avaliacao estatistica.",
+        "Arremesso externo ainda nao e ferramenta confiavel."
+      ],
+      "notes": "Samodurov entra como aposta de desenvolvimento internacional: tamanho, toque e experiencia profissional chamam atencao, mas o volume atual ainda e pequeno demais para leitura definitiva. O caminho NBA passa por ganhar forca, consistencia no jumper e papel defensivo claro.",
+      "attributes": {
+        "Athleticism": 5.8,
+        "Shooting": 5,
+        "Playmaking": 4.1,
+        "Defense": 5.8,
+        "Rebounding": 4.8,
+        "BBIQ": 5.7
       },
-      "scouting": {
-          "strengths": [
-              "Tamanho legitimo de frontcourt com mobilidade para PF/C.",
-              "Finaliza bem em volume baixo e tem flashes de spacing.",
-              "Experiencia em estrutura profissional de alto nivel."
-          ],
-          "weaknesses": [
-              "Baixo volume de minutos reduz confianca na avaliacao estatistica.",
-              "Arremesso externo ainda nao e ferramenta confiavel."
-          ],
-          "notes": "Samodurov entra como aposta de desenvolvimento internacional: tamanho, toque e experiencia profissional chamam atencao, mas o volume atual ainda e pequeno demais para leitura definitiva. O caminho NBA passa por ganhar forca, consistencia no jumper e papel defensivo claro.",
-          "attributes": {
-              "Athleticism": 5.8,
-              "Shooting": 5,
-              "Playmaking": 4.1,
-              "Defense": 5.8,
-              "Rebounding": 4.8,
-              "BBIQ": 5.7
-          },
-          "evaluation": {
-              "version": "official_addition_v1",
-              "floor": {
-                  "score": 35,
-                  "label": "G-League / two-way",
-                  "note": ""
-              },
-              "ceiling": {
-                  "score": 62,
-                  "label": "Rotation",
-                  "note": ""
-              },
-              "risk": {
-                  "level": "High",
-                  "reason": "Low-minute sample",
-                  "note": ""
-              },
-              "tools": {
-                  "shooting": "Question",
-                  "creation": "Question",
-                  "defense": "Solid",
-                  "rebounding": "Solid",
-                  "efficiency": "Solid"
-              },
-              "note": "Adicionado apos lista oficial de early entry."
-          }
-      },
-      "accentColor": "#f59e0b",
-      "dataSources": {
-          "officialStatus": "NBA early entry list 2026",
-          "traditionalStats": "RealGM/Basketball-Reference international profile",
-          "traditionalStatsUrl": "https://basketball.realgm.com/player/Alexandros-Samodurov/Summary/183456",
-          "lastVerified": "2026-04-30"
+      "evaluation": {
+        "version": "official_addition_v1",
+        "floor": {
+          "score": 35,
+          "label": "G-League / two-way",
+          "note": ""
+        },
+        "ceiling": {
+          "score": 62,
+          "label": "Rotation",
+          "note": ""
+        },
+        "risk": {
+          "level": "High",
+          "reason": "Low-minute sample",
+          "note": ""
+        },
+        "tools": {
+          "shooting": "Question",
+          "creation": "Question",
+          "defense": "Solid",
+          "rebounding": "Solid",
+          "efficiency": "Solid"
+        },
+        "note": "Adicionado apos lista oficial de early entry."
       }
+    },
+    "accentColor": "#f59e0b",
+    "dataSources": {
+      "officialStatus": "NBA early entry list 2026",
+      "traditionalStats": "RealGM/Basketball-Reference international profile",
+      "traditionalStatsUrl": "https://basketball.realgm.com/player/Alexandros-Samodurov/Summary/183456",
+      "lastVerified": "2026-04-30"
+    }
   },
   {
-      "id": 63,
-      "name": "Luigi Suigo",
-      "position": "C",
-      "team": "Mega Basket",
-      "age": 19.2,
-      "height": "7'3\"",
-      "weight": "240 lbs",
-      "wingspan": "",
-      "tier": "SLEEPER",
-      "rank": 45,
-      "eligibilityStatus": "official_early_entry",
-      "archetype": "Oversized Development Center",
-      "stats": {
-          "ppg": 8.1,
-          "rpg": 5.3,
-          "apg": 0.8,
-          "fgp": 56.4,
-          "threep": 26.7,
-          "ftp": 76.2,
-          "per": null,
-          "ts": null,
-          "usg": null,
-          "efg": 60.7,
-          "astTo": 0.9,
-          "blkPct": null,
-          "stlPct": null,
-          "games": 16,
-          "fgm": 3.3,
-          "fga": 5.9,
-          "threepm": 0.5,
-          "threepa": 1.9,
-          "ftm": 1,
-          "fta": 1.3
+    "id": 63,
+    "name": "Luigi Suigo",
+    "position": "C",
+    "team": "Mega Basket",
+    "age": 19.2,
+    "height": "7'3\"",
+    "weight": "240 lbs",
+    "wingspan": "",
+    "tier": "SLEEPER",
+    "rank": 45,
+    "eligibilityStatus": "official_early_entry",
+    "archetype": "Oversized Development Center",
+    "stats": {
+      "ppg": 8.1,
+      "rpg": 5.3,
+      "apg": 0.8,
+      "fgp": 56.4,
+      "threep": 26.7,
+      "ftp": 76.2,
+      "per": null,
+      "ts": null,
+      "usg": null,
+      "efg": 60.7,
+      "astTo": 0.9,
+      "blkPct": null,
+      "stlPct": null,
+      "games": 16,
+      "fgm": 3.3,
+      "fga": 5.9,
+      "threepm": 0.5,
+      "threepa": 1.9,
+      "ftm": 1,
+      "fta": 1.3
+    },
+    "scouting": {
+      "strengths": [
+        "Medidas raras: 7'3\" com presenca real no garrafao.",
+        "Produz 8.1 PPG e 5.3 RPG em Mega Basket aos 19 anos.",
+        "Mostra toque de lance livre e flashes de espacamento para o tamanho."
+      ],
+      "weaknesses": [
+        "Mobilidade e velocidade defensiva ainda precisam ser testadas em nivel NBA.",
+        "Arremesso de tres existe, mas ainda nao e confiavel."
+      ],
+      "notes": "Suigo e uma aposta internacional de tamanho extremo, com 7'3\" e producao profissional em Mega Basket. O pacote chama atencao pela combinacao de finalizacao, rebote e algum toque, mas a traducao depende de mobilidade defensiva, forca e paciencia de desenvolvimento.",
+      "attributes": {
+        "Athleticism": 5.4,
+        "Shooting": 5.2,
+        "Playmaking": 3.8,
+        "Defense": 6.4,
+        "Rebounding": 6.8,
+        "BBIQ": 5.4
       },
-      "scouting": {
-          "strengths": [
-              "Medidas raras: 7'3\" com presenca real no garrafao.",
-              "Produz 8.1 PPG e 5.3 RPG em Mega Basket aos 19 anos.",
-              "Mostra toque de lance livre e flashes de espacamento para o tamanho."
-          ],
-          "weaknesses": [
-              "Mobilidade e velocidade defensiva ainda precisam ser testadas em nivel NBA.",
-              "Arremesso de tres existe, mas ainda nao e confiavel."
-          ],
-          "notes": "Suigo e uma aposta internacional de tamanho extremo, com 7'3\" e producao profissional em Mega Basket. O pacote chama atencao pela combinacao de finalizacao, rebote e algum toque, mas a traducao depende de mobilidade defensiva, forca e paciencia de desenvolvimento.",
-          "attributes": {
-              "Athleticism": 5.4,
-              "Shooting": 5.2,
-              "Playmaking": 3.8,
-              "Defense": 6.4,
-              "Rebounding": 6.8,
-              "BBIQ": 5.4
-          },
-          "evaluation": {
-              "version": "official_addition_v1",
-              "floor": {
-                  "score": 40,
-                  "label": "G-League / two-way",
-                  "note": ""
-              },
-              "ceiling": {
-                  "score": 72,
-                  "label": "Starter",
-                  "note": ""
-              },
-              "risk": {
-                  "level": "High",
-                  "reason": "Development big",
-                  "note": ""
-              },
-              "tools": {
-                  "shooting": "Question",
-                  "creation": "Question",
-                  "defense": "Plus",
-                  "rebounding": "Plus",
-                  "efficiency": "Solid"
-              },
-              "note": "Adicionado apos lista oficial de early entry."
-          }
-      },
-      "accentColor": "#f59e0b",
-      "dataSources": {
-          "officialStatus": "NBA early entry list 2026",
-          "traditionalStats": "Basketball-Reference Mega Superbet 2025-26",
-          "traditionalStatsUrl": "https://www.basketball-reference.com/international/teams/mega/2026.html",
-          "lastVerified": "2026-04-30"
+      "evaluation": {
+        "version": "official_addition_v1",
+        "floor": {
+          "score": 40,
+          "label": "G-League / two-way",
+          "note": ""
+        },
+        "ceiling": {
+          "score": 72,
+          "label": "Starter",
+          "note": ""
+        },
+        "risk": {
+          "level": "High",
+          "reason": "Development big",
+          "note": ""
+        },
+        "tools": {
+          "shooting": "Question",
+          "creation": "Question",
+          "defense": "Plus",
+          "rebounding": "Plus",
+          "efficiency": "Solid"
+        },
+        "note": "Adicionado apos lista oficial de early entry."
       }
+    },
+    "accentColor": "#f59e0b",
+    "dataSources": {
+      "officialStatus": "NBA early entry list 2026",
+      "traditionalStats": "Basketball-Reference Mega Superbet 2025-26",
+      "traditionalStatsUrl": "https://www.basketball-reference.com/international/teams/mega/2026.html",
+      "lastVerified": "2026-04-30"
+    }
   }
 ];
 
@@ -3676,10 +3676,10 @@ export const draftMeta = {
   "year": 2026,
   "totalProspects": 45,
   "tiers": {
-    "ELITE": 3,
-    "LOTTERY": 11,
-    "MID_1ST": 15,
-    "SLEEPER": 16
+      "ELITE": 3,
+      "LOTTERY": 11,
+      "MID_1ST": 15,
+      "SLEEPER": 16
   },
   "topPicks": {
     "consensus1": "AJ Dybantsa",

@@ -1340,7 +1340,7 @@ export const teamProfiles = [
       "ceiling": 0.18
     },
     "editorial": {
-      "strategy": "Buscar talento primario e ativos de alto teto em qualquer posicao.",
+      "strategy": "Buscar talento primário e ativos de alto teto em qualquer posição.",
       "frontOfficeTendency": "Deve maximizar upside, juventude e valor futuro acima de encaixe imediato.",
       "riskToleranceText": "Muito alta; o contexto permite paciencia e desenvolvimento.",
       "notes": [

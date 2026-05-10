@@ -1,4 +1,4 @@
-﻿import { Activity, BarChart3, CheckSquare, Database, FileText, Layers, Target } from 'lucide-react'
+﻿import { Activity, BarChart3, CheckSquare, Database, FileText, Layers, PanelLeftClose, Target } from 'lucide-react'
 import { cn, glass, layout, motion as motionTokens, typography } from '../styles/designSystem'
 
 const NAV_SECTIONS = [
@@ -29,14 +29,22 @@ const STATUS = [
   { label: 'Board', value: 'Custom', color: '#7c5ccf', bg: 'rgba(238,233,251,.76)' },
 ]
 
-export default function Sidebar({ views, activeView, onNavigate }) {
+export default function Sidebar({ views, activeView, onNavigate, isOpen = true, onToggle }) {
   const getLabel = (item) => views?.[item.id]?.label || item.fallbackLabel
 
   return (
     <aside
-      className={cn('group/sidebar flex flex-shrink-0 flex-col border-r border-white/50 transition-all duration-300 md:w-64', layout.sidebarWidth, glass.nav)}
+      data-state={isOpen ? 'open' : 'closed'}
+      aria-hidden={!isOpen}
+      className={cn(
+        'app-sidebar group/sidebar relative flex flex-shrink-0 flex-col overflow-hidden border-r border-white/50 transition-[width,opacity,transform,filter] duration-500 ease-[cubic-bezier(.22,1,.36,1)] md:w-64',
+        layout.sidebarWidth,
+        glass.nav,
+        isOpen ? 'opacity-100 blur-0' : 'pointer-events-none -translate-x-3 opacity-0 blur-sm'
+      )}
       style={{ zIndex: 20 }}
     >
+      <div className="sidebar-panel-content flex min-h-0 flex-1 flex-col">
       <div className="px-5 pb-5 pt-6">
         <div className={cn('relative overflow-hidden p-4', glass.panel, 'shadow-[0_18px_44px_rgba(0,0,0,0.05)]')}>
           <span className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-[#eee9fb] blur-2xl" />
@@ -46,9 +54,19 @@ export default function Sidebar({ views, activeView, onNavigate }) {
               <div className={cn('flex h-10 w-10 items-center justify-center', glass.inner, 'shadow-[0_10px_24px_rgba(0,0,0,0.05)]')}>
                 <Layers size={18} strokeWidth={2.4} className="text-[#7c5ccf]" />
               </div>
-              <span className={cn(glass.chip, 'px-2.5 py-1 font-mono text-[8px] font-black uppercase tracking-[.18em] text-muted')}>
-                2026 Class
-              </span>
+              <div className="flex items-center gap-2">
+                <span className={cn(glass.chip, 'px-2.5 py-1 font-mono text-[8px] font-black uppercase tracking-[.18em] text-muted')}>
+                  2026 Class
+                </span>
+                <button
+                  type="button"
+                  onClick={onToggle}
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/45 bg-white/32 text-slate-600 shadow-[inset_1px_1px_0_rgba(255,255,255,.72)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/55 hover:text-[#7c5ccf] dark:border-white/10 dark:bg-slate-950/40 dark:text-slate-200"
+                  aria-label="Esconder menu lateral"
+                >
+                  <PanelLeftClose size={15} strokeWidth={2.4} />
+                </button>
+              </div>
             </div>
             <div className="mt-4 font-brand text-2xl font-extrabold leading-none tracking-tight text-slate-800">
               Rookies Brasil
@@ -131,6 +149,7 @@ export default function Sidebar({ views, activeView, onNavigate }) {
             <div className="h-full w-4/5 rounded-full bg-gradient-to-r from-[#7c5ccf] via-[#5aaed6] to-[#4f9577] opacity-80" />
           </div>
         </div>
+      </div>
       </div>
     </aside>
   )

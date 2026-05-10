@@ -1,4 +1,6 @@
 import { getAllTeamProfiles } from '../data/teamProfiles.js'
+import { mergeProspectWithManualIntelligence } from '../data/prospectDraftIntelligence.ts'
+import { resolveTeamDraftIntelligence } from '../data/teamDraftManualIntelligence.ts'
 import { getTeamPicks } from './draftPickAdapter.js'
 import { getPlayerDraftAttributes, getPlayerExpectedRange } from './draftFitAlgorithm.js'
 
@@ -86,7 +88,42 @@ const isRebuild = (profile: any) =>
   ['deep_rebuild', 'early_rebuild', 'development_core', 'rising_core', 'rebuild', 'young_core', 'retool'].includes(profile?.timeline) ||
   String(profile?.draftMode || '').includes('rebuild') ||
   String(profile?.draftMode || '').includes('development')
-
+function applyManualTeamProfile(teamProfile: any) {
+  const resolved = resolveTeamDraftIntelligence(teamProfile?.id || teamProfile?.teamId || teamProfile?.abbreviation)
+  if (!resolved?.hasManualOverride) return teamProfile
+  const needs = resolved.needs || {}
+  const manualPriority = resolved.strategicPriorities?.[0]
+  const priorityMap: Record<string, string> = {
+    SHOOTING: 'shooting',
+    CREATION: 'creation',
+    SECONDARY_CREATION: 'creation',
+    DEFENSE: 'defense',
+    SIZE: 'size',
+    REBOUNDING: 'rebounding',
+    UPSIDE: 'upside',
+    SAFE_FLOOR: 'floor',
+    IMMEDIATE_ROTATION: 'floor',
+  }
+  return {
+    ...teamProfile,
+    timeline: resolved.timeline || teamProfile?.timeline,
+    riskTolerance: resolved.riskTolerance || teamProfile?.riskTolerance,
+    priority: priorityMap[String(manualPriority || '')] || teamProfile?.priority,
+    needs: {
+      ...(teamProfile?.needs || {}),
+      shooting: safe(needs.shooting, 50) / 100,
+      creation: Math.max(safe(needs.primaryCreation, 50), safe(needs.secondaryCreation, 50)) / 100,
+      defense: Math.max(safe(needs.pointOfAttackDefense, 50), safe(needs.wingDefense, 50), safe(needs.rimProtection, 50)) / 100,
+      rebounding: safe(needs.rebounding, 50) / 100,
+      athleticism: safe(needs.athleticism, 50) / 100,
+      size: safe(needs.size, 50) / 100,
+    },
+    editorial: {
+      ...(teamProfile?.editorial || {}),
+      strategy: resolved.notes?.idealPickLogic || teamProfile?.editorial?.strategy,
+    },
+  }
+}
 export function calculateBestFitScore(input: BestFitInput) {
   const score =
     input.teamNeedFit * WEIGHTS.teamNeedFit +
@@ -225,7 +262,7 @@ export function calculateRiskFit(player: any, teamProfile: any) {
 
 function pickContextFor(player: any, teamPicks: any[]) {
   const range = getPlayerExpectedRange(player)
-  if (!teamPicks.length) return { text: 'Sem escolha de primeira rodada compativel.', realistic: false, bestPick: undefined }
+  if (!teamPicks.length) return { text: 'Sem escolha de primeira rodada compatível.', realistic: false, bestPick: undefined }
   const sorted = [...teamPicks].sort((a, b) => Math.abs(a.pick - range.expectedPick) - Math.abs(b.pick - range.expectedPick))
   const bestPick = sorted[0]
   const pick = bestPick.pick
@@ -246,12 +283,12 @@ function generateFitNarrative(player: any, teamProfile: any, breakdown: BestFitB
   if (attrs.defense >= 65 && safe(teamProfile?.needs?.defense, 0) >= 0.6) flags.push('Defensive fit')
   if (isRebuild(teamProfile) && attrs.ceiling >= 65) flags.push('Development runway')
   if (isWinNow(teamProfile) && attrs.floor >= 62) flags.push('Early role clarity')
-  if (riskLevel(player) === 'high' && String(teamProfile?.riskTolerance || '').toLowerCase() === 'low') warnings.push('Risco acima da tolerancia do time')
-  if (breakdown.schemeFit < 50) warnings.push('Encaixe tatico exige ajuste')
+  if (riskLevel(player) === 'high' && String(teamProfile?.riskTolerance || '').toLowerCase() === 'low') warnings.push('Risco acima da tolerância do time')
+  if (breakdown.schemeFit < 50) warnings.push('Encaixe tático exige ajuste')
 
-  const needText = breakdown.teamNeedFit >= 72 ? 'necessidade do elenco' : breakdown.roleFit >= 72 ? 'papel disponivel' : 'contexto de desenvolvimento'
+  const needText = breakdown.teamNeedFit >= 72 ? 'necessidade do elenco' : breakdown.roleFit >= 72 ? 'papel disponível' : 'contexto de desenvolvimento'
   const primaryReason = realistic
-    ? 'Melhor combinacao entre ' + needText + ', timeline e faixa de escolha.'
+    ? 'Melhor combinação entre ' + needText + ', timeline e faixa de escolha.'
     : 'Contexto interessante, mas a faixa de pick reduz o realismo.'
   const description = teamProfile?.editorial?.strategy || getBestFitDescription(calculateBestFitScore(breakdown))
 
@@ -259,6 +296,8 @@ function generateFitNarrative(player: any, teamProfile: any, breakdown: BestFitB
 }
 
 export function calculateBestFitForTeam(player: any, teamProfile: any, teamPicks: any[] = []): BestFitResult {
+  player = mergeProspectWithManualIntelligence(player || {})
+  teamProfile = applyManualTeamProfile(teamProfile)
   const breakdown: BestFitBreakdown = {
     teamNeedFit: calculateTeamNeedFit(player, teamProfile),
     roleFit: calculateRoleFit(player, teamProfile),
@@ -289,6 +328,7 @@ export function calculateBestFitForTeam(player: any, teamProfile: any, teamPicks
 }
 
 export function getBestFitsForPlayer(player: any, options: BestFitOptions = {}): BestFitResult[] {
+  player = mergeProspectWithManualIntelligence(player || {})
   const limit = options.limit ?? 5
   return getAllTeamProfiles()
     .map(profile => calculateBestFitForTeam(player, profile, getTeamPicks(profile.id, options.currentOrder)))

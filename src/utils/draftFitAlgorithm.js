@@ -1,4 +1,6 @@
-﻿import { getAllTeamProfiles } from '../data/teamProfiles.js';
+import { getAllTeamProfiles } from '../data/teamProfiles.js';
+import { mergeProspectWithManualIntelligence } from '../data/prospectDraftIntelligence.ts';
+import { resolveTeamDraftIntelligence } from '../data/teamDraftManualIntelligence.ts';
 import { getCurrentDraftOrder, getTeamPicks } from './draftPickAdapter.js';
 
 const ATTRIBUTE_KEYS = ['shooting', 'creation', 'defense', 'rebounding', 'athleticism', 'size', 'floor', 'ceiling'];
@@ -49,6 +51,35 @@ function average(values) {
   return valid.length ? valid.reduce((sum, value) => sum + value, 0) / valid.length : 0;
 }
 
+const manualFloorScore = value => ({ STARTER: 66, ROTATION: 56, BENCH: 46, TWO_WAY: 40, G_LEAGUE: 36, OVERSEAS: 35 })[String(value || '').toUpperCase()];
+const manualCeilingScore = value => ({ MVP: 92, FRANCHISE_PLAYER: 84, ALL_STAR: 74, STARTER: 64, ROTATION: 54, BENCH: 44, G_LEAGUE: 36 })[String(value || '').toUpperCase()];
+function applyManualTeamProfile(teamProfile) {
+  const resolved = resolveTeamDraftIntelligence(teamProfile.id);
+  if (!resolved?.hasManualOverride) return teamProfile;
+  const needs = resolved.needs || {};
+  const priorityMap = { SHOOTING: 'spacing', CREATION: 'creation', SECONDARY_CREATION: 'guard_creation', DEFENSE: 'defense', SIZE: 'size', REBOUNDING: 'rebounding', UPSIDE: 'ceiling', SAFE_FLOOR: 'floor', IMMEDIATE_ROTATION: 'floor' };
+  const timelineMap = { rebuilding: 'early_rebuild', retooling: 'development_core', ascending: 'rising_core', playoff: 'playoff_core', contender: 'contender' };
+  const modeMap = { 'best-player': 'talent_accumulation', 'need-based': 'playoff_support', 'upside-swing': 'upside_swing', 'safe-pick': 'contender_depth', 'value-opportunistic': 'core_builder' };
+  const score10 = (value, fallback) => clamp(Number(value ?? fallback) / 10, 0, 10);
+  const topPriority = resolved.strategicPriorities?.[0] || '';
+  return {
+    ...teamProfile,
+    timeline: timelineMap[resolved.timeline] || teamProfile.timeline,
+    draftMode: modeMap[resolved.draftMode] || teamProfile.draftMode,
+    riskTolerance: resolved.riskTolerance || teamProfile.riskTolerance,
+    priority: priorityMap[topPriority] || teamProfile.priority,
+    needs: {
+      ...teamProfile.needs,
+      shooting: score10(needs.shooting, teamProfile.needs.shooting * 10),
+      creation: Math.max(score10(needs.primaryCreation, teamProfile.needs.creation * 10), score10(needs.secondaryCreation, teamProfile.needs.creation * 10)),
+      defense: Math.max(score10(needs.pointOfAttackDefense, teamProfile.needs.defense * 10), score10(needs.wingDefense, teamProfile.needs.defense * 10), score10(needs.rimProtection, teamProfile.needs.defense * 10)),
+      rebounding: score10(needs.rebounding, teamProfile.needs.rebounding * 10),
+      athleticism: score10(needs.athleticism, teamProfile.needs.athleticism * 10),
+      size: score10(needs.size, teamProfile.needs.size * 10),
+    },
+    editorial: { ...teamProfile.editorial, strategy: resolved.notes?.idealPickLogic || teamProfile.editorial.strategy, notes: [resolved.notes?.caution, ...(teamProfile.editorial.notes || [])].filter(Boolean) },
+  };
+}
 function wordScore(text, positiveWords, negativeWords = []) {
   const source = String(text || '').toLowerCase();
   const positives = positiveWords.reduce((sum, word) => sum + (source.includes(word) ? 1 : 0), 0);
@@ -57,6 +88,9 @@ function wordScore(text, positiveWords, negativeWords = []) {
 }
 
 export function getPlayerDraftAttributes(player) {
+  player = mergeProspectWithManualIntelligence(player || {});
+  const manual = player?.resolvedIntelligence?.manualTraits || {};
+  const projection = player?.resolvedIntelligence?.projection || {};
   const s = player?.stats || {};
   const scoutingText = [player?.scouting?.notes, ...(player?.scouting?.strengths || []), ...(player?.scouting?.weaknesses || [])].join(' ');
   const playerRole = role(player?.position);
@@ -72,7 +106,16 @@ export function getPlayerDraftAttributes(player) {
   const size = average([toScore(attr(player, 'Size', 'size')), clamp(((height - 72) / 13) * 70 + Math.max(0, wingspan - height) * 5 + (playerRole !== 'guard' ? 10 : 0)), wordScore([player?.height, player?.wingspan, scoutingText].join(' '), ['size', 'length', 'longo', 'wingspan'], ['undersized'])]);
   const floor = average([toScore(attr(player, 'Floor', 'floor')), clamp((s.ts ?? 54) * 1.25 - 25), clamp((s.per ?? 18) * 3.5), shooting * 0.20 + defense * 0.25 + creation * 0.15 + 35]);
   const ceiling = average([toScore(attr(player, 'Ceiling', 'ceiling')), clamp((100 - rank) + 18), clamp(((s.ppg ?? 10) / 24) * 100), clamp(((s.usg ?? 18) - 12) * 4.5), creation * 0.25 + athleticism * 0.2 + size * 0.15 + shooting * 0.18]);
-  return { shooting: round(shooting), creation: round(creation), defense: round(defense), rebounding: round(rebounding), athleticism: round(athleticism), size: round(size), floor: round(floor), ceiling: round(ceiling) };
+  return {
+    shooting: round(manual.shooting ?? shooting),
+    creation: round(manual.creation ?? creation),
+    defense: round(manual.defense ?? defense),
+    rebounding: round(manual.rebounding ?? rebounding),
+    athleticism: round(manual.athleticism ?? athleticism),
+    size: round(manual.size ?? size),
+    floor: round(manualFloorScore(projection.floor) ?? floor),
+    ceiling: round(manualCeilingScore(projection.ceiling) ?? projection.projectionScoreOverride ?? ceiling),
+  };
 }
 
 function rangeTier(expectedPick) {
@@ -279,6 +322,7 @@ function pickContext(range, compatibility) {
 }
 
 export function calculateDraftFit(player, teamProfile, currentOrder) {
+  teamProfile = applyManualTeamProfile(teamProfile);
   const teamPicks = getTeamPicks(teamProfile.id, currentOrder);
   const playerRange = getPlayerExpectedRange(player);
   const pickCompatibility = getPickCompatibility(playerRange, teamPicks);
@@ -300,7 +344,14 @@ export function getBestDraftFits(player, options = {}) {
   const { limit = 5, includeBlocked = false, currentOrder } = options;
   const order = getCurrentDraftOrder(currentOrder);
   return getAllTeamProfiles()
-    .map(team => calculateDraftFit(player, team, order))
+    .map(team => {
+      try {
+        return calculateDraftFit(player, team, order)
+      } catch {
+        return null
+      }
+    })
+    .filter(Boolean)
     .filter(result => includeBlocked || result.realism !== 'Blocked')
     .sort((a, b) => REALISM_ORDER[a.realism] - REALISM_ORDER[b.realism] || b.score - a.score)
     .slice(0, limit);

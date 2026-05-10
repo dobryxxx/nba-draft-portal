@@ -1,15 +1,18 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+﻿import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { toPng } from 'html-to-image'
 import { prospects, PICKS_15_30 } from '../data/prospects'
 import { getPlayerCutoutImage } from '../utils/playerImages'
 import TeamLogoGlass from '../components/TeamLogoGlass'
+import { getTeamLogo } from '../utils/teamAssets.js'
 import { getDraftFitStatus } from '../components/DraftFitBreakdown'
 import { AttributeBar, GlassPanel, InfoLine, MovementBadge, PremiumButton, Skeleton, StatusPill } from '../components/mockDraft/MockDraftPrimitives.jsx'
 import { getTeamProfile } from '../data/teamProfiles.js'
+import { getManualRosterOverride, hasManualRosterOverride, normalizeManualRosterOverride, sortRosterPlayersByStatus } from '../data/manualRosterOverrides.ts'
 import { getTeamPicks } from '../utils/draftPickAdapter.js'
 import { calculateBestFitForTeam, getBestFitColor } from '../utils/bestFitAlgorithm'
 import { calculateDraftDecision, getDraftDecisionAudit, rankAvailablePlayersForTeam } from '../utils/draftDecisionAlgorithm.ts'
+import { analyzeRosterContext } from '../utils/rosterContextAlgorithm.ts'
 import {
   FILTERS,
   PHASE,
@@ -54,6 +57,7 @@ export default function MockDraft() {
   const [draftFinished, setDraftFinished] = useState(false)
   const [isSelecting, setIsSelecting] = useState(false)
   const [pickOverlay, setPickOverlay] = useState(null)
+  const [pickNotes, setPickNotes] = useState({})
   const [selectedLotteryPick, setSelectedLotteryPick] = useState(1)
   const lotteryTimersRef = useRef([])
 
@@ -80,6 +84,7 @@ export default function MockDraft() {
     setPhase(PHASE.ANIMATING)
     setRevealed([])
     setPicks({})
+    setPickNotes({})
     setSelecting(null)
     setPreviewId(null)
     setToast(null)
@@ -131,22 +136,21 @@ export default function MockDraft() {
     const picked = prospects.find(p => p.id === prospectId)
     const selectedPick = resolvedPicks[pickIdx]
     const nextPick = resolvedPicks[pickIdx + 1]
-    const selectedTeam = selectedPick?.ownerName || 'Time no relogio'
     const next = pickIdx + 1
+    const displayMs = next < TOTAL_PICKS ? 1720 : 1820
 
     setIsSelecting(true)
+    setPreviewId(null)
     setPickOverlay({ stage: 'confirm', pickNo: pickIdx + 1, team: selectedPick, nextTeam: nextPick, prospect: picked })
-    setPicks(prev => ({ ...prev, [pickIdx]: prospectId }))
-    setToast(picked ? { pick: pickIdx + 1, name: picked.name, team: selectedTeam } : { pick: pickIdx + 1, name: 'Pick pulado', team: selectedTeam })
-    setTimeout(() => setToast(null), 1800)
+    setToast(null)
 
     setTimeout(() => {
-      if (next < TOTAL_PICKS) setPickOverlay({ stage: 'next', pickNo: next + 1, team: nextPick })
-    }, 1250)
-
-    setTimeout(() => {
-      setIsSelecting(false)
       setPickOverlay(null)
+    }, displayMs)
+
+    setTimeout(() => {
+      setPicks(prev => ({ ...prev, [pickIdx]: prospectId }))
+      setIsSelecting(false)
       if (next < TOTAL_PICKS) {
         setSelecting(next)
         setPreviewId(null)
@@ -155,7 +159,7 @@ export default function MockDraft() {
         setPreviewId(null)
         setDraftFinished(true)
       }
-    }, next < TOTAL_PICKS ? 2200 : 1700)
+    }, displayMs + 260)
   }
 
   const resetAll = () => {
@@ -164,6 +168,7 @@ export default function MockDraft() {
     setLotteryOrder([])
     setResolved([])
     setPicks({})
+    setPickNotes({})
     setSelecting(null)
     setRevealed([])
     setPreviewId(null)
@@ -172,12 +177,27 @@ export default function MockDraft() {
     setSelectedLotteryPick(1)
   }
 
-  const draftedIds = Object.values(picks).filter(Boolean)
-  const available = prospects.filter(p => !draftedIds.includes(p.id)).sort((a, b) => a.rank - b.rank)
-  const currentOwner = selecting !== null && resolvedPicks[selecting] ? resolvedPicks[selecting] : null
-  const filteredPool = filterProspects(available, filter)
-  const filteredAvailable = sortProspectsForMode(filteredPool, filter, currentOwner, resolvedPicks)
-  const selectedProspect = available.find(p => p.id === previewId) || filteredAvailable[0] || available[0]
+  const draftedIds = useMemo(() => Object.values(picks).filter(Boolean), [picks])
+  const draftedIdSet = useMemo(() => new Set(draftedIds), [draftedIds])
+  const available = useMemo(
+    () => prospects
+      .filter(p => !draftedIdSet.has(p.id))
+      .sort((a, b) => Number(a.rank || 999) - Number(b.rank || 999)),
+    [draftedIdSet],
+  )
+  const currentOwner = useMemo(
+    () => selecting !== null && resolvedPicks[selecting] ? resolvedPicks[selecting] : null,
+    [resolvedPicks, selecting],
+  )
+  const filteredPool = useMemo(() => filterProspects(available, filter), [available, filter])
+  const filteredAvailable = useMemo(
+    () => sortProspectsForMode(filteredPool, filter, currentOwner, resolvedPicks),
+    [filteredPool, filter, currentOwner, resolvedPicks],
+  )
+  const selectedProspect = useMemo(
+    () => available.find(p => p.id === previewId) || filteredAvailable[0] || available[0],
+    [available, filteredAvailable, previewId],
+  )
   const setSafePreviewId = useCallback((id) => {
     if (!id) {
       setPreviewId(null)
@@ -216,7 +236,7 @@ export default function MockDraft() {
         <AnimatePresence mode="wait">
           <motion.div key={activeScene} {...motionPresets.page}>
             {draftFinished ? (
-              <DraftResultsScreen picks={picks} resolvedPicks={resolvedPicks} onReset={resetAll} onHome={resetAll} />
+              <DraftResultsScreen picks={picks} resolvedPicks={resolvedPicks} pickNotes={pickNotes} onReset={resetAll} onHome={resetAll} />
             ) : (
               <>
                 {phase === PHASE.IDLE && <LotteryPanel onRun={runSimulation} selectedPick={selectedLotteryPick} onSelectPick={setSelectedLotteryPick} />}
@@ -233,6 +253,8 @@ export default function MockDraft() {
                     setFilter={setFilter}
                     setPreviewId={setSafePreviewId}
                     onPick={id => assignPick(selecting, id)}
+                    pickNotes={pickNotes}
+                    setPickNotes={setPickNotes}
                     picks={picks}
                     resolvedPicks={resolvedPicks}
                     toast={toast}
@@ -603,10 +625,41 @@ function getWarRoomDraftDecision(owner, prospect, available) {
 function getWarRoomDecisionRecommendations(owner, available, limit = 3) {
   if (!owner?.ownerAbbr || !available?.length) return []
   try {
-    return rankAvailablePlayersForTeam(available, owner.ownerAbbr, Number(owner.pick || 30)).slice(0, limit)
+    const pickNo = Number(owner.pick || 30)
+    const boardWindow = getDecisionBoardWindow(available, pickNo, limit)
+    const ranked = rankAvailablePlayersForTeam(boardWindow, owner.ownerAbbr, pickNo, { limit })
+    return ranked?.length ? ranked : getFallbackRecommendations(owner, available, limit)
   } catch {
-    return []
+    return getFallbackRecommendations(owner, available, limit)
   }
+}
+
+function getDecisionBoardWindow(available, pickNo, limit = 3) {
+  const buffer = pickNo <= 4 ? 24 : pickNo <= 14 ? 34 : 44
+  const minSize = Math.max(limit * 8, 18)
+  return [...(available || [])]
+    .sort((a, b) => Number(a?.rank || 999) - Number(b?.rank || 999))
+    .filter(player => Number(player?.rank || 999) <= pickNo + buffer)
+    .slice(0, Math.max(minSize, 36))
+}
+
+function getFallbackRecommendations(owner, available, limit = 3) {
+  const pickNo = Number(owner?.pick || 30)
+  return [...(available || [])]
+    .sort((a, b) => Number(a?.rank || 99) - Number(b?.rank || 99))
+    .slice(0, limit)
+    .map(player => ({
+      player,
+      decision: getWarRoomDraftDecision(owner, player, available) || {
+        score: Math.max(45, 78 - Math.max(0, Number(player?.rank || pickNo) - pickNo) * 2),
+        grade: 'Acceptable Decision',
+        recommendationType: 'Best Available Fallback',
+        summary: 'Fallback por ranking de board enquanto a recomendacao completa fica indisponivel.',
+        positives: ['Melhor disponivel por ranking.'],
+        warnings: [],
+        breakdown: { needFit: 55, roleFit: 55, draftRange: 55, strategyFit: 55, boardValue: 65, riskFit: 55, positionDepthFit: 55 },
+      },
+    }))
 }
 
 function getWarRoomDraftDecisionAudit(owner, prospect, available) {
@@ -628,10 +681,27 @@ function isDraftDebugEnabled() {
   return new URLSearchParams(window.location.search).get('debugDraft') === '1'
 }
 
-function ProspectSelectionScreen({ currentOwner, selecting, available, rawAvailable, selectedProspect, filter, setFilter, setPreviewId, onPick, picks, resolvedPicks, toast, isSelecting }) {
+function ProspectSelectionScreen({ currentOwner, selecting, available, rawAvailable, selectedProspect, filter, setFilter, setPreviewId, onPick, pickNotes = {}, setPickNotes, picks, resolvedPicks, toast, isSelecting }) {
   const showDraftDebug = useMemo(() => isDraftDebugEnabled(), [])
-  const selectedFit = getTeamDraftFit(currentOwner, selectedProspect, resolvedPicks)
-  const selectedBestFit = getWarRoomBestFit(currentOwner, selectedProspect, resolvedPicks)
+  const [miniProfileId, setMiniProfileId] = useState(null)
+  const currentPickNote = pickNotes?.[selecting] || ''
+  const handlePickNoteChange = useCallback((value) => {
+    if (selecting == null || !setPickNotes) return
+    setPickNotes(prev => ({ ...prev, [selecting]: value }))
+  }, [selecting, setPickNotes])
+  const handlePick = useCallback((id) => {
+    setMiniProfileId(null)
+    setPreviewId(null)
+    onPick(id)
+  }, [onPick, setPreviewId])
+  const miniProfileProspect = useMemo(
+    () => rawAvailable.find(p => p.id === miniProfileId) || null,
+    [rawAvailable, miniProfileId],
+  )
+  const miniProfileDecision = useMemo(
+    () => getWarRoomDraftDecision(currentOwner, miniProfileProspect, rawAvailable),
+    [currentOwner, miniProfileProspect, rawAvailable],
+  )
   const selectedDecision = useMemo(
     () => getWarRoomDraftDecision(currentOwner, selectedProspect, rawAvailable),
     [currentOwner, selectedProspect, rawAvailable],
@@ -641,25 +711,84 @@ function ProspectSelectionScreen({ currentOwner, selecting, available, rawAvaila
     [showDraftDebug, currentOwner, selectedProspect, rawAvailable],
   )
   const recommendations = useMemo(
-    () => getWarRoomDecisionRecommendations(currentOwner, rawAvailable),
+    () => getWarRoomDecisionRecommendations(currentOwner, rawAvailable, 5),
     [currentOwner, rawAvailable],
   )
-  const activePick = (selecting ?? 0) + 1
+  const currentRosterContext = useMemo(
+    () => currentOwner?.ownerAbbr ? analyzeRosterContext(currentOwner.ownerAbbr) : null,
+    [currentOwner?.ownerAbbr],
+  )
+  const poolDecisionMap = useMemo(() => {
+    if (!currentOwner?.ownerAbbr || !available?.length) return new Map()
+    const visibleWindow = available.slice(0, 32)
+    const ranked = getWarRoomDecisionRecommendations(currentOwner, visibleWindow, 12)
+    return new Map(ranked.map(item => [item.player.id, item.decision]))
+  }, [currentOwner, available])
+  const madePicks = useMemo(
+    () => getDraftRows(picks, resolvedPicks).filter(row => row.prospect),
+    [picks, resolvedPicks],
+  )
+  const nextPicks = useMemo(
+    () => resolvedPicks.slice(selecting + 1, selecting + 9),
+    [resolvedPicks, selecting],
+  )
   return (
-    <section className="mock-war-room relative space-y-3">
-      <WarRoomHeader owner={currentOwner} selecting={selecting} />
-      <DraftProgressRail picks={resolvedPicks} selections={picks} activePick={activePick} />
-      <DraftFilterChips active={filter} setActive={(nextFilter) => { setFilter(nextFilter); setPreviewId(null) }} />
-
-      <div className="grid gap-3 xl:grid-cols-[minmax(260px,29%)_minmax(0,43%)_minmax(280px,28%)]">
-        <div className="xl:sticky xl:top-[8.5rem] xl:h-[calc(100vh-9.25rem)] xl:self-start">
-          <ProspectListPanel available={available} rawAvailable={rawAvailable} selectedId={selectedProspect?.id} owner={currentOwner} order={resolvedPicks} onHover={setPreviewId} onSelect={setPreviewId} />
+    <section className="mock-war-room mock-war-room-fixed relative overflow-hidden">
+      <div className="grid h-full min-h-0 gap-3 xl:grid-cols-[minmax(288px,27%)_minmax(0,56%)_minmax(178px,17%)]">
+        <div className="order-2 min-h-0 xl:order-1">
+          <ProspectListPanel
+            available={available}
+            rawAvailable={rawAvailable}
+            selectedId={miniProfileId}
+            owner={currentOwner}
+            decisionMap={poolDecisionMap}
+            filter={filter}
+            setFilter={(nextFilter) => { setFilter(nextFilter); setPreviewId(null) }}
+            onPreview={(id) => {
+              setMiniProfileId(id)
+              setPreviewId(id)
+            }}
+            onPick={handlePick}
+          />
         </div>
-        <div className="xl:sticky xl:top-[8.5rem] xl:h-[calc(100vh-9.25rem)] xl:self-start xl:overflow-y-auto xl:overscroll-contain xl:pr-1 [scrollbar-gutter:stable]">
-          <ProspectHeroCard prospect={selectedProspect} owner={currentOwner} draftFit={selectedFit} bestFit={selectedBestFit} draftDecision={selectedDecision} draftAudit={selectedAudit} showDraftDebug={showDraftDebug} isSelecting={isSelecting} onPick={() => selectedProspect && onPick(selectedProspect.id)} />
+        <div className="relative order-1 flex h-full min-h-0 min-w-0 flex-col gap-3 xl:order-2">
+          <div className="min-h-0 flex-1">
+            <TeamCommandCenter
+              owner={currentOwner}
+              selectedProspect={selectedProspect}
+              selectedDecision={selectedDecision}
+              recommendations={recommendations}
+              selecting={selecting}
+              picks={picks}
+              resolvedPicks={resolvedPicks}
+              rosterContext={currentRosterContext}
+              nextPicks={nextPicks}
+              onPreview={(id) => {
+                setMiniProfileId(id)
+                setPreviewId(id)
+              }}
+              onPick={handlePick}
+              onAutoPick={() => recommendations[0]?.player ? handlePick(recommendations[0].player.id) : selectedProspect && handlePick(selectedProspect.id)}
+            />
+          </div>
+          <AnimatePresence>
+            {miniProfileProspect && (
+              <MiniPlayerProfile
+                prospect={miniProfileProspect}
+                owner={currentOwner}
+                decision={miniProfileDecision}
+                isSelecting={isSelecting}
+                pickNote={currentPickNote}
+                onPickNoteChange={handlePickNoteChange}
+                onClose={() => setMiniProfileId(null)}
+                onPick={() => handlePick(miniProfileProspect.id)}
+              />
+            )}
+          </AnimatePresence>
+          {showDraftDebug && <DraftDecisionAuditPanel audit={selectedAudit} accent={currentOwner?.ownerColor || '#7c5ccf'} />}
         </div>
-        <div className="xl:sticky xl:top-[8.5rem] xl:h-[calc(100vh-9.25rem)] xl:self-start xl:overflow-y-scroll xl:overscroll-contain xl:pr-2 [scrollbar-gutter:stable]">
-          <TeamOnTheClockPanel owner={currentOwner} prospect={selectedProspect} draftFit={selectedFit} bestFit={selectedBestFit} draftDecision={selectedDecision} recommendations={recommendations} selecting={selecting} picks={picks} resolvedPicks={resolvedPicks} onPreview={setPreviewId} onRecommendPick={id => onPick(id)} onAutoPick={() => recommendations[0]?.player ? onPick(recommendations[0].player.id) : selectedProspect && onPick(selectedProspect.id)} />
+        <div className="order-4 min-h-0 xl:order-3">
+          <MadePicksRail rows={madePicks} />
         </div>
       </div>
       <PickConfirmationToast toast={toast} />
@@ -700,33 +829,62 @@ function DraftProgressRail({ picks, selections, activePick = 1 }) {
   )
 }
 
-function ProspectListPanel({ available, rawAvailable, selectedId, owner, order, onHover, onSelect }) {
+function getDecisionLabel(decision, prospect, currentPick) {
+  const score = Number(decision?.score || 0)
+  const rank = Number(prospect?.rank || 99)
+  const pick = Number(currentPick || 30)
+  if (rank - pick > 8) return { label: 'Reach', color: '#d88754', bg: 'rgba(251,228,207,.66)' }
+  if (score >= 82) return { label: 'Best Fit', color: '#4f9577', bg: 'rgba(229,244,236,.78)' }
+  if (score >= 68) return { label: 'Good Fit', color: '#3f7fa0', bg: 'rgba(237,247,253,.82)' }
+  if (score >= 52) return { label: 'Situational', color: '#8a7023', bg: 'rgba(251,244,210,.76)' }
+  return { label: 'Reach', color: '#b66246', bg: 'rgba(250,238,229,.76)' }
+}
+
+function ProspectListPanel({ available, rawAvailable, selectedId, owner, decisionMap, filter, setFilter, onPreview, onPick }) {
   return (
-    <GlassPanel className="mock-prospect-pool max-h-[calc(100vh-9.25rem)] overflow-hidden p-3">
-      <div className="mb-3 flex items-end justify-between gap-3">
+    <GlassPanel className="mock-prospect-pool flex h-full min-h-0 flex-col overflow-hidden p-3">
+      <div className="mb-2 flex items-end justify-between gap-3">
         <div><div className="font-mono text-[10px] font-black uppercase tracking-[.24em] text-lo">Available</div><h3 className="font-display text-2xl font-black text-slate-800">Prospect Pool</h3></div>
         <span className="rounded-full bg-white/45 px-3 py-1 font-mono text-[10px] font-black text-muted">{available.length}/{rawAvailable.length}</span>
       </div>
-      <div className="space-y-1.5 overflow-y-auto pr-1" style={{ maxHeight: 'calc(100vh - 13.25rem)' }}>
-        {available.map((p, idx) => <ProspectOption key={p.id} prospect={p} fit={getWarRoomBestFit(owner, p, order)} isBest={idx === 0} active={selectedId === p.id} onHover={() => onHover(p.id)} onClick={() => onSelect(p.id)} />)}
+      <DraftFilterChips active={filter} setActive={setFilter} compact />
+      <div className="mt-2 min-h-0 flex-1 space-y-1.5 overflow-y-auto pr-1 [scrollbar-width:thin]">
+        {available.map((p, idx) => (
+          <ProspectOption
+            key={p.id}
+            prospect={p}
+            decision={decisionMap?.get(p.id)}
+            currentPick={owner?.pick}
+            isBest={idx === 0}
+            active={selectedId === p.id}
+            onOpen={() => onPreview(p.id)}
+            onDraft={() => onPick(p.id)}
+          />
+        ))}
       </div>
     </GlassPanel>
   )
 }
 
-function ProspectOption({ prospect, fit, active, isBest, onHover, onClick }) {
+function ProspectOption({ prospect, decision, currentPick, active, isBest, onOpen, onDraft }) {
   const tier = getTierStyles(prospect.tier)
-  const image = getPlayerCutoutImage(prospect)
-  const badge = getProspectListBadge(prospect, fit, isBest)
-  const fitScore = fit?.score ? Math.round(fit.score) : null
-  const fitColor = fitScore ? getBestFitColor(fitScore) : tier.color
+  const fitScore = Math.round(decision?.score || Math.max(45, 82 - Math.max(0, Number(prospect.rank || 60) - Number(currentPick || 30)) * 2))
+  const fitMeta = getDecisionLabel(decision, prospect, currentPick)
   return (
-    <motion.button type="button" onPointerEnter={onHover} onFocus={onHover} onPointerDown={onClick} onClick={onClick} whileHover={{ x: 3, scale: 1.006 }} className="mock-prospect-option flex w-full items-center gap-2.5 rounded-[18px] border px-2.5 py-2 text-left transition-all" style={{ '--tier-color': tier.color, background: active ? tier.bg : 'rgba(255,255,255,.34)', borderColor: active ? tier.color + '66' : 'rgba(255,255,255,.5)', boxShadow: active ? '0 10px 24px ' + tier.glow : 'none' }}>
-      <span className="w-7 shrink-0 font-mono text-[11px] font-black tabular-nums" style={{ color: tier.color }}>#{prospect.rank}</span>
-      <span className="flex h-10 w-10 shrink-0 items-end justify-center overflow-visible rounded-full bg-white/18">{image ? <img src={image} alt={prospect.name} className="player-cutout player-profile-cutout h-[115%] w-[115%] object-contain object-bottom" draggable="false" /> : <span className="mb-2 font-display text-xs font-black" style={{ color: tier.color }}>{initials(prospect.name)}</span>}</span>
-      <span className="min-w-0 flex-1"><span className="block truncate text-[13px] font-black leading-tight text-slate-800">{prospect.name}</span><span className="mt-0.5 block truncate font-mono text-[7px] font-bold uppercase tracking-[.15em] text-muted">{prospect.position} / {prospect.team}</span><span className="mt-1 flex flex-wrap gap-1">{badge && <span className="rounded-full px-2 py-0.5 font-mono text-[7px] font-black uppercase tracking-[.12em]" style={{ background: badge.bg, color: badge.color }}>{badge.label}</span>}{fit?.tier && <span className="rounded-full bg-white/45 px-2 py-0.5 font-mono text-[7px] font-black uppercase tracking-[.12em] text-muted">{fit.tier.replace(' Fit','')}</span>}</span></span>
-      <span className="flex shrink-0 flex-col items-end gap-0.5"><span className="rounded-full px-2 py-0.5 font-mono text-[7px] font-black uppercase tracking-[.12em]" style={{ background: tier.bg, color: tier.text }}>{tier.label}</span><span className="font-numeric text-2xl font-extrabold leading-none tracking-tight tabular-nums" style={{ color: fitScore ? fitColor : '#a09891' }}>{fitScore || '-'}</span><span className="font-mono text-[7px] font-black uppercase tracking-[.12em] text-lo">Best Fit</span></span>
-    </motion.button>
+    <motion.div whileHover={{ x: 2 }} transition={{ duration: .12 }} className="mock-prospect-option group grid grid-cols-[34px_minmax(0,1fr)_52px] items-center gap-2 rounded-[19px] border px-2.5 py-2.5 text-left transition-colors" style={{ '--tier-color': tier.color, background: active ? tier.bg : 'rgba(255,255,255,.34)', borderColor: active ? tier.color + '66' : 'rgba(255,255,255,.5)', boxShadow: active ? '0 10px 24px ' + tier.glow : 'none' }}>
+      <span className="self-start pt-0.5 font-mono text-[11px] font-black tabular-nums" style={{ color: tier.color }}>#{prospect.rank}</span>
+      <button type="button" onClick={onOpen} className="min-w-0 text-left">
+        <span className="block whitespace-normal text-[13px] font-black leading-[1.15] text-slate-800 underline-offset-4 hover:underline dark:text-slate-100">{prospect.name}</span>
+        <span className="mt-1 block truncate font-mono text-[7px] font-bold uppercase tracking-[.15em] text-muted">{prospect.position} / {prospect.team}</span>
+        <span className="mt-1.5 inline-flex rounded-full px-2 py-0.5 font-mono text-[7px] font-black uppercase tracking-[.12em]" style={{ background: fitMeta.bg, color: fitMeta.color }}>{fitMeta.label}</span>
+      </button>
+      <div className="flex flex-col items-end gap-2">
+        <span className="text-right font-numeric text-2xl font-extrabold leading-none tracking-tight tabular-nums" style={{ color: fitMeta.color }}>{fitScore}</span>
+        <button type="button" onClick={onDraft} className="rounded-full border border-white/45 bg-white/35 px-2.5 py-1.5 font-mono text-[7px] font-black uppercase tracking-[.12em] text-slate-600 opacity-80 transition-all hover:-translate-y-0.5 hover:opacity-100 group-hover:bg-white/58 active:scale-95 dark:border-white/10 dark:bg-white/10 dark:text-slate-200" style={{ color: active ? tier.color : undefined }}>
+          Draft
+        </button>
+      </div>
+    </motion.div>
   )
 }
 
@@ -1267,6 +1425,398 @@ function DecisionChip({ label, value, color }) {
   return <div className="rounded-[18px] border border-white/30 bg-white/20 px-3 py-2 backdrop-blur-md"><div className="font-mono text-[8px] font-black uppercase tracking-[.18em] text-lo">{label}</div><div className="mt-1 truncate text-xs font-black text-slate-800" style={{ color }}>{value || '-'}</div></div>
 }
 
+function TeamCommandCenter({ owner, rosterContext, recommendations = [], nextPicks = [], onPreview }) {
+  const needs = getTeamNeedChips(owner?.ownerAbbr)
+  const ctx = getTeamDecisionContext(owner)
+  const glow = owner?.ownerColor || '#7c5ccf'
+  const strategy = ctx?.strategy || getTeamPriorityLabel(owner?.ownerAbbr) || getTeamTimelineLabel(owner?.ownerAbbr)
+
+  return (
+    <GlassPanel className="mock-team-clock relative flex h-full min-h-0 flex-col overflow-hidden p-3" style={{ background: owner?.ownerColor ? 'radial-gradient(circle at 50% 0%, ' + owner.ownerColor + '20, transparent 42%), rgba(255,255,255,.52)' : undefined }}>
+      <span className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full blur-3xl" style={{ background: glow, opacity: .16 }} />
+      <div className="relative shrink-0">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-3">
+            <TeamLogoGlass teamId={owner?.ownerAbbr} size="md" showGlow />
+            <div className="min-w-0">
+              <div className="font-mono text-[9px] font-black uppercase tracking-[.26em] text-lo">Team Command</div>
+              <h2 className="mt-0.5 truncate font-display text-2xl font-black leading-none text-slate-800 dark:text-slate-50">#{owner?.pick} / {owner?.ownerName}</h2>
+              <div className="mt-1 font-mono text-[8px] font-black uppercase tracking-[.18em] text-muted">{owner?.viaAbbr ? 'via ' + owner.viaAbbr : owner?.originalTeam?.record || 'First round'}</div>
+            </div>
+          </div>
+          <span className="rounded-full border border-white/45 bg-white/45 px-3 py-1.5 font-mono text-[8px] font-black uppercase tracking-[.16em] text-muted">
+            On the clock
+          </span>
+        </div>
+
+        <div className="mt-2 rounded-[22px] border border-white/50 bg-white/30 p-2.5 backdrop-blur-md dark:border-white/10 dark:bg-white/5">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="font-mono text-[9px] font-black uppercase tracking-[.2em] text-lo">Team Needs / Strategy</div>
+            {needs.slice(0, 5).map(x => <span key={x} className="rounded-full border border-white/45 bg-white/52 px-3 py-1 font-mono text-[8px] font-black uppercase tracking-[.12em] text-slate-600 shadow-[inset_1px_1px_0_rgba(255,255,255,.45)] dark:border-white/10 dark:bg-white/10 dark:text-slate-300">{x}</span>)}
+            <span className="ml-auto min-w-[220px] max-w-[42%] truncate text-right text-xs font-semibold text-muted">{strategy}</span>
+          </div>
+        </div>
+      </div>
+
+      <RosterShelves rosterContext={rosterContext} teamId={owner?.ownerAbbr} accent={glow} />
+      <MinimalBestFits recommendations={recommendations} onPreview={onPreview} />
+      <NextPicksStrip picks={nextPicks} />
+    </GlassPanel>
+  )
+}
+
+function getTopFitTag(player, decision) {
+  const text = [player?.archetype, player?.projectedRole, decision?.recommendationType, ...(decision?.positives || [])].filter(Boolean).join(' ').toLowerCase()
+  if (/imperdivel|elite|franchise|bpa|best player/.test(text) || Number(player?.rank) <= 3) return 'Best Fit'
+  if (/creator|creation|cria|primary|guard/.test(text)) return 'Creator'
+  if (/frontcourt|big|center|rim|rebound|pf|c/.test(text) || /PF|C/.test(player?.position || '')) return 'Frontcourt'
+  if (/defense|two-way|wing|size|switch/.test(text)) return 'Two-Way'
+  if (/upside|teto|swing|talent/.test(text)) return 'Upside'
+  return decision?.grade?.replace(' Decision', '') || 'Good Fit'
+}
+
+function getMinimalFitReason(item) {
+  const summary = item?.decision?.summary || item?.decision?.positives?.[0] || item?.decision?.recommendationType
+  return summary || 'Encaixe forte pelo valor de board e contexto do time.'
+}
+
+function formatStat(value, suffix = '') {
+  const number = Number(value)
+  if (!Number.isFinite(number)) return '-'
+  return `${number.toFixed(number % 1 ? 1 : 0)}${suffix}`
+}
+
+function getBasicFitStats(player) {
+  const stats = player?.stats || {}
+  return [
+    ['PPG', formatStat(stats.ppg)],
+    ['RPG', formatStat(stats.rpg)],
+    ['APG', formatStat(stats.apg)],
+    ['3P%', formatStat(stats.threep, '%')],
+    [stats.ts ? 'TS%' : 'FG%', formatStat(stats.ts || stats.fgp, '%')],
+  ].filter(([, value]) => value !== '-')
+}
+
+function MinimalBestFits({ recommendations = [], onPreview }) {
+  const fits = recommendations.slice(0, 3)
+  if (!fits.length) return null
+  return (
+    <div className="mt-2 shrink-0 rounded-[22px] border border-white/50 bg-white/28 p-2 backdrop-blur-md dark:border-white/10 dark:bg-white/5">
+      <div className="mb-1 flex items-center justify-between gap-2 px-1">
+        <div className="font-mono text-[8px] font-black uppercase tracking-[.2em] text-lo">Best Fit</div>
+        <span className="rounded-full bg-white/35 px-2.5 py-1 font-mono text-[7px] font-black uppercase tracking-[.14em] text-muted dark:bg-white/10">top 3</span>
+      </div>
+      <div className="grid gap-2 lg:grid-cols-3">
+        {fits.map((item, index) => {
+          const score = Math.round(item.decision?.score || 0)
+          const color = getDraftDecisionColor(score)
+          const tag = getTopFitTag(item.player, item.decision)
+          const image = getPlayerCutoutImage(item.player)
+          const stats = getBasicFitStats(item.player).slice(0, 5)
+          return (
+            <button key={item.player.id} type="button" onClick={() => onPreview?.(item.player.id)} className="min-h-[112px] rounded-[20px] border p-2 text-left backdrop-blur-md transition-colors" style={{ borderColor: color + '42', background: color + '12' }}>
+              <div className="flex items-start gap-2.5">
+                <span className="flex h-10 w-10 shrink-0 items-end justify-center overflow-hidden rounded-full bg-white/35 dark:bg-white/10">
+                  {image ? <img src={image} alt={item.player.name} className="h-[118%] w-[118%] object-contain object-bottom" draggable="false" /> : <span className="mb-3 font-display text-xs font-black" style={{ color }}>{initials(item.player.name)}</span>}
+                </span>
+                <span className="min-w-0">
+                  <span className="block truncate text-[12px] font-black leading-tight text-slate-800 dark:text-slate-100">{item.player.name}</span>
+                  <span className="mt-0.5 block truncate font-mono text-[7px] font-black uppercase tracking-[.12em] text-muted">{item.player.position} / {item.player.team}</span>
+                  <span className="mt-1 inline-flex rounded-full px-2 py-0.5 font-mono text-[7px] font-black uppercase tracking-[.12em]" style={{ background: color + '18', color }}>{tag}</span>
+                </span>
+                <span className="ml-auto shrink-0 text-right font-numeric text-2xl font-extrabold leading-none tabular-nums" style={{ color }}>{score}</span>
+              </div>
+              <div className="mt-1.5 flex flex-wrap gap-x-2 gap-y-0.5">
+                {stats.map(([label, value]) => <span key={label} className="font-mono text-[7px] font-black uppercase tracking-[.12em] text-muted"><b className="font-numeric text-[11px] text-slate-700 dark:text-slate-200">{value}</b> {label}</span>)}
+              </div>
+              <p className="mt-1.5 line-clamp-2 text-[10px] font-semibold leading-4 text-muted">{getMinimalFitReason(item)}</p>
+            </button>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+function getManualRosterShelfRows(teamId) {
+  if (!hasManualRosterOverride(teamId)) return null
+  const manual = normalizeManualRosterOverride(getManualRosterOverride(teamId))
+  if (!manual) return null
+  return [
+    ['Guards', manual.guards],
+    ['Wings / Forwards', manual.wingsForwards],
+    ['Bigs', manual.bigs],
+  ].map(([label, players]) => [label, players || []])
+}
+
+function getRosterShelfRows(rosterContext, teamId) {
+  const manualRows = getManualRosterShelfRows(teamId)
+  if (manualRows) return manualRows
+  if (!rosterContext) return []
+  const uniqueByName = players => {
+    const localTaken = new Set()
+    return (players || []).filter(player => {
+      const key = player?.name
+      if (!key || localTaken.has(key)) return false
+      localTaken.add(key)
+      return true
+    })
+  }
+  const assigned = new Set()
+  const take = players => uniqueByName(players).filter(player => {
+    const key = player?.name
+    if (!key || assigned.has(key)) return false
+    assigned.add(key)
+    return true
+  })
+  const wingForwardPool = [
+    ...(rosterContext.wings || []),
+    ...(rosterContext.rotationPlayers || []).filter(p => /forward|sf|pf|wing/i.test(p.position || p.roleTags?.join(' ') || '')),
+  ]
+  return [
+    ['Guards', take(rosterContext.guards || [])],
+    ['Wings / Forwards', take(wingForwardPool)],
+    ['Bigs', take(rosterContext.bigs || [])],
+  ].map(([label, players]) => [label, players || []])
+}
+
+function getRosterPlayerStatusMeta(status, accent) {
+  if (status === 'core') {
+    return {
+      className: '',
+      style: { borderColor: accent + '66', background: accent + '18', color: accent },
+    }
+  }
+  if (status === 'injured') {
+    return {
+      className: 'border-red-500/60 bg-red-200/80 text-red-950 shadow-[inset_1px_1px_0_rgba(255,255,255,.45)] dark:border-red-300/50 dark:bg-red-500/20 dark:text-red-200',
+      style: {},
+    }
+  }
+  if (status === 'uncertain') {
+    return {
+      className: 'border-amber-500/60 bg-amber-200/80 text-amber-950 shadow-[inset_1px_1px_0_rgba(255,255,255,.45)] dark:border-amber-300/50 dark:bg-amber-400/20 dark:text-amber-200',
+      style: {},
+    }
+  }
+  return {
+    className: 'border-white/40 bg-white/38 text-slate-700 dark:border-white/10 dark:bg-white/8 dark:text-slate-200',
+    style: {},
+  }
+}
+
+function RosterShelves({ rosterContext, teamId, accent }) {
+  const rows = getRosterShelfRows(rosterContext, teamId)
+  const manualActive = hasManualRosterOverride(teamId)
+  const coreNames = new Set((rosterContext?.corePlayers || []).map(p => p.name))
+  const contextByLabel = {
+    Guards: 'Need: criação secundária e defesa no ponto de ataque',
+    'Wings / Forwards': 'Need: tamanho, shooting e criação de vantagem',
+    Bigs: 'Need: rebote, proteção de aro ou spacing',
+  }
+  if (!rosterContext && !manualActive) return null
+  return (
+    <div className="relative mt-2 flex h-[clamp(280px,35vh,390px)] shrink-0 flex-col overflow-visible rounded-[24px] border border-white/50 bg-white/28 p-3 backdrop-blur-md dark:border-white/10 dark:bg-white/5">
+      <div className="mb-2 flex shrink-0 flex-wrap items-center justify-between gap-2">
+        <div className="font-mono text-[9px] font-black uppercase tracking-[.22em] text-lo">Roster Shelves</div>
+        <span className="rounded-full bg-white/40 px-3 py-1 font-mono text-[8px] font-black uppercase tracking-[.14em] text-muted dark:bg-white/10">{manualActive ? 'manual' : `${rosterContext?.rotationPlayers?.length || 0} rotation`}</span>
+      </div>
+      <div className="grid min-h-0 flex-1 overflow-visible rounded-[20px] border border-white/30 bg-white/14 dark:border-white/10 dark:bg-white/5 lg:grid-cols-3">
+      {rows.map(([label, players], index) => {
+        const sortedPlayers = sortRosterPlayersByStatus(players.map(player => ({
+          ...player,
+          status: player.status || (player.roleTags?.includes('injured core') ? 'injured' : coreNames.has(player.name) ? 'core' : 'normal'),
+        })))
+        return (
+        <div key={label} className={(index > 0 ? 'lg:border-l lg:border-white/30 lg:dark:border-white/10 ' : '') + 'flex min-h-0 flex-col p-3'}>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="font-mono text-[9px] font-black uppercase tracking-[.18em] text-lo">{label}</div>
+            <span className="rounded-full bg-white/36 px-2.5 py-1 font-mono text-[7px] font-black uppercase tracking-[.12em] text-muted dark:bg-white/10">{sortedPlayers.length}</span>
+          </div>
+          <div className="mt-2 flex min-h-0 flex-1 flex-wrap content-start items-start gap-1.5 overflow-visible">
+            {sortedPlayers.length ? sortedPlayers.map(player => {
+              const status = player.status || 'normal'
+              const statusMeta = getRosterPlayerStatusMeta(status, accent)
+              const title = player.note || player.roleTags?.join(' / ') || (status !== 'normal' ? status : undefined)
+              return (
+                <div key={player.name} title={title} className={'rounded-[14px] border px-3 py-1.5 text-[12px] font-black leading-tight ' + statusMeta.className} style={statusMeta.style}>
+                  {player.name}
+                </div>
+              )
+            }) : <span className="text-xs font-semibold text-muted">Sem peça clara</span>}
+            {sortedPlayers.length < 3 && (
+              <div className="rounded-[14px] border border-dashed border-white/45 bg-white/16 px-3 py-1.5 text-[12px] font-black leading-tight text-muted dark:border-white/10 dark:bg-white/5">
+                + Necessidade
+              </div>
+            )}
+          </div>
+          <div className="mt-2 shrink-0 rounded-[14px] border border-white/30 bg-white/22 px-3 py-2 text-[10px] font-semibold leading-4 text-muted dark:border-white/10 dark:bg-white/5">
+            {contextByLabel[label]}
+          </div>
+        </div>
+      )})}
+      </div>
+    </div>
+  )
+}
+
+function NextPicksStrip({ picks }) {
+  if (!picks?.length) return null
+  return (
+    <GlassPanel className="mock-next-picks-strip mt-2 overflow-hidden p-2">
+      <div className="mb-1.5 flex items-center justify-between gap-3 px-1">
+        <div className="font-mono text-[9px] font-black uppercase tracking-[.22em] text-lo">Próximas escolhas</div>
+        <span className="rounded-full bg-white/35 px-2.5 py-1 font-mono text-[7px] font-black uppercase tracking-[.14em] text-muted">{picks.length} picks</span>
+      </div>
+      <div className="relative overflow-hidden rounded-[18px] border border-white/40 bg-white/24 px-2.5 py-2 shadow-[inset_1px_1px_0_rgba(255,255,255,.34)] dark:border-white/10 dark:bg-white/5">
+        <div className="relative flex items-center gap-2 overflow-x-auto pb-0.5 [scrollbar-width:thin]">
+          {picks.map((pick, index) => (
+            <div key={pick.pick} className={(index === 0 ? 'min-w-[76px] border-white/60 bg-white/56 shadow-[0_8px_18px_rgba(15,23,42,.06)]' : 'min-w-[68px] border-white/38 bg-white/34') + ' flex items-center justify-center gap-1.5 rounded-full border px-2.5 py-1.5 backdrop-blur-md dark:border-white/10 dark:bg-white/5'}>
+              <span className="font-numeric text-[11px] font-extrabold leading-none tabular-nums" style={{ color: pick.ownerColor || '#7c5ccf' }}>#{pick.pick}</span>
+              <span className="font-mono text-[8px] font-black uppercase tracking-[.12em] text-slate-700 dark:text-slate-200">{pick.ownerAbbr}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </GlassPanel>
+  )
+}
+
+function MiniPlayerProfile({ prospect, owner, decision, isSelecting, pickNote = '', onPickNoteChange, onClose, onPick }) {
+  const tier = getTierStyles(prospect.tier)
+  const image = getPlayerCutoutImage(prospect)
+  const metrics = getTopMetrics(prospect)
+  const fitScore = Math.round(decision?.score || getFitScore(owner, prospect))
+  const fitMeta = getDecisionLabel(decision, prospect, owner?.pick)
+  const context = decision?.debug?.rosterContext
+  const matched = (context?.matchedNeeds || decision?.debug?.matchedNeeds || []).slice(0, 2)
+  const missed = (context?.missedNeeds || decision?.debug?.missedNeeds || []).slice(0, 2)
+  const rosterSummary = context?.notes?.rotationPath || decision?.summary || 'Seleção analisada pelo contexto do time no relógio.'
+
+  return (
+    <motion.div className="fixed inset-0 z-[120] flex items-center justify-center overflow-x-hidden bg-slate-950/[.78] p-4 backdrop-blur-[18px]" initial={{ opacity: 0 }} animate={{ opacity: isSelecting ? .72 : 1 }} exit={{ opacity: 0 }} transition={{ duration: .24, ease: [0.22, 1, 0.36, 1] }} onClick={onClose}>
+      <motion.div className="mx-auto w-full max-w-4xl overflow-x-hidden" initial={{ opacity: 0, y: 18, scale: .975 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 12, scale: .975 }} transition={{ duration: .28, ease: [0.22, 1, 0.36, 1] }} onClick={event => event.stopPropagation()}>
+        <GlassPanel className="relative max-h-[calc(100vh-3rem)] overflow-y-auto overflow-x-hidden border-white/45 bg-white/[.92] p-4 shadow-[0_30px_90px_rgba(0,0,0,.35)] [scrollbar-width:thin] dark:border-white/10 dark:bg-slate-950/[.94]">
+          <span className="pointer-events-none absolute -right-16 -top-20 h-52 w-52 rounded-full blur-3xl" style={{ background: tier.color, opacity: .14 }} />
+          <div className="relative flex flex-wrap items-start justify-between gap-4">
+            <div className="flex min-w-0 flex-1 items-center gap-4">
+              <span className="relative flex h-24 w-24 shrink-0 items-end justify-center overflow-hidden rounded-[28px] border border-white/40 bg-white/32 dark:border-white/10 dark:bg-white/10">
+                {image ? <img src={image} alt={prospect.name} className="h-[116%] w-[116%] object-contain object-bottom" draggable="false" /> : <span className="mb-8 font-display text-2xl font-black" style={{ color: tier.color }}>{initials(prospect.name)}</span>}
+              </span>
+              <div className="min-w-0">
+                <div className="flex flex-wrap gap-2">
+                  <span className="rounded-full px-3 py-1 font-mono text-[8px] font-black uppercase tracking-[.14em]" style={{ background: tier.bg, color: tier.text }}>#{prospect.rank} / {prospect.position}</span>
+                  <span className="rounded-full px-3 py-1 font-mono text-[8px] font-black uppercase tracking-[.14em]" style={{ background: fitMeta.bg, color: fitMeta.color }}>{fitMeta.label}</span>
+                  <span className="rounded-full bg-white/40 px-3 py-1 font-mono text-[8px] font-black uppercase tracking-[.14em] text-muted dark:bg-white/10">{prospect.team}</span>
+                </div>
+                <h3 className="mt-3 font-display text-3xl font-black leading-none text-slate-800 dark:text-slate-50">{prospect.name}</h3>
+                <div className="mt-2 text-xs font-bold text-muted">{prospect.age || '-'} anos / {prospect.height || '-'} / {prospect.weight || '-'} / {prospect.wingspan || '-'}</div>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="font-numeric text-5xl font-extrabold leading-none tabular-nums" style={{ color: getDraftDecisionColor(fitScore) }}>{fitScore}</div>
+              <div className="mt-1 font-mono text-[8px] font-black uppercase tracking-[.15em] text-lo">Fit Score</div>
+            </div>
+          </div>
+
+          <div className="relative mt-4 grid gap-3 lg:grid-cols-[1fr_1.1fr]">
+            <div className="space-y-3">
+              <QuickStatsRow metrics={metrics} color={tier.color} />
+              <div className="rounded-[22px] border border-white/40 bg-white/26 p-3 dark:border-white/10 dark:bg-white/5">
+                <div className="font-mono text-[8px] font-black uppercase tracking-[.2em] text-lo">Draft Decision</div>
+                <p className="mt-2 text-xs font-semibold leading-5 text-muted">{decision?.summary || 'Leitura baseada em necessidade, range, board value e risco.'}</p>
+              </div>
+            </div>
+            <div className="rounded-[22px] border border-white/40 bg-white/26 p-3 dark:border-white/10 dark:bg-white/5">
+              <div className="font-mono text-[8px] font-black uppercase tracking-[.2em] text-lo">Roster Context</div>
+              <p className="mt-2 text-xs font-semibold leading-5 text-muted">{rosterSummary}</p>
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                <NeedMiniGroup title="Matched" items={matched} color="#4f9577" />
+                <NeedMiniGroup title="Missed" items={missed} color="#d88754" />
+              </div>
+              <div className="mt-3 rounded-[18px] border border-white/40 bg-white/36 p-3 shadow-[inset_1px_1px_0_rgba(255,255,255,.55)] dark:border-white/10 dark:bg-white/8">
+                <label className="font-mono text-[7px] font-black uppercase tracking-[.18em] text-lo" htmlFor={`pick-note-${prospect.id}`}>
+                  Sua anotação sobre a escolha
+                </label>
+                <textarea
+                  id={`pick-note-${prospect.id}`}
+                  value={pickNote}
+                  onChange={event => onPickNoteChange?.(event.target.value)}
+                  maxLength={260}
+                  rows={3}
+                  placeholder="Ex: boa escolha pelo encaixe defensivo, mas eu preferiria mais criação com bola."
+                  className="mt-2 min-h-[76px] w-full resize-none rounded-[16px] border border-white/45 bg-white/62 px-3 py-2 text-xs font-semibold leading-5 text-slate-700 outline-none placeholder:text-slate-400 focus:border-sky-300/70 focus:ring-2 focus:ring-sky-200/40 dark:border-white/10 dark:bg-slate-950/55 dark:text-slate-100 dark:placeholder:text-slate-500"
+                />
+                <div className="mt-1 text-right font-mono text-[7px] font-black uppercase tracking-[.12em] text-muted">{pickNote.length}/260</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="relative mt-4 grid gap-3 md:grid-cols-2">
+            <DecisionNotes title="Positives" items={decision?.positives?.slice(0, 3) || []} color="#4f9577" />
+            <DecisionNotes title="Warnings" items={decision?.warnings?.slice(0, 3) || []} color="#d88754" />
+          </div>
+
+          <div className="relative mt-4 flex flex-wrap justify-end gap-2">
+            <button type="button" onClick={onClose} className="rounded-full border border-white/45 bg-white/35 px-4 py-2.5 font-mono text-[8px] font-black uppercase tracking-[.16em] text-muted backdrop-blur-md transition-transform hover:-translate-y-0.5 dark:border-white/10 dark:bg-white/5">Fechar</button>
+            <button type="button" onClick={onPick} className="rounded-full px-5 py-2.5 font-mono text-[8px] font-black uppercase tracking-[.16em] text-white transition-transform hover:-translate-y-0.5 active:scale-95" style={{ background: tier.color, boxShadow: '0 14px 30px ' + tier.glow }}>Draftar jogador</button>
+          </div>
+        </GlassPanel>
+      </motion.div>
+    </motion.div>
+  )
+}
+
+function NeedMiniGroup({ title, items, color }) {
+  return (
+    <div>
+      <div className="font-mono text-[7px] font-black uppercase tracking-[.16em] text-lo">{title}</div>
+      <div className="mt-1.5 flex flex-wrap gap-1.5">
+        {items?.length ? items.map(item => <span key={item} className="rounded-full px-2 py-1 font-mono text-[7px] font-black uppercase tracking-[.1em]" style={{ background: color + '16', color }}>{item}</span>) : <span className="text-[11px] font-semibold text-muted">-</span>}
+      </div>
+    </div>
+  )
+}
+
+function MadePicksRail({ rows }) {
+  return (
+    <GlassPanel className="mock-made-picks h-full overflow-hidden p-3">
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <div>
+          <div className="font-mono text-[9px] font-black uppercase tracking-[.22em] text-lo">Escolhas feitas</div>
+          <div className="mt-1 text-[11px] font-semibold text-muted">Board confirmado</div>
+        </div>
+        <span className="rounded-full bg-white/40 px-2.5 py-1 font-mono text-[8px] font-black uppercase tracking-[.14em] text-muted dark:bg-white/10">{rows.length}</span>
+      </div>
+      {rows.length ? (
+        <div className="space-y-2 overflow-y-auto pr-1 [scrollbar-width:thin]" style={{ maxHeight: 'calc(100vh - 13rem)' }}>
+          {rows.map(row => {
+            const tier = getTierStyles(row.prospect.tier)
+            const fit = Math.round(getFitScore(row.pick, row.prospect))
+            return (
+              <div key={row.pickNo} className="rounded-[20px] border border-white/35 bg-white/32 p-3 backdrop-blur-md dark:border-white/10 dark:bg-white/5">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-numeric text-lg font-extrabold" style={{ color: row.pick.ownerColor || tier.color }}>#{row.pickNo}</span>
+                  <TeamLogoGlass teamId={row.pick.ownerAbbr} size="sm" showGlow={row.pickNo <= 4} />
+                </div>
+                <div className="mt-2 font-mono text-[7px] font-black uppercase tracking-[.14em] text-muted">{row.pick.ownerName}</div>
+                <div className="mt-1 text-sm font-black leading-tight text-slate-800 dark:text-slate-100">{row.prospect.name}</div>
+                <div className="mt-1 font-mono text-[7px] font-black uppercase tracking-[.12em] text-muted">{row.prospect.position} / {row.prospect.team} / Fit {fit}</div>
+                <p className="mt-2 text-[11px] font-semibold leading-4 text-muted">{fit >= 78 ? 'Talento e contexto alinham uma decisão de alto valor.' : 'Escolha registrada no histórico da noite.'}</p>
+              </div>
+            )
+          })}
+        </div>
+      ) : (
+        <div className="rounded-[22px] border border-dashed border-white/45 bg-white/22 p-4 text-xs font-semibold leading-5 text-muted dark:border-white/10 dark:bg-white/5">
+          <div className="font-display text-lg font-black text-slate-800 dark:text-slate-100">Nenhuma escolha feita ainda.</div>
+          <p className="mt-2">Quando o board começar, esta área vira o histórico editorial da noite: pick, time, jogador, fit score e lógica da decisão.</p>
+        </div>
+      )}
+    </GlassPanel>
+  )
+}
+
 function TeamOnTheClockPanel({ owner, prospect, draftFit, bestFit, draftDecision, recommendations, selecting, picks, resolvedPicks, onPreview, onRecommendPick, onAutoPick }) {
   const fit = draftDecision?.score || bestFit?.score || draftFit?.score || getFitScore(owner, prospect)
   const remaining = resolvedPicks.filter((p, idx) => idx >= (selecting || 0) && p.ownerAbbr === owner?.ownerAbbr).length
@@ -1418,12 +1968,24 @@ function CompactFitBar({ label, value, color }) {
     </div>
   )
 }
-function DraftFilterChips({ active, setActive }) {
+function DraftFilterChips({ active, setActive, compact = false }) {
   return (
-    <GlassPanel className="mock-draft-filters flex flex-wrap items-center gap-1.5 p-2.5">
-      <span className="mr-1 rounded-full bg-white/30 px-3 py-2 font-mono text-[8px] font-black uppercase tracking-[.18em] text-lo">Board Mode</span>
-      {FILTERS.map(([id, label]) => <button key={id} type="button" onClick={() => setActive(id)} className="h-8 rounded-full px-3 font-mono text-[8px] font-black uppercase tracking-[.14em] transition-transform hover:-translate-y-0.5" style={{ background: active === id ? '#eee9fb' : 'rgba(255,255,255,.36)', color: active === id ? '#5d46a3' : '#8b837c', boxShadow: active === id ? '3px 3px 8px #d4d0ca, -3px -3px 8px #fff' : 'none' }}>{label}</button>)}
-    </GlassPanel>
+    <div className={(compact ? 'mock-draft-filters mock-draft-filters-compact' : 'mock-draft-filters')}>
+      <span className="mock-draft-filter-label">Board Mode</span>
+      <span className="mock-draft-filter-list">
+        {FILTERS.map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            onClick={() => setActive(id)}
+            className="mock-draft-filter-chip"
+            data-active={active === id ? 'true' : 'false'}
+          >
+            {label}
+          </button>
+        ))}
+      </span>
+    </div>
   )
 }
 
@@ -1477,8 +2039,8 @@ function DynamicTeamBackdrop({ team, intensity = .1 }) {
   const color = team?.ownerColor || '#7c5ccf'
   return (
     <motion.div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 overflow-hidden" animate={{ opacity: 1 }}>
-      <motion.span className="absolute -right-28 top-24 h-96 w-96 rounded-full blur-3xl" animate={{ backgroundColor: color, opacity: intensity }} transition={{ duration: .55 }} />
-      <motion.span className="absolute -left-28 bottom-20 h-96 w-96 rounded-full bg-sky-100/50 blur-3xl" animate={{ opacity: intensity * 1.4 }} transition={{ duration: .55 }} />
+      <motion.span className="absolute -right-28 top-24 h-96 w-96 rounded-full blur-3xl" animate={{ backgroundColor: color, opacity: intensity }} transition={{ duration: .16 }} />
+      <motion.span className="absolute -left-28 bottom-20 h-96 w-96 rounded-full bg-sky-100/50 blur-3xl" animate={{ opacity: intensity * 1.4 }} transition={{ duration: .16 }} />
     </motion.div>
   )
 }
@@ -1508,9 +2070,8 @@ function WarRoomHeader({ owner, selecting }) {
 function PickCinematicOverlay({ overlay }) {
   return (
     <AnimatePresence>
-      {overlay && <motion.div {...motionPresets.overlayConfirm} className="fixed inset-0 z-[80] flex items-center justify-center bg-[#edeae4]/55 p-6 backdrop-blur-xl">
-        <DynamicTeamBackdrop team={overlay.team} intensity={.18} />
-        {overlay.stage === 'confirm' ? <PickConfirmScene overlay={overlay} /> : <NextPickScene overlay={overlay} />}
+      {overlay && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: .22, ease: [0.22, 1, 0.36, 1] }} className="mock-pick-overlay fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/68 p-4 backdrop-blur-[2px]">
+        <PickConfirmScene overlay={overlay} />
       </motion.div>}
     </AnimatePresence>
   )
@@ -1521,14 +2082,31 @@ function PickConfirmScene({ overlay }) {
   const team = overlay.team
   const tier = getTierStyles(prospect?.tier)
   const image = prospect ? getPlayerCutoutImage(prospect) : null
+  const color = team?.ownerColor || '#7c5ccf'
+  const logo = getTeamLogo(team?.ownerAbbr)
   return (
-    <motion.div {...motionPresets.heroReveal} className="relative z-10 w-full max-w-5xl overflow-hidden rounded-[42px] border border-white/55 bg-white/45 p-5 text-center 3xl:p-8 shadow-[0_30px_90px_rgba(0,0,0,.12)] backdrop-blur-2xl">
-      <span className="pointer-events-none absolute left-1/2 top-0 h-72 w-72 -translate-x-1/2 rounded-full blur-3xl" style={{ background: team?.ownerColor || '#7c5ccf', opacity: .18 }} />
-      <div className="relative font-mono text-[10px] font-black uppercase tracking-[.32em] text-lo">Pick #{overlay.pickNo}</div>
-      <div className="relative mt-3 flex flex-wrap items-center justify-center gap-5"><TeamLogoGlass teamId={team?.ownerAbbr} size="xl" showGlow />{image && <div className="flex h-44 w-44 items-end justify-center overflow-visible rounded-[34px]"><img src={image} alt={prospect.name} className="player-cutout player-profile-cutout h-full w-full object-contain object-bottom" draggable="false" /></div>}</div>
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .18 }} className="relative mt-5 font-mono text-[10px] font-black uppercase tracking-[.24em]" style={{ color: team?.ownerColor || '#7c5ccf' }}>{team?.ownerName} seleciona</motion.div>
-      <motion.h2 initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .28 }} className="relative mt-2 font-display text-5xl font-black 3xl:text-7xl leading-none tracking-tight text-slate-800">{prospect?.name || 'Pick confirmado'}</motion.h2>
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .4 }} className="relative mt-5 flex flex-wrap justify-center gap-2"><span className="rounded-full bg-white/45 px-4 py-2 font-mono text-[9px] font-black uppercase tracking-[.16em] text-muted">{prospect?.position || '-'}</span><span className="rounded-full px-4 py-2 font-mono text-[9px] font-black uppercase tracking-[.16em]" style={{ background: tier.bg, color: tier.text }}>{tier.label}</span><span className="rounded-full bg-white/45 px-4 py-2 font-mono text-[9px] font-black uppercase tracking-[.16em] text-muted">{prospect?.team || '-'}</span></motion.div>
+    <motion.div initial={{ opacity: 0, scale: .985 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: .992 }} transition={{ duration: .3, ease: [0.16, 1, 0.3, 1] }} className="mock-pick-card relative z-10 w-full max-w-4xl overflow-hidden rounded-[42px] border border-white/70 bg-white/[.97] p-5 text-left shadow-[0_24px_66px_rgba(0,0,0,.32)] dark:border-white/15 dark:bg-slate-950/[.97] sm:p-6">
+      <span className="pointer-events-none absolute -right-20 -top-28 h-72 w-72 rounded-full opacity-20" style={{ background: `radial-gradient(circle, ${color} 0%, ${color}66 38%, transparent 70%)` }} />
+      <div className="relative grid items-center gap-5 md:grid-cols-[190px_minmax(0,1fr)]">
+        <div className="flex items-center justify-center md:justify-start">
+          <div className="relative flex h-44 w-44 items-center justify-center rounded-[36px] border border-white/60 bg-white/72 shadow-[inset_1px_1px_0_rgba(255,255,255,.72),0_16px_36px_rgba(15,23,42,.14)] dark:border-white/10 dark:bg-white/10">
+            <span className="absolute -left-3 -top-3 z-0 flex h-24 w-24 items-center justify-center rounded-[30%] border border-white/55 bg-white/85 shadow-[0_12px_26px_rgba(0,0,0,.13)] dark:border-white/10 dark:bg-slate-900/88">
+              {logo ? <img src={logo} alt={team?.ownerAbbr || 'Team'} className="h-16 w-16 object-contain" draggable="false" /> : <span className="font-mono text-sm font-black" style={{ color }}>{team?.ownerAbbr || '--'}</span>}
+            </span>
+            {image && <img src={image} alt={prospect.name} className="mock-pick-player-image relative z-10 h-40 w-40 object-contain object-bottom" draggable="false" />}
+          </div>
+        </div>
+        <div className="min-w-0 text-center md:text-left">
+          <div className="font-mono text-[10px] font-black uppercase tracking-[.28em] text-lo">Pick #{overlay.pickNo}</div>
+          <div className="mt-3 font-mono text-[10px] font-black uppercase tracking-[.22em]" style={{ color }}>{team?.ownerName} seleciona</div>
+          <h2 className="mt-2 text-balance font-display text-5xl font-black leading-[.92] tracking-tight text-slate-900 dark:text-white sm:text-6xl">{prospect?.name || 'Pick confirmado'}</h2>
+          <div className="mt-5 flex flex-wrap justify-center gap-2 md:justify-start">
+            <span className="rounded-full bg-white/65 px-4 py-2 font-mono text-[9px] font-black uppercase tracking-[.14em] text-muted dark:bg-white/10">{prospect?.position || '-'}</span>
+            <span className="rounded-full px-4 py-2 font-mono text-[9px] font-black uppercase tracking-[.14em]" style={{ background: tier.bg, color: tier.text }}>{tier.label}</span>
+            <span className="rounded-full bg-white/65 px-4 py-2 font-mono text-[9px] font-black uppercase tracking-[.14em] text-muted dark:bg-white/10">{prospect?.team || '-'}</span>
+          </div>
+        </div>
+      </div>
     </motion.div>
   )
 }
@@ -1552,10 +2130,10 @@ function PickConfirmationToast({ toast }) {
   </motion.div>}</AnimatePresence>
 }
 
-function getDraftRows(picks, resolvedPicks) {
+function getDraftRows(picks, resolvedPicks, pickNotes = {}) {
   return resolvedPicks.slice(0, TOTAL_PICKS).map((pick, idx) => {
     const prospect = prospects.find(p => p.id === picks[idx]) || null
-    return { pickNo: idx + 1, pick, prospect }
+    return { pickNo: idx + 1, pick, prospect, note: String(pickNotes[idx] || '').trim() }
   })
 }
 
@@ -1625,8 +2203,8 @@ function groupDraftByTeam(rows) {
   return Array.from(map.values()).sort((a, b) => a.rows[0].pickNo - b.rows[0].pickNo)
 }
 
-function DraftResultsScreen({ picks, resolvedPicks, onReset, onHome }) {
-  const rows = getDraftRows(picks, resolvedPicks)
+function DraftResultsScreen({ picks, resolvedPicks, pickNotes = {}, onReset, onHome }) {
+  const rows = getDraftRows(picks, resolvedPicks, pickNotes)
   const first = rows[0]
   const firstTier = getTierStyles(first?.prospect?.tier)
   const insights = getDraftInsights(rows)
@@ -1703,52 +2281,69 @@ function DraftResultsScreen({ picks, resolvedPicks, onReset, onHome }) {
 
 function MockDraftShareCard({ rows, insights }) {
   const top = rows.slice(0, 30)
+  const columns = [top.slice(0, 10), top.slice(10, 20), top.slice(20, 30)]
   const date = new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date())
+  const headlinePick = top.find(row => row.prospect) || top[0]
   return (
     <section className="mock-draft-share-card">
-      <div className="mock-share-watermark">2026</div>
       <header className="mock-share-header">
         <div>
           <div className="mock-share-kicker">Rookies Brasil / Mock Draft Simulator</div>
-          <h1>NBA Draft 2026 Mock Draft</h1>
-          <p>Resultado editorial com ordem simulada, encaixes de time e leitura de valor da primeira rodada.</p>
+          <h1>2026 NBA Mock Draft</h1>
+          <p>1st Round Draft / 30 picks / War Room Board</p>
         </div>
         <div className="mock-share-badge">
           <span>Round</span>
-          <strong>1</strong>
+          <strong>01</strong>
+          <small>{date}</small>
         </div>
       </header>
-      <div className="mock-share-insights">
-        {insights.slice(0, 4).map(item => (
-          <div key={item.title} style={{ '--insight': item.color }}>
-            <span>{item.title}</span>
-            <strong>{item.main}</strong>
+
+      <main className="mock-share-board">
+        {columns.map((column, columnIndex) => (
+          <div key={columnIndex} className="mock-share-column">
+            {column.map(row => {
+              const tier = getTierStyles(row.prospect?.tier)
+              const image = row.prospect ? getPlayerCutoutImage(row.prospect) : null
+              const note = String(row.note || '').trim()
+              return (
+                <div key={row.pickNo} className={'mock-share-pick-card ' + (note ? 'has-note' : '')} style={{ '--row-color': row.pick.ownerColor || tier.color }}>
+                  <div className="mock-share-pick-number">#{String(row.pickNo).padStart(2, '0')}</div>
+                  <div className="mock-share-photo" style={{ '--photo-color': tier.color }}>
+                    {image ? <img src={image} alt={row.prospect?.name || 'Player'} draggable="false" /> : <span>{initials(row.prospect?.name || 'SP')}</span>}
+                  </div>
+                  <div className="mock-share-pick-main">
+                    <div className="mock-share-player-name">{row.prospect?.name || 'Sem escolha'}</div>
+                    <div className="mock-share-meta">
+                      <span>{row.prospect?.position || '-'}</span>
+                      <span>{row.prospect?.height || '-'}</span>
+                      <span>{row.prospect?.team || '-'}</span>
+                    </div>
+                    <div className="mock-share-team-line">
+                      <span>{row.pick.ownerAbbr}</span>
+                      <small>{row.pick.viaAbbr ? 'via ' + row.pick.viaAbbr : 'pick owner'}</small>
+                    </div>
+                    {note && <div className="mock-share-note">Nota: {note}</div>}
+                  </div>
+                </div>
+              )
+            })}
           </div>
         ))}
-      </div>
-      <main className="mock-share-grid">
-        {top.map(row => {
-          const tier = getTierStyles(row.prospect?.tier)
-          return (
-            <div key={row.pickNo} className="mock-share-row" style={{ '--row-color': row.pick.ownerColor || tier.color }}>
-              <div className="mock-share-pick">#{String(row.pickNo).padStart(2, '0')}</div>
-              <div className="mock-share-team">
-                <TeamLogoGlass teamId={row.pick.ownerAbbr} size="sm" showGlow={false} />
-                <span>{row.pick.ownerAbbr}</span>
-              </div>
-              <div className="mock-share-player">
-                <strong>{row.prospect?.name || 'Sem escolha'}</strong>
-                <span>{row.prospect?.position || '-'} / {row.prospect?.team || '-'} / rank #{row.prospect?.rank || '-'}</span>
-              </div>
-              <div className="mock-share-tier" style={{ color: tier.text, background: tier.bg }}>{tier.label}</div>
-            </div>
-          )
-        })}
       </main>
+
       <footer className="mock-share-footer">
-        <span>NBA Draft 2026 mock draft board</span>
-        <span>{date}</span>
-        <strong>rookies brasil</strong>
+        <div className="mock-share-footer-cell mock-share-footer-primary">
+          <span>#{String(headlinePick?.pickNo || 1).padStart(2, '0')}</span>
+          <strong>{headlinePick?.prospect?.name || 'Mock Draft Board'}</strong>
+        </div>
+        <div className="mock-share-footer-cell mock-share-footer-center">
+          <strong>{headlinePick?.pick?.ownerName || insights?.[3]?.main || 'War Room'}</strong>
+        </div>
+        <div className="mock-share-footer-cell mock-share-footer-brand">
+          <span>Rookies Brasil</span>
+          <strong>Mock Draft Board</strong>
+        </div>
       </footer>
     </section>
   )
@@ -1775,13 +2370,21 @@ function DraftPickList({ rows }) {
           const band = row.pickNo <= 5 ? 'rgba(124,92,207,.12)' : row.pickNo <= 14 ? 'rgba(90,174,214,.10)' : 'rgba(255,255,255,.28)'
           const grade = teamGrades[row.pick.ownerAbbr || row.pick.ownerName] || 'C'
           return (
-            <motion.div key={row.pickNo} whileHover={{ x: 4, scale: 1.006 }} className="mock-draft-result-row grid items-center gap-3 rounded-[24px] border border-white/45 px-4 py-3 transition-all md:grid-cols-[64px_48px_1fr_1.15fr_92px_76px]" style={{ '--pick-color': row.pickNo <= 5 ? '#7c5ccf' : '#4f86ad', background: band }}>
-              <div className="font-numeric text-2xl font-extrabold tracking-tight" style={{ color: row.pickNo <= 5 ? '#7c5ccf' : '#4f86ad' }}>#{row.pickNo}</div>
-              <TeamLogoGlass teamId={row.pick.ownerAbbr} size="md" showGlow={row.pickNo <= 14} />
-              <div className="min-w-0"><div className="truncate text-sm font-black text-slate-800">{row.pick.ownerName}</div><div className="mt-0.5 font-mono text-[8px] font-bold uppercase tracking-[.16em] text-muted">{row.pick.viaAbbr ? 'via ' + row.pick.viaAbbr : row.pick.originalTeam?.record || 'First round'}</div></div>
-              <div className="min-w-0"><div className="truncate text-sm font-black text-slate-800">{row.prospect?.name || 'Sem escolha'}</div><div className="mt-0.5 font-mono text-[8px] font-bold uppercase tracking-[.16em] text-muted">{row.prospect?.position || '-'} / rank #{row.prospect?.rank || '-'}</div></div>
-              <div className="justify-self-start rounded-full px-3 py-1 font-mono text-[8px] font-black uppercase tracking-[.13em] md:justify-self-end" style={{ background: tier.bg, color: tier.text }}>{tier.label}</div>
-              <div className="justify-self-start rounded-full bg-white/50 px-3 py-1 font-mono text-[8px] font-black uppercase tracking-[.13em] text-slate-700 md:justify-self-end">Nota {grade}</div>
+            <motion.div key={row.pickNo} whileHover={{ x: 4, scale: 1.006 }} className="mock-draft-result-row rounded-[24px] border border-white/45 px-4 py-3 transition-all" style={{ '--pick-color': row.pickNo <= 5 ? '#7c5ccf' : '#4f86ad', background: band }}>
+              <div className="grid items-center gap-3 md:grid-cols-[64px_48px_1fr_1.15fr_92px_76px]">
+                <div className="font-numeric text-2xl font-extrabold tracking-tight" style={{ color: row.pickNo <= 5 ? '#7c5ccf' : '#4f86ad' }}>#{row.pickNo}</div>
+                <TeamLogoGlass teamId={row.pick.ownerAbbr} size="md" showGlow={row.pickNo <= 14} />
+                <div className="min-w-0"><div className="truncate text-sm font-black text-slate-800">{row.pick.ownerName}</div><div className="mt-0.5 font-mono text-[8px] font-bold uppercase tracking-[.16em] text-muted">{row.pick.viaAbbr ? 'via ' + row.pick.viaAbbr : row.pick.originalTeam?.record || 'First round'}</div></div>
+                <div className="min-w-0"><div className="truncate text-sm font-black text-slate-800">{row.prospect?.name || 'Sem escolha'}</div><div className="mt-0.5 font-mono text-[8px] font-bold uppercase tracking-[.16em] text-muted">{row.prospect?.position || '-'} / rank #{row.prospect?.rank || '-'}</div></div>
+                <div className="justify-self-start rounded-full px-3 py-1 font-mono text-[8px] font-black uppercase tracking-[.13em] md:justify-self-end" style={{ background: tier.bg, color: tier.text }}>{tier.label}</div>
+                <div className="justify-self-start rounded-full bg-white/50 px-3 py-1 font-mono text-[8px] font-black uppercase tracking-[.13em] text-slate-700 md:justify-self-end">Nota {grade}</div>
+              </div>
+              {row.note && (
+                <div className="mt-3 rounded-[18px] border border-white/40 bg-white/38 px-4 py-3 text-xs font-semibold leading-5 text-slate-600 shadow-[inset_1px_1px_0_rgba(255,255,255,.48)]">
+                  <span className="mr-2 font-mono text-[8px] font-black uppercase tracking-[.16em] text-lo">Sua nota</span>
+                  {row.note}
+                </div>
+              )}
             </motion.div>
           )
         })}

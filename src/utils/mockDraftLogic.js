@@ -1,6 +1,7 @@
 import { LOTTERY_TEAMS, PICKS_15_30 } from '../data/prospects'
 import { calculateDraftFit, getPlayerDraftAttributes } from './draftFitAlgorithm.js'
 import { getTeamProfile } from '../data/teamProfiles.js'
+import { mergeProspectWithManualIntelligence } from '../data/prospectDraftIntelligence.ts'
 
 export const TRADE_MAP = {
   NOP: () => ({ ownerAbbr: 'ATL', ownerName: 'Atlanta Hawks', ownerColor: '#C8102E', viaAbbr: 'NOP', viaName: 'New Orleans Pelicans' }),
@@ -180,15 +181,61 @@ export function getProspectAttributes(p) {
 }
 
 export function getWarRoomAttributes(p) {
+  const resolved = getResolvedArchetypeBars(p)
+  return [
+    ['Scoring', resolved.scoring],
+    ['Shooting', resolved.shooting],
+    ['Creation', resolved.creation],
+    ['Defense', resolved.defense],
+    ['Athleticism', resolved.athleticism],
+  ].sort((a, b) => b[1] - a[1])
+}
+
+function traitValue(manualTraits, key) {
+  const value = manualTraits?.[key]
+  return typeof value === 'number' && Number.isFinite(value) ? clamp(value) : null
+}
+
+function resolvedBarValue(manualTraits, key, derivedValue, fallbackValue = 55) {
+  const manualValue = traitValue(manualTraits, key)
+  if (manualValue !== null) return { value: manualValue, source: 'manual' }
+  if (typeof derivedValue === 'number' && Number.isFinite(derivedValue)) return { value: clamp(derivedValue), source: 'derived' }
+  return { value: clamp(fallbackValue), source: 'fallback' }
+}
+
+export function getResolvedArchetypeBars(p) {
+  const resolved = mergeProspectWithManualIntelligence(p || {})
+  const manualTraits = resolved?.resolvedIntelligence?.manualTraits || {}
   const s = p?.stats || {}
   const attrs = p?.scouting?.attributes || {}
-  return [
-    ['Scoring', clamp(((s.ppg || 0) / 28) * 100)],
-    ['Shooting', clamp(Math.max(((s.threep || 0) / 45) * 100, ((s.ts || 0) / 70) * 100, (attrs.Shooting || 0) * 10))],
-    ['Creation', clamp(Math.max(((s.apg || 0) / 8) * 100, ((s.astTo || 0) / 3.2) * 100, (attrs.Playmaking || 0) * 10))],
-    ['Defense', clamp(Math.max((s.stlPct || 0) * 18, (s.blkPct || 0) * 11, (attrs.Defense || 0) * 10))],
-    ['Athleticism', clamp((attrs.Athleticism || 6) * 10)],
-  ].sort((a, b) => b[1] - a[1])
+  const scoringDerived = Math.max(
+    ((s.ppg || 0) / 28) * 100,
+    ((s.usg || 0) / 32) * 100,
+    (attrs.Scoring || 0) * 10,
+  )
+  const shootingDerived = Math.max(((s.threep || 0) / 45) * 100, ((s.ts || 0) / 70) * 100, (attrs.Shooting || 0) * 10)
+  const creationDerived = Math.max(((s.apg || 0) / 8) * 100, ((s.astTo || 0) / 3.2) * 100, (attrs.Playmaking || 0) * 10)
+  const defenseDerived = Math.max((s.stlPct || 0) * 18, (s.blkPct || 0) * 11, (attrs.Defense || 0) * 10)
+  const athleticismDerived = (attrs.Athleticism || 6) * 10
+  const defense = resolvedBarValue(manualTraits, 'defense', defenseDerived)
+  const shooting = resolvedBarValue(manualTraits, 'shooting', shootingDerived)
+  const athleticism = resolvedBarValue(manualTraits, 'athleticism', athleticismDerived)
+  const scoring = resolvedBarValue(manualTraits, 'scoring', scoringDerived)
+  const creation = resolvedBarValue(manualTraits, 'creation', creationDerived)
+  return {
+    defense: defense.value,
+    shooting: shooting.value,
+    athleticism: athleticism.value,
+    scoring: scoring.value,
+    creation: creation.value,
+    source: {
+      defense: defense.source,
+      shooting: shooting.source,
+      athleticism: athleticism.source,
+      scoring: scoring.source,
+      creation: creation.source,
+    },
+  }
 }
 
 export function getTopMetrics(p) {

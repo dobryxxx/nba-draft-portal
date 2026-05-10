@@ -22,6 +22,7 @@ import {
   Zap,
 } from 'lucide-react'
 import TeamLogoGlass from '../TeamLogoGlass'
+import { mergeProspectWithManualIntelligence } from '../../data/prospectDraftIntelligence.ts'
 import DraftFitBreakdown, { getDraftFitStatus } from '../DraftFitBreakdown'
 import { getBestDraftFits } from '../../utils/draftFitAlgorithm.js'
 import { glass as dsGlass, typography as dsTypography, cn, glassCard, motionPresets } from '../../styles/designSystem'
@@ -72,24 +73,24 @@ function scoutHeadline(p) {
   const s = p.stats || {}
   const r = role(p.position)
   if ((s.ppg || 0) >= 20) return 'Criador ofensivo capaz de mudar o teto de um ataque'
-  if ((s.threep || 0) >= 37) return 'Peca de spacing com traducao ofensiva clara'
+  if ((s.threep || 0) >= 37) return 'Peça de spacing com tradução ofensiva clara'
   if (Math.max(s.stlPct || 0, s.blkPct || 0) >= 3) return 'Ferramenta defensiva que pode acelerar minutos NBA'
   if (r === 'big') return 'Big moderno com valor ligado a papel e contexto'
-  return 'Prospecto de traducao contextual e margem de desenvolvimento'
+  return 'Prospecto de tradução contextual e margem de desenvolvimento'
 }
 
 function scoutVerdict(p) {
   const s = p.stats || {}
   if ((s.ts || 0) >= 60 && (s.ppg || 0) >= 16) {
-    return 'Perfil com boa relacao entre volume e eficiencia, o que reduz parte do risco de traducao.'
+    return 'Perfil com boa relação entre volume e eficiência, o que reduz parte do risco de tradução.'
   }
   if ((s.threep || 0) < 31) {
-    return 'O arremesso e o principal ponto de decisao: se estabilizar, o resto do pacote ganha muito mais valor.'
+    return 'O arremesso é o principal ponto de decisão: se estabilizar, o resto do pacote ganha muito mais valor.'
   }
   if ((s.astTo || 2) < 1.1 && (s.usg || 0) >= 24) {
-    return 'A tomada de decisao sob volume precisa evoluir para sustentar papel maior.'
+    return 'A tomada de decisão sob volume precisa evoluir para sustentar papel maior.'
   }
-  return 'O valor esta em encaixar suas melhores ferramentas dentro de um papel NBA simples e repetivel.'
+  return 'O valor está em encaixar suas melhores ferramentas dentro de um papel NBA simples e repetivel.'
 }
 
 function getExecutiveSummary(p) {
@@ -105,26 +106,26 @@ function getExecutiveSummary(p) {
 function getNBAProjection(p) {
   const s = p.stats || {}
   const r = role(p.position)
-  const ideal = (s.ppg || 0) >= 18 ? 'Scorer secundario' : (s.apg || 0) >= 4 ? 'Conector ofensivo' : r === 'big' ? 'Big de rotacao' : 'Peca de rotacao'
+  const ideal = (s.ppg || 0) >= 18 ? 'Scorer secundário' : (s.apg || 0) >= 4 ? 'Conector ofensivo' : r === 'big' ? 'Big de rotação' : 'Peca de rotação'
   const context = (s.threep || 0) >= 36
-    ? 'Ataques com spacing e criador primario ao lado'
+    ? 'Ataques com espaçamento e criador primário ao lado'
     : Math.max(s.stlPct || 0, s.blkPct || 0) >= 3
-      ? 'Times que valorizam pressao defensiva e transicao'
+      ? 'Times que valorizam pressão defensiva e transição'
       : r === 'big'
         ? 'Lineups com arremessadores ao redor'
         : 'Ambiente de desenvolvimento com papel bem definido'
   const limit = (s.threep || 0) < 32
-    ? 'Consistencia do arremesso'
+    ? 'Consistência do arremesso'
     : (s.astTo || 2) < 1.2
-      ? 'Tomada de decisao sob pressao'
+      ? 'Tomada de decisão sob pressão'
       : (s.ts || 60) < 54
-        ? 'Eficiencia contra fisicalidade NBA'
-        : 'Definir funcao sem perder agressividade'
+        ? 'Eficiência contra fisicalidade NBA'
+        : 'Definir função sem perder agressividade'
 
   return [
     { label: 'Papel ideal', value: ideal, copy: 'Onde ele deve iniciar a carreira para gerar valor sem carregar peso excessivo.', Icon: User, color: '#a79be8' },
-    { label: 'Contexto ideal', value: context, copy: 'Tipo de ecossistema que aumenta suas melhores ferramentas.', Icon: Puzzle, color: '#7ab8e8' },
-    { label: 'Limitacao critica', value: limit, copy: 'O ponto que mais pode comprimir minutos, teto ou confianca no encaixe.', Icon: AlertTriangle, color: '#e8a6a6' },
+    { label: 'Contexto ideal', value: context, copy: 'Tipo de ecossistema que potencializa suas melhores ferramentas.', Icon: Puzzle, color: '#7ab8e8' },
+    { label: 'Limitação crítica', value: limit, copy: 'O ponto que mais pode comprimir minutos, teto ou confiança no encaixe.', Icon: AlertTriangle, color: '#e8a6a6' },
   ]
 }
 
@@ -179,18 +180,18 @@ function scoutCategory(text = '', type = 'strength') {
 function nbaTranslationForTake(text = '', type = 'strength') {
   const category = scoutCategory(text, type)
   if (type === 'weakness') {
-    if (category === 'Shooting') return 'Pode reduzir spacing e confianca de minutos.'
-    if (category === 'Creation') return 'Pode limitar escala de uso e decisao no P&R.'
-    if (category === 'Physical') return 'Pode aumentar risco medico ou de contato NBA.'
+    if (category === 'Shooting') return 'Pode reduzir spacing e confiança de minutos.'
+    if (category === 'Creation') return 'Pode limitar escala de uso e decisão no P&R.'
+    if (category === 'Physical') return 'Pode aumentar risco médico ou de contato NBA.'
     if (category === 'Defense') return 'Pode comprimir matchups em playoff.'
     return 'Precisa de plano de desenvolvimento claro.'
   }
-  if (category === 'Shooting') return 'Cria spacing, punicao e caminho simples de encaixe.'
+  if (category === 'Shooting') return 'Cria spacing, punição nas defesas e caminho simples de encaixe.'
   if (category === 'Creation') return 'Gera vantagem inicial e pressiona cobertura.'
-  if (category === 'Defense') return 'Eleva piso de rotacao e tolerancia a erro ofensivo.'
-  if (category === 'Physical') return 'Traduz para pressao, contato e separacao.'
+  if (category === 'Defense') return 'Eleva piso de rotação e tolerância a erro ofensivo.'
+  if (category === 'Physical') return 'Traduz para pressão, contato e separação.'
   if (category === 'Feel') return 'Ajuda a sobreviver em papel menor.'
-  return 'Ferramenta com traducao direta para papel NBA.'
+  return 'Ferramenta com tradução direta para papel NBA.'
 }
 
 function riskSeverity(text = '', index = 0) {
@@ -308,7 +309,7 @@ function ScoutingMatrix({ p, accent }) {
           <div className={cn(dsTypography.sectionLabel, 'text-lo')}>SCOUTING MATRIX</div>
           <h3 className="mt-1 font-headline text-3xl font-extrabold tracking-tight text-slate-950">Player Skill Matrix</h3>
           <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-[#625c55]">
-            Leitura visual derivada de atributos, stats e avaliacao manual. Os valores ficam centralizados aqui para ajustes futuros.
+            Leitura visual derivada de atributos, stats e avaliação manual da Rookies Brasil.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -396,7 +397,7 @@ function ScoutReportHero({ p, accent }) {
             {sum.body}
           </p>
           <div className="mt-5 rounded-[28px] border border-white/35 bg-white/30 p-4 shadow-[inset_1px_1px_0_rgba(255,255,255,.58)] backdrop-blur-xl">
-            <div className={dsTypography.metricLabel}>Executive verdict</div>
+            <div className={dsTypography.metricLabel}>Executive veredict</div>
             <p className="mt-2 text-sm font-bold leading-6 text-[#5f5852]">{sum.verdict}</p>
           </div>
         </div>
@@ -418,7 +419,7 @@ function ScoutReportHero({ p, accent }) {
             {projection.map((item, index) => (
               <MetricMini
                 key={item.label}
-                label={index === 0 ? 'Role' : index === 1 ? 'Ideal Ecosystem' : 'Critical Risk'}
+                label={index === 0 ? 'Papel Inicial' : index === 1 ? 'Encaixe Ideal' : 'Principal Risco'}
                 value={item.value}
                 copy={item.copy}
                 color={item.color}
@@ -457,7 +458,7 @@ function ScoutVerdictBar({ p }) {
       <div className="mb-4 flex items-end justify-between gap-3">
         <div>
           <div className={cn(dsTypography.sectionLabel, 'text-lo')}>SCOUT VERDICT</div>
-          <h3 className="mt-1 font-headline text-2xl font-extrabold tracking-tight text-slate-950">Leitura rapida de traducao</h3>
+          <h3 className="mt-1 font-headline text-2xl font-extrabold tracking-tight text-slate-950">Leitura rápida de tradução</h3>
         </div>
       </div>
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
@@ -587,7 +588,7 @@ function ScoutComparisonBoard({ p }) {
   const sc = p.scouting || {}
   return (
     <div className="grid gap-4 xl:grid-cols-2 3xl:gap-5">
-      <ScoutTakePanel title="Forcas" items={sc.strengths} type="strength" />
+      <ScoutTakePanel title="Forças" items={sc.strengths} type="strength" />
       <ScoutTakePanel title="Fraquezas" items={sc.weaknesses} type="weakness" />
     </div>
   )
@@ -913,12 +914,13 @@ function DraftFitSection({ p, accent }) {
 }
 
 export default function ProfileScouting({ p, accent }) {
+  const player = mergeProspectWithManualIntelligence(p || {})
   return (
     <div className="scouting-command-center grid gap-4 3xl:gap-6">
-      <ScoutReportHero p={p} accent={accent} />
-      <ScoutVerdictBar p={p} />
-      <ScoutingMatrix p={p} accent={accent} />
-      <ScoutComparisonBoard p={p} />
+      <ScoutReportHero p={player} accent={accent} />
+      <ScoutVerdictBar p={player} />
+      <ScoutingMatrix p={player} accent={accent} />
+      <ScoutComparisonBoard p={player} />
     </div>
   )
 }

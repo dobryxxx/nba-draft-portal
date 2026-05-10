@@ -1,5 +1,8 @@
 import { nbaRosterPlayers, nbaTeamLineups } from '../data/nbaRosterContextData.ts'
 import type { TeamDraftIntelligence } from '../data/teamDraftIntelligence.ts'
+import { mergeProspectWithManualIntelligence } from '../data/prospectDraftIntelligence.ts'
+import { getTeamDraftManualIntelligence } from '../data/teamDraftManualIntelligence.ts'
+import type { TeamPositionGroup } from '../data/teamOptionSchema.ts'
 import {
   getTeamRosterCoreOverride,
   isForcedCorePlayer,
@@ -32,6 +35,7 @@ export type RosterPlayerProfile = {
 
 export type RosterContext = {
   teamId: string;
+  rosterPlayers: RosterPlayerProfile[];
   corePlayers: RosterPlayerProfile[];
   rotationPlayers: RosterPlayerProfile[];
 
@@ -90,6 +94,44 @@ export type ShootingProfile = {
   warnings: string[];
 };
 
+export type PositionGroup = 'guard' | 'wing' | 'forward' | 'big' | 'center' | 'unknown';
+
+export type PositionDepthContext = {
+  prospectPositionGroup: PositionGroup;
+  rosterCounts: {
+    guards: number;
+    wings: number;
+    forwards: number;
+    bigs: number;
+    centers: number;
+  };
+  rotationCounts: {
+    guards: number;
+    wings: number;
+    forwards: number;
+    bigs: number;
+    centers: number;
+  };
+  coreCounts: {
+    guards: number;
+    wings: number;
+    forwards: number;
+    bigs: number;
+    centers: number;
+  };
+  saturationScore: number;
+  depthFitScore: number;
+  label: 'clear_need' | 'healthy_depth' | 'crowded' | 'overcrowded' | 'unknown';
+  warnings: string[];
+  positives: string[];
+  manualContext?: {
+    positionContextUsed: boolean;
+    matchedPositionGroups: TeamPositionGroup[];
+    avoidedPositionGroups: TeamPositionGroup[];
+    priorityPositionGroups: TeamPositionGroup[];
+  };
+};
+
 type RawRosterPlayer = Record<string, any>;
 
 const TEAM_ALIASES: Record<string, string> = {
@@ -112,6 +154,8 @@ const TEAM_ALIASES: Record<string, string> = {
 };
 
 const MUST_DRAFT_PROSPECTS = ['aj dybantsa', 'cameron boozer', 'darryn peterson'];
+const rosterContextCache = new Map<string, RosterContext>();
+const corePlayersCache = new Map<string, RosterPlayerProfile[]>();
 
 export function normalizeTeamId(teamId: string): string {
   const normalized = String(teamId || '').trim().toUpperCase();
@@ -322,8 +366,10 @@ const playerImportanceScore = (player: RosterPlayerProfile) =>
 
 export function getTeamCorePlayers(teamId: string): RosterPlayerProfile[] {
   const normalized = normalizeTeamId(teamId);
+  const cached = corePlayersCache.get(normalized);
+  if (cached) return cached;
   const lineupNames = getRelevantLineupNames(normalized);
-  return getTeamPlayersWithOverrides(normalized)
+  const result = getTeamPlayersWithOverrides(normalized)
     .map(buildRosterPlayerProfile)
     .filter((player) => !isIgnoredAsCorePlayer(normalized, player.name))
     .filter((player) =>
@@ -339,6 +385,8 @@ export function getTeamCorePlayers(teamId: string): RosterPlayerProfile[] {
       ((isForcedCorePlayer(normalized, a.name) ? 1000 : 0) + playerImportanceScore(a) + getLineupBoost(a, lineupNames) * 0.08)
     )
     .slice(0, 6);
+  corePlayersCache.set(normalized, result);
+  return result;
 }
 
 const hasTag = (player: RosterPlayerProfile, tags: string[]) =>
@@ -363,6 +411,7 @@ function getRelevantLineupNames(teamId: string) {
 function buildNeutralRosterContext(teamId: string): RosterContext {
   return {
     teamId: normalizeTeamId(teamId),
+    rosterPlayers: [],
     corePlayers: [],
     rotationPlayers: [],
     creators: [],
@@ -397,8 +446,14 @@ function buildNeutralRosterContext(teamId: string): RosterContext {
 
 export function analyzeRosterContext(teamId: string): RosterContext {
   const normalized = normalizeTeamId(teamId);
+  const cached = rosterContextCache.get(normalized);
+  if (cached) return cached;
   const profiles = getTeamPlayersWithOverrides(normalized).map(buildRosterPlayerProfile);
-  if (!profiles.length) return buildNeutralRosterContext(normalized);
+  if (!profiles.length) {
+    const neutral = buildNeutralRosterContext(normalized);
+    rosterContextCache.set(normalized, neutral);
+    return neutral;
+  }
 
   const lineupNames = getRelevantLineupNames(normalized);
   const rotationPlayers = profiles
@@ -470,8 +525,9 @@ export function analyzeRosterContext(teamId: string): RosterContext {
     shooters.length >= 6 ? 'Função de spot-up shooter já tem concorrência.' : '',
   ].filter(Boolean);
 
-  return {
+  const context: RosterContext = {
     teamId: normalized,
+    rosterPlayers: profiles,
     corePlayers,
     rotationPlayers,
     creators,
@@ -492,6 +548,8 @@ export function analyzeRosterContext(teamId: string): RosterContext {
       overlapRisk: roleCongestion.length ? roleCongestion.slice(0, 2).join(' ') : 'Sem congestionamento forte detectado para uma função específica.',
     },
   };
+  rosterContextCache.set(normalized, context);
+  return context;
 }
 
 function prospectText(player: any) {
@@ -613,6 +671,317 @@ function prospectRoleSignals(player: any) {
     rebounder: (stats.rpg || 0) >= 7 || /rebound|rebote/i.test(text),
     benchScorer: (stats.ppg || 0) >= 15 || /scorer|pontuador/i.test(text),
     highUsage: (stats.usg || 0) >= 26 || /primary|volume|protagon/i.test(text),
+  };
+}
+
+
+const emptyPositionCounts = () => ({ guards: 0, wings: 0, forwards: 0, bigs: 0, centers: 0 });
+
+type PositionCounts = ReturnType<typeof emptyPositionCounts>;
+const rosterPositionCountsCache = new Map<string, { rosterCounts: PositionCounts; rotationCounts: PositionCounts; coreCounts: PositionCounts }>();
+
+export function normalizeBasketballPosition(position: unknown): PositionGroup {
+  const text = String(position || '').trim().toLowerCase();
+  if (!text) return 'unknown';
+  if (/(pg\/sg|combo guard|lead guard|point guard|shooting guard|\bpg\b|\bsg\b|guard)/.test(text)) return 'guard';
+  if (/(sg\/sf|wing|three[_\s-]?and[_\s-]?d|two[_\s-]?way wing|defensive wing|connector wing|big wing|slashing wing)/.test(text)) return 'wing';
+  if (/(sf\/pf|forward|\bsf\b)/.test(text)) return 'forward';
+  if (/(pf\/c|stretch big|roll big|rim protector|playmaking big|energy big|\bpf\b|\bbig\b)/.test(text)) return 'big';
+  if (/(center|\bc\b)/.test(text)) return 'center';
+  return 'unknown';
+}
+
+function addPositionCount(counts: PositionCounts, group: PositionGroup) {
+  if (group === 'guard') counts.guards += 1;
+  if (group === 'wing') counts.wings += 1;
+  if (group === 'forward') counts.forwards += 1;
+  if (group === 'big') counts.bigs += 1;
+  if (group === 'center') counts.centers += 1;
+}
+
+function classifyRosterPositionGroup(player: RosterPlayerProfile): PositionGroup {
+  const position = String(player.position || '');
+  const height = parseHeightInches(player.height);
+  const tags = player.roleTags || [];
+  if (tags.includes('rim protector')) return height >= 82 || /(center|\bc\b)/i.test(position) ? 'center' : 'big';
+  if (tags.includes('stretch big')) return 'big';
+  if (tags.includes('big wing') || tags.includes('wing defender')) return 'wing';
+  if (tags.includes('small guard') || tags.includes('primary creator')) return 'guard';
+  const normalized = normalizeBasketballPosition(position);
+  if (normalized !== 'unknown') return normalized;
+  if (height >= 82) return 'center';
+  if (height >= 80) return 'big';
+  if (height >= 78) return 'forward';
+  if (height >= 76) return 'wing';
+  return 'guard';
+}
+
+function countPositionGroups(players: RosterPlayerProfile[] = []): PositionCounts {
+  const counts = emptyPositionCounts();
+  for (const player of players) {
+    const group = classifyRosterPositionGroup(player);
+    addPositionCount(counts, group);
+    if (group === 'center') counts.bigs += 1;
+    if (group === 'forward' && hasTag(player, ['big wing', 'wing defender'])) counts.wings += 1;
+  }
+  return counts;
+}
+
+function addUniqueGroup(groups: TeamPositionGroup[], group: TeamPositionGroup) {
+  if (!groups.includes(group)) groups.push(group);
+}
+
+function mapFunctionalToPositionGroup(groups: TeamPositionGroup[]): PositionGroup {
+  if (groups.some((group) => ['POINT_GUARD', 'COMBO_GUARD', 'SCORING_GUARD', 'SMALL_GUARD', 'BIG_GUARD', 'HIGH_USAGE_GUARD'].includes(group))) return 'guard';
+  if (groups.some((group) => ['WING', 'BIG_WING', 'DEFENSIVE_WING', 'OFF_BALL_SHOOTER'].includes(group))) return 'wing';
+  if (groups.some((group) => ['FORWARD', 'COMBO_FORWARD', 'REBOUNDING_FORWARD', 'LOW_USAGE_CONNECTOR'].includes(group))) return 'forward';
+  if (groups.some((group) => ['BIG', 'STRETCH_BIG', 'ROLL_BIG', 'RIM_PROTECTOR'].includes(group))) return 'big';
+  if (groups.includes('CENTER')) return 'center';
+  return 'unknown';
+}
+
+export function getProspectFunctionalPositionGroups(player: any): TeamPositionGroup[] {
+  const resolved = mergeProspectWithManualIntelligence(player || {});
+  const groups: TeamPositionGroup[] = [];
+  const position = String(resolved?.resolvedIntelligence?.position || resolved?.position || '').toUpperCase();
+  const archetype = String(resolved?.resolvedIntelligence?.archetype || resolved?.archetype || '').toUpperCase();
+  const role = String(resolved?.resolvedIntelligence?.projectedRole || resolved?.projectedRole || resolved?.role || '').toUpperCase();
+  const text = prospectText(resolved).toUpperCase();
+  const traits = resolved?.resolvedIntelligence?.manualTraits || {};
+  const stats = resolved?.stats || {};
+  const height = parseHeightInches(resolved?.height || resolved?.measurements?.height);
+
+  if (/PG/.test(position)) addUniqueGroup(groups, 'POINT_GUARD');
+  if (/(PG\/SG|SG\/PG)/.test(position)) addUniqueGroup(groups, 'COMBO_GUARD');
+  if (/SG/.test(position)) addUniqueGroup(groups, 'SCORING_GUARD');
+  if (/(SG\/SF|WING)/.test(position)) addUniqueGroup(groups, 'WING');
+  if (/SF/.test(position)) addUniqueGroup(groups, height >= 78 ? 'BIG_WING' : 'WING');
+  if (/(SF\/PF|FORWARD)/.test(position)) addUniqueGroup(groups, 'COMBO_FORWARD');
+  if (/PF/.test(position)) addUniqueGroup(groups, 'BIG');
+  if (/PF\/C/.test(position)) addUniqueGroup(groups, 'BIG');
+  if (/C/.test(position)) addUniqueGroup(groups, 'CENTER');
+
+  if (/PRIMARY_CREATOR|STARTING_GUARD|POINT/.test(archetype + role + text)) addUniqueGroup(groups, 'POINT_GUARD');
+  if (/COMBO_GUARD|SECONDARY_CREATOR/.test(archetype + role + text)) addUniqueGroup(groups, 'COMBO_GUARD');
+  if (/SCORING_GUARD|BENCH_SCORER/.test(archetype + role + text)) addUniqueGroup(groups, 'SCORING_GUARD');
+  if (/HIGH_USAGE|PRIMARY|PROTAGON/.test(archetype + role + text) || safeNumber(stats.usg) >= 26 || safeNumber(traits.creation) >= 82) addUniqueGroup(groups, 'HIGH_USAGE_GUARD');
+  if (/MOVEMENT_SHOOTER|OFF_BALL|SPOT_UP|SHOOTING_SPECIALIST|PULL_UP_SHOOTING/.test(archetype + role + text) || safeNumber(traits.shooting) >= 78) addUniqueGroup(groups, 'OFF_BALL_SHOOTER');
+  if (/THREE_AND_D|TWO_WAY_WING|DEFENSIVE_WING|WING_DEFENSE|SWITCH/.test(archetype + role + text)) addUniqueGroup(groups, 'DEFENSIVE_WING');
+  if (/BIG_WING/.test(archetype + role + text) || (height >= 79 && /SF|WING|FORWARD/.test(position + text))) addUniqueGroup(groups, 'BIG_WING');
+  if (/VERSATILE_FORWARD|COMBO_FORWARD/.test(archetype + role + text)) addUniqueGroup(groups, 'COMBO_FORWARD');
+  if (/STRETCH_BIG/.test(archetype + role + text)) addUniqueGroup(groups, 'STRETCH_BIG');
+  if (/RIM_PROTECTOR|RIM_PROTECTION|BLOCK|TOCO/.test(archetype + role + text) || safeNumber(traits.rimProtection) >= 75) addUniqueGroup(groups, 'RIM_PROTECTOR');
+  if (/ROLL_BIG|ENERGY_BIG/.test(archetype + role + text)) addUniqueGroup(groups, 'ROLL_BIG');
+  if (/REBOUNDING|REBOUND|REBOTE/.test(archetype + role + text) || safeNumber(traits.rebounding) >= 78) addUniqueGroup(groups, height >= 80 ? 'BIG' : 'REBOUNDING_FORWARD');
+  if (/CONNECTOR|LOW_USAGE/.test(archetype + role + text)) addUniqueGroup(groups, 'LOW_USAGE_CONNECTOR');
+
+  if (!groups.length) {
+    if (height >= 82) addUniqueGroup(groups, 'CENTER');
+    else if (height >= 80) addUniqueGroup(groups, 'BIG');
+    else if (height >= 78) addUniqueGroup(groups, 'BIG_WING');
+    else if (height >= 76) addUniqueGroup(groups, 'WING');
+    else addUniqueGroup(groups, 'POINT_GUARD');
+  }
+
+  return groups;
+}
+
+export function getProspectPositionGroup(player: any): PositionGroup {
+  const functionalGroups = getProspectFunctionalPositionGroups(player);
+  const mapped = mapFunctionalToPositionGroup(functionalGroups);
+  if (mapped !== 'unknown') return mapped;
+  return 'unknown';
+}
+
+function getCountForGroup(counts: PositionCounts, group: PositionGroup) {
+  if (group === 'guard') return counts.guards;
+  if (group === 'wing') return counts.wings;
+  if (group === 'forward') return counts.forwards;
+  if (group === 'big') return counts.bigs;
+  if (group === 'center') return counts.centers;
+  return 0;
+}
+
+function getPositionThresholds(group: PositionGroup) {
+  if (group === 'big' || group === 'center') return { clear: 1, healthy: 2, crowded: 3, overcrowded: 4 };
+  return { clear: 2, healthy: 3, crowded: 4, overcrowded: 5 };
+}
+
+function getDepthLabel(saturationScore: number): PositionDepthContext['label'] {
+  if (saturationScore <= 35) return 'clear_need';
+  if (saturationScore <= 55) return 'healthy_depth';
+  if (saturationScore <= 75) return 'crowded';
+  return 'overcrowded';
+}
+
+function positionDepthFallback(group: PositionGroup = 'unknown'): PositionDepthContext {
+  return {
+    prospectPositionGroup: group,
+    rosterCounts: emptyPositionCounts(),
+    rotationCounts: emptyPositionCounts(),
+    coreCounts: emptyPositionCounts(),
+    saturationScore: group === 'unknown' ? 45 : 40,
+    depthFitScore: group === 'unknown' ? 55 : 60,
+    label: group === 'unknown' ? 'unknown' : 'healthy_depth',
+    positives: [],
+    warnings: [],
+    manualContext: {
+      positionContextUsed: false,
+      matchedPositionGroups: [],
+      avoidedPositionGroups: [],
+      priorityPositionGroups: [],
+    },
+  };
+}
+
+export function getRosterPositionCounts(teamId: string) {
+  const normalized = normalizeTeamId(teamId);
+  const cached = rosterPositionCountsCache.get(normalized);
+  if (cached) return cached;
+  const context = analyzeRosterContext(normalized);
+  const counts = {
+    rosterCounts: countPositionGroups(context.rosterPlayers || context.rotationPlayers),
+    rotationCounts: countPositionGroups(context.rotationPlayers),
+    coreCounts: countPositionGroups(context.corePlayers),
+  };
+  rosterPositionCountsCache.set(normalized, counts);
+  return counts;
+}
+
+export function calculatePositionSaturation(player: any, rosterContext: RosterContext): number {
+  return calculatePositionDepthFit(player, rosterContext).saturationScore;
+}
+
+export function calculatePositionDepthFit(player: any, rosterContext: RosterContext): PositionDepthContext {
+  const prospectPositionGroup = getProspectPositionGroup(player);
+  if (!rosterContext || prospectPositionGroup === 'unknown') return positionDepthFallback(prospectPositionGroup);
+
+  const rosterCounts = countPositionGroups(rosterContext.rosterPlayers || rosterContext.rotationPlayers);
+  const rotationCounts = countPositionGroups(rosterContext.rotationPlayers);
+  const coreCounts = countPositionGroups(rosterContext.corePlayers);
+  const rotationCount = getCountForGroup(rotationCounts, prospectPositionGroup);
+  const coreCount = getCountForGroup(coreCounts, prospectPositionGroup);
+  const thresholds = getPositionThresholds(prospectPositionGroup);
+  const signals = prospectRoleSignals(player);
+  const text = prospectText(player);
+  const positives: string[] = [];
+  const warnings: string[] = [];
+  const functionalGroups = getProspectFunctionalPositionGroups(player);
+  const manualPositionContext = getTeamDraftManualIntelligence(rosterContext.teamId)?.positionContext;
+  const groupsIn = (items: TeamPositionGroup[] | undefined) => functionalGroups.filter((group) => (items || []).includes(group));
+  const openGroups = groupsIn(manualPositionContext?.open);
+  const healthyGroups = groupsIn(manualPositionContext?.healthy);
+  const crowdedGroups = groupsIn(manualPositionContext?.crowded);
+  const priorityGroups = groupsIn(manualPositionContext?.priority);
+  const avoidedGroups = groupsIn(manualPositionContext?.avoid);
+
+  let saturationScore = 24;
+  if (rotationCount <= thresholds.clear) saturationScore = 18 + rotationCount * 8;
+  else if (rotationCount <= thresholds.healthy) saturationScore = 44;
+  else if (rotationCount <= thresholds.crowded) saturationScore = 67;
+  else saturationScore = 82 + Math.max(0, rotationCount - thresholds.overcrowded) * 5;
+
+  if (coreCount >= 2 && (prospectPositionGroup === 'guard' || prospectPositionGroup === 'big' || prospectPositionGroup === 'center')) saturationScore += 8;
+
+  const highUsageCoreCreators = rosterContext.corePlayers.filter((core) => hasTag(core, ['primary creator', 'high-usage scorer']) || (core.usagePct || 0) >= 25).length;
+  if (signals.highUsage && signals.creator && highUsageCoreCreators >= 2) {
+    saturationScore += 18;
+    warnings.push('Ha risco de overlap com criadores de alto uso ja estabelecidos no core.');
+  }
+
+  if (prospectPositionGroup === 'guard' && rotationCounts.guards >= 5 && !signals.creator) {
+    saturationScore += 10;
+    warnings.push('A rotacao ja tem muitos guards para um papel semelhante.');
+  }
+
+  if ((prospectPositionGroup === 'big' || prospectPositionGroup === 'center') && rotationCounts.bigs >= 4 && !signals.rimProtector && !/stretch|spacing|shoot/i.test(text)) {
+    saturationScore += 14;
+    warnings.push('O elenco ja possui multiplos bigs com funcao parecida.');
+  }
+
+  if (prospectPositionGroup === 'wing' || prospectPositionGroup === 'forward') {
+    if (signals.defender || /defensive|two-way|3.?and.?d|switch|wing defense/i.test(text)) {
+      saturationScore -= 14;
+      positives.push('Wings grandes/defensivos recebem penalidade menor por serem premium na rotacao.');
+    }
+    if (rosterContext.scores.sizeNeedFromRoster >= 62 || rosterContext.scores.defenseNeedFromRoster >= 62) {
+      saturationScore -= 10;
+      positives.push('Complementa uma lacuna de tamanho ou defesa no perimetro.');
+    }
+  }
+
+  if (signals.creator && rosterContext.scores.creationNeedFromRoster >= 65) {
+    saturationScore -= 16;
+    positives.push('A criacao ainda tem espaco real apesar da contagem da posicao.');
+  }
+  if (signals.shooter && rosterContext.scores.shootingNeedFromRoster >= 65) {
+    saturationScore -= 10;
+    positives.push('Ajuda a lacuna de spacing da rotacao.');
+  }
+  if (signals.rimProtector && rosterContext.scores.rimProtectionNeedFromRoster >= 60) {
+    saturationScore -= 18;
+    positives.push('Protecao de aro reduz a penalidade de profundidade no frontcourt.');
+  }
+  if (/stretch big|spacing big|shooting big/i.test(text) && rosterContext.bigs.filter((big) => hasTag(big, ['stretch big'])).length <= 1) {
+    saturationScore -= 12;
+    positives.push('Traz um perfil de big com spacing que o elenco ainda nao tem em volume.');
+  }
+
+  if (priorityGroups.length) {
+    saturationScore -= 14;
+    positives.push(`Perfil prioritario no board manual: ${priorityGroups.slice(0, 2).join(' / ')}.`);
+  }
+  if (openGroups.length) {
+    saturationScore -= 18;
+    positives.push(`Leitura manual indica posicao aberta: ${openGroups.slice(0, 2).join(' / ')}.`);
+  }
+  if (healthyGroups.length && !openGroups.length && !priorityGroups.length) {
+    saturationScore -= 4;
+    positives.push(`Profundidade manual saudavel para ${healthyGroups.slice(0, 2).join(' / ')}.`);
+  }
+  if (crowdedGroups.length) {
+    saturationScore += 16;
+    warnings.push(`Leitura manual marca posicao disputada: ${crowdedGroups.slice(0, 2).join(' / ')}.`);
+  }
+  if (avoidedGroups.length) {
+    saturationScore += 24;
+    warnings.push(`Perfil a evitar no ajuste manual: ${avoidedGroups.slice(0, 2).join(' / ')}.`);
+  }
+
+  if (isMustDraftProspect(player)) {
+    saturationScore = Math.min(saturationScore, 48);
+    positives.unshift('Prospecto imperdivel: a profundidade da posicao nao deve bloquear a escolha.');
+    for (let i = warnings.length - 1; i >= 0; i -= 1) {
+      if (/overlap|muitos|parecida|congestion/i.test(warnings[i])) warnings.splice(i, 1);
+    }
+  }
+
+  saturationScore = round(saturationScore);
+  let depthFitScore = round((100 - saturationScore) * 0.76 + rosterContext.scores.roleAvailability * 0.24);
+  if (isMustDraftProspect(player)) depthFitScore = Math.max(depthFitScore, 80);
+  const label = getDepthLabel(saturationScore);
+
+  if (label === 'clear_need') positives.push('Ha espaco real de rotacao na posicao.');
+  if (label === 'healthy_depth') positives.push('A profundidade da posicao parece saudavel.');
+  if (label === 'crowded') warnings.push('A posicao ja esta disputada na rotacao.');
+  if (label === 'overcrowded') warnings.push('A posicao esta congestionada e reduz a clareza dos minutos.');
+
+  return {
+    prospectPositionGroup,
+    rosterCounts,
+    rotationCounts,
+    coreCounts,
+    saturationScore,
+    depthFitScore,
+    label,
+    positives: [...new Set(positives)].slice(0, 3),
+    warnings: [...new Set(warnings)].slice(0, 3),
+    manualContext: {
+      positionContextUsed: Boolean(manualPositionContext),
+      matchedPositionGroups: [...new Set([...openGroups, ...healthyGroups, ...crowdedGroups])],
+      avoidedPositionGroups: [...new Set(avoidedGroups)],
+      priorityPositionGroups: [...new Set(priorityGroups)],
+    },
   };
 }
 

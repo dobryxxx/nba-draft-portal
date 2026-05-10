@@ -49,10 +49,10 @@ function Shell({ children, className = '', glow = '#ffffff', open = false }) {
 }
 
 const STAT_COPY = {
-  ppg: 'Pressao de volume e responsabilidade ofensiva.',
-  rpg: 'Fechamento de posse, motor e presenca fisica.',
-  apg: 'Criacao para terceiros e leitura de vantagem.',
-  ts: 'Eficiencia real ajustada por 2PT, 3PT e FT.',
+  ppg: 'Responsabilidade ofensiva.',
+  rpg: 'Motor e presença física.',
+  apg: 'Criação para terceiros e leitura de vantagem.',
+  ts: 'Eficiência real ajustada por 2PT, 3PT e FT.',
   fgp: 'Conversao geral dentro do pacote de arremessos.',
   threep: 'Termometro de spacing e punicao no perimetro.',
   ftp: 'Toque, repeticao mecanica e confianca na linha.',
@@ -367,32 +367,32 @@ function KpiCard({ player, compare, stat, label, suffix = '', max, Icon, feature
 function getDecisionNotes(player) {
   const s = player.stats || {}
   const candidates = [
-    ['Principal forca numerica', s.ppg, 'ppg', 'Volume de pontuacao pressiona defesas e muda cobertura.', TrendingUp],
-    ['Principal forca numerica', s.ts, 'ts', 'Eficiencia sustenta o volume sem punir a posse.', Gauge],
-    ['Principal forca numerica', s.threep, 'threep', 'Arremesso exterior abre caminho simples de traducao.', Target],
-    ['Principal forca numerica', s.astTo, 'astTo', 'Controle de criacao reduz risco de papel secundario.', Crosshair],
-    ['Principal forca numerica', Math.max(s.stlPct || 0, s.blkPct || 0), 'stlPct', 'Atividade defensiva aparece nos eventos.', Shield],
+    ['Principal forca numerica', s.ppg, 'ppg', 'Pressiona defesas e faz elas se ajustarem.', TrendingUp],
+    ['Principal forca numerica', s.ts, 'ts', 'Eficiência sustenta o volume sem punir a posse.', Gauge],
+    ['Principal forca numerica', s.threep, 'threep', 'Arremesso exterior abre caminho simples de traducão.', Target],
+    ['Principal forca numerica', s.astTo, 'astTo', 'Controle na criação reduz risco de papel secundario.', Crosshair],
+    ['Principal forca numerica', Math.max(s.stlPct || 0, s.blkPct || 0), 'stlPct', 'Atividade defensiva prevalece.', Shield],
   ].filter(([, value]) => typeof value === 'number')
   const best = candidates.sort((a, b) => (classRank(a[2], a[1]) || 99) - (classRank(b[2], b[1]) || 99))[0]
   const alert = typeof s.threep === 'number' && s.threep < 32
-    ? 'Bola de 3 ainda limita spacing e margem de erro.'
+    ? 'Bola de 3 ainda limita spacing.'
     : typeof s.astTo === 'number' && s.astTo < 1.2
-      ? 'AST/TO pede cuidado antes de escalar criacao.'
+      ? 'AST/TO pede cuidado antes de aumentar volume de criação.'
       : typeof s.ts === 'number' && s.ts < 54
-        ? 'Eficiencia precisa subir para sustentar volume NBA.'
-        : 'Sem alerta estatistico gritante no painel principal.'
+        ? 'Eficiência precisa subir para sustentar volume NBA.'
+        : 'Sem alerta estatístico gritante no painel principal.'
   const efficiency = typeof s.ts === 'number'
     ? s.ts >= 60
-      ? 'Eficiencia acima da media para o volume.'
+      ? 'EficiÇencia acima da media para o volume.'
       : s.ts >= 55
-        ? 'Eficiencia funcional, sensivel ao contexto.'
-        : 'Eficiencia ainda em desenvolvimento.'
-    : 'Eficiencia sem amostra confiavel.'
+        ? 'Eficiência funcional, sensível ao contexto.'
+        : 'Eficiência ainda em desenvolvimento.'
+    : 'Eficiência sem amostra confiavel.'
 
   return [
-    { label: best?.[0] || 'Principal forca numerica', copy: best ? best[3] : 'Amostra ainda em avaliacao.', color: '#a79be8', Icon: best?.[4] || TrendingUp },
-    { label: 'Alerta estatistico', copy: alert, color: alert.startsWith('Sem') ? '#6fbf9c' : '#e0b66f', Icon: AlertTriangle },
-    { label: 'Leitura de eficiencia', copy: efficiency, color: '#8bbfe8', Icon: Gauge },
+    { label: best?.[0] || 'Principal força numérica', copy: best ? best[3] : 'Amostra ainda em avaliação.', color: '#a79be8', Icon: best?.[4] || TrendingUp },
+    { label: 'Alerta estatístico', copy: alert, color: alert.startsWith('Sem') ? '#6fbf9c' : '#e0b66f', Icon: AlertTriangle },
+    { label: 'Leitura de eficiência', copy: efficiency, color: '#8bbfe8', Icon: Gauge },
   ]
 }
 
@@ -570,7 +570,7 @@ function AdvancedContextPanel({ player, compare, accent }) {
       <div className="mb-4 flex items-end justify-between gap-3">
         <div>
           <div className={cn(dsTypography.sectionLabel, 'text-lo')}>ADVANCED CONTEXT</div>
-          <h3 className="mt-1 font-sans text-xl font-extrabold tracking-tight text-slate-950 3xl:text-2xl">Painel de decisao</h3>
+          <h3 className="mt-1 font-sans text-xl font-extrabold tracking-tight text-slate-950 3xl:text-2xl">Painel de decisão</h3>
         </div>
         <LineChart size={22} style={{ color: accent }} />
       </div>
@@ -673,8 +673,8 @@ export default function ProfileStats({ p, accent }) {
         <div className="mb-5 flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0">
             <div className={cn(dsTypography.sectionLabel, 'text-lo')}>WAR ROOM ANALYTICS</div>
-            <h2 className="mt-1 font-sans text-2xl font-extrabold leading-tight tracking-tight text-slate-950 md:text-4xl 3xl:text-5xl">Producao e eficiencia</h2>
-            <p className="mt-2 text-sm font-bold text-[#5f5852]">Numeros por jogo - {typeof s.games === 'number' ? `${s.games} jogos analisados` : 'jogos analisados nao informados'}</p>
+            <h2 className="mt-1 font-sans text-2xl font-extrabold leading-tight tracking-tight text-slate-950 md:text-4xl 3xl:text-5xl">Produção e eficiência</h2>
+            <p className="mt-2 text-sm font-bold text-[#5f5852]">Números por jogo - {typeof s.games === 'number' ? `${s.games} jogos analisados` : 'jogos analisados nao informados'}</p>
           </div>
           <div className="relative z-[999]">
             <button

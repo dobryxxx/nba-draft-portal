@@ -671,7 +671,7 @@ export const teamProfiles: TeamProfile[] = [
     weights: upsideWeights,
     playerAttributeWeights: rebuildAttributeWeights,
     editorial: {
-      strategy: 'Buscar talento primario e ativos de alto teto em qualquer posicao.',
+      strategy: 'Buscar talento primário e ativos de alto teto em qualquer posicao.',
       frontOfficeTendency: 'Deve maximizar upside, juventude e valor futuro acima de encaixe imediato.',
       riskToleranceText: 'Muito alta; o contexto permite paciencia e desenvolvimento.',
       notes: ['Best talent available deve dominar.', 'Criadores e atletas grandes recebem bonus.', 'Availability fit nao deve bloquear swings em picks altas.'],
