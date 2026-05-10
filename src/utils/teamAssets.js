@@ -66,7 +66,7 @@ const TEAM_COLORS = {
 
 export function getTeamLogo(teamId) {
   const file = LOGO_FILES[String(teamId || '').toUpperCase()]
-  return file ? new URL('../../nba-logos-transparentes/' + file, import.meta.url).href : null
+  return file ? '/team-logos/' + file : null
 }
 
 export function getTeamColors(teamId) {
