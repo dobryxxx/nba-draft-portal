@@ -33,6 +33,53 @@ function buildImageMap(modules) {
 
 const imageBySlug = buildImageMap(optimizedImageModules)
 const cleanCutoutBySlug = buildImageMap(cleanCutoutImageModules)
+const publicCutoutSlugs = new Set([
+  'aday-mara',
+  'aj-dybantsa',
+  'allen-graves',
+  'amari-allen',
+  'andrej-stojakovic',
+  'bennett-stirtz',
+  'billy-richmond',
+  'brayden-burries',
+  'caleb-wilson',
+  'cam-boozer',
+  'cam-carr',
+  'chris-cenac',
+  'christian-anderson',
+  'dailyn-swain',
+  'darius-acuff',
+  'darryn-peterson',
+  'elliot-cadeau',
+  'flory-bidunga',
+  'hannes-steinbach',
+  'henri-veesaar',
+  'isaiah-evans',
+  'isiah-harwell',
+  'jayden-quaintance',
+  'jeremy-fears',
+  'joshua-jefferson',
+  'juke-harris',
+  'karim-lopez',
+  'keaton-wagler',
+  'kingston-flemings',
+  'koa-peat',
+  'labaron-philon',
+  'luigi-suigo',
+  'malachi-moreno',
+  'matt-able',
+  'meleek-thomas',
+  'mikel-brown',
+  'milan-momcilovic',
+  'morez-johnson',
+  'nate-ament',
+  'obuka-okorie',
+  'samodurov',
+  'sergio-delarrea',
+  'tounde-yessoufou',
+  'tyler-tanner',
+  'yaxel-lendenborg',
+])
 
 export function slugifyPlayerName(name = '') {
   return String(name)
@@ -52,10 +99,10 @@ function resolveSlug(prospectOrName) {
 
 export function getPlayerImage(prospectOrName) {
   const slug = resolveSlug(prospectOrName)
-  return imageBySlug[slug] || null
+  return publicCutoutSlugs.has(slug) ? `./player-cutouts/${slug}.png` : imageBySlug[slug] || null
 }
 
 export function getPlayerCutoutImage(prospectOrName) {
   const slug = resolveSlug(prospectOrName)
-  return cleanCutoutBySlug[slug] || imageBySlug[slug] || null
+  return publicCutoutSlugs.has(slug) ? `./player-cutouts/${slug}.png` : cleanCutoutBySlug[slug] || imageBySlug[slug] || null
 }
