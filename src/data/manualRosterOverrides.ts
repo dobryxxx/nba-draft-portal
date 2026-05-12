@@ -20,9 +20,9 @@ export type ManualRosterPlayer = {
 };
 
 export type ManualRosterOverride = {
-  guards: ManualRosterPlayer[];
-  wingsForwards: ManualRosterPlayer[];
-  bigs: ManualRosterPlayer[];
+  guards?: ManualRosterPlayer[];
+  wingsForwards?: ManualRosterPlayer[];
+  bigs?: ManualRosterPlayer[];
 };
 
 export type ManualRosterOverrides = Record<string, ManualRosterOverride>;
@@ -70,7 +70,6 @@ export const manualRosterOverrides: ManualRosterOverrides = {
   },
   BOS: {
     guards: [
-      { name: 'Jayson Tatum', status: 'injured' },
       { name: 'Derrick White', status: 'core' },
       { name: 'Payton Pritchard', status: 'core' },
       { name: 'Baylor Scheierman' },
@@ -79,78 +78,70 @@ export const manualRosterOverrides: ManualRosterOverrides = {
     ],
     wingsForwards: [
       { name: 'Jaylen Brown', status: 'core' },
+      { name: 'Jayson Tatum', status: 'core' },
       { name: 'Sam Hauser' },
     ],
     bigs: [
-      { name: 'Nikola Vučević', status: 'core' },
-      { name: 'Neemias Queta' },
+      { name: 'Nikola Vučević', status: 'uncertain' },
+      { name: 'Neemias Queta', status: 'core' },
       { name: 'Luka Garza' },
     ],
   },
   BKN: {
     guards: [
-      { name: 'Egor Dëmin' },
+      { name: 'Egor Dëmin', status: 'core' },
       { name: 'Nolan Traore' },
-      { name: 'Malachi Smith' },
       { name: 'Ben Saraf' },
       { name: 'Drake Powell' },
-      { name: 'Tyson Etienne' },
-      { name: 'Ochai Agbaji' },
     ],
     wingsForwards: [
       { name: 'Michael Porter Jr.', status: 'core' },
       { name: 'Danny Wolf' },
       { name: 'Terance Mann' },
       { name: 'Ziaire Williams' },
-      { name: 'Chaney Johnson' },
       { name: 'Josh Minott' },
-      { name: 'Jalen Wilson' },
-      { name: 'E.J. Liddell' },
     ],
     bigs: [
       { name: 'Nic Claxton' },
-      { name: 'Noah Clowney' },
+      { name: 'Noah Clowney', status: 'core' },
       { name: 'Day\'Ron Sharpe' },
     ],
   },
   CHA: {
     guards: [
       { name: 'LaMelo Ball', status: 'core' },
-      { name: 'Coby White', status: 'core' },
+      { name: 'Kon Knueppel', status: 'core' },
+      { name: 'Coby White', status: 'uncertain' },
       { name: 'Sion James' },
       { name: 'Josh Green' },
+      { name: 'Liam McNeeley'},
     ],
     wingsForwards: [
       { name: 'Brandon Miller', status: 'core' },
-      { name: 'Kon Knueppel', status: 'core' },
       { name: 'Miles Bridges', status: 'core' },
-      { name: 'Moussa Diabaté', status: 'core' },
       { name: 'Grant Williams' },
       { name: 'Tidjane Salaün' },
     ],
     bigs: [
       { name: 'Ryan Kalkbrenner' },
+      { name: 'Moussa Diabaté', status: 'core' },
     ],
   },
   CHI: {
     guards: [
       { name: 'Josh Giddey', status: 'core' },
       { name: 'Tre Jones' },
-      { name: 'Anfernee Simons' },
-      { name: 'Collin Sexton' },
       { name: 'Isaac Okoro' },
-      { name: 'Jaden Ivey' },
       { name: 'Rob Dillingham' },
     ],
     wingsForwards: [
       { name: 'Matas Buzelis', status: 'core' },
+      { name: 'Noa Essengue' },
       { name: 'Patrick Williams' },
       { name: 'Leonard Miller' },
-      { name: 'Guerschon Yabusele' },
     ],
     bigs: [
       { name: 'Jalen Smith' },
-      { name: 'Nick Richards' },
     ],
   },
   CLE: {
@@ -159,64 +150,55 @@ export const manualRosterOverrides: ManualRosterOverrides = {
       { name: 'James Harden', status: 'core' },
       { name: 'Sam Merrill' },
       { name: 'Dennis Schröder' },
-      { name: 'Lonzo Ball' },
       { name: 'Craig Porter Jr.' },
       { name: 'Keon Ellis' },
     ],
     wingsForwards: [
       { name: 'Jaylon Tyson' },
       { name: 'Nae\'Qwan Tomlin' },
+      { name: 'Dean Wade' },
+      { name: 'Max Strus', status: 'core'},
     ],
     bigs: [
       { name: 'Evan Mobley', status: 'core' },
       { name: 'Jarrett Allen', status: 'core' },
-      { name: 'Dean Wade' },
     ],
   },
   DAL: {
     guards: [
-      { name: 'Max Christie', status: 'core' },
+      { name: 'Max Christie' },
       { name: 'Ryan Nembhard' },
-      { name: 'Brandon Williams' },
       { name: 'Kyrie Irving', status: 'injured', note: 'Lesionado' },
-      { name: 'D\'Angelo Russell', status: 'uncertain', note: 'Futuro incerto' },
     ],
     wingsForwards: [
       { name: 'Cooper Flagg', status: 'core' },
       { name: 'P.J. Washington', status: 'core' },
       { name: 'Naji Marshall' },
-      { name: 'Khris Middleton' },
-      { name: 'Marvin Bagley III' },
       { name: 'Caleb Martin' },
-      { name: 'Jeremiah Robinson-Earl' },
       { name: 'Klay Thompson', status: 'uncertain', note: 'Futuro incerto' },
     ],
     bigs: [
       { name: 'Dereck Lively II', status: 'core' },
       { name: 'Daniel Gafford' },
       { name: 'Dwight Powell' },
-      { name: 'Moussa Cisse' },
     ],
   },
   DEN: {
     guards: [
       { name: 'Jamal Murray', status: 'core' },
       { name: 'Christian Braun', status: 'core' },
-      { name: 'Peyton Watson', status: 'core' },
-      { name: 'Tim Hardaway Jr.' },
-      { name: 'Bruce Brown' },
       { name: 'Julian Strawther' },
       { name: 'Jalen Pickett' },
-      { name: 'Tyus Jones' },
     ],
     wingsForwards: [
       { name: 'Aaron Gordon', status: 'core' },
       { name: 'Cameron Johnson', status: 'core' },
+      { name: 'Peyton Watson', status: 'core' },
       { name: 'Spencer Jones' },
     ],
     bigs: [
       { name: 'Nikola Jokić', status: 'core' },
-      { name: 'Jonas Valančiūnas', status: 'core' },
+      { name: 'Jonas Valančiūnas', },
     ],
   },
   DET: {
@@ -224,32 +206,27 @@ export const manualRosterOverrides: ManualRosterOverrides = {
       { name: 'Cade Cunningham', status: 'core' },
       { name: 'Daniss Jenkins' },
       { name: 'Caris LeVert' },
-      { name: 'Javonte Green' },
     ],
     wingsForwards: [
       { name: 'Tobias Harris' },
-      { name: 'Ausar Thompson' },
+      { name: 'Ausar Thompson', status: 'core'},
       { name: 'Duncan Robinson' },
-      { name: 'Kevin Huerter' },
-      { name: 'Ronald Holland II' },
-      { name: 'Paul Reed' },
+      { name: 'Ron Holland II' },
     ],
     bigs: [
       { name: 'Jalen Duren', status: 'core' },
       { name: 'Isaiah Stewart' },
+      { name: 'Paul Reed' },
     ],
   },
   GSW: {
     guards: [
       { name: 'Stephen Curry', status: 'core' },
-      { name: 'Brandin Podziemski', status: 'core' },
+      { name: 'Brandin Podziemski' },
       { name: 'De\'Anthony Melton' },
       { name: 'Moses Moody' },
       { name: 'Pat Spencer' },
-      { name: 'Gary Payton II' },
-      { name: 'LJ Cryer' },
       { name: 'Will Richard' },
-      { name: 'Nate Williams' },
     ],
     wingsForwards: [
       { name: 'Jimmy Butler III', status: 'core' },
@@ -264,6 +241,7 @@ export const manualRosterOverrides: ManualRosterOverrides = {
   },
   HOU: {
     guards: [
+      { name: 'Fred VanVleet', status: 'core'},
       { name: 'Reed Sheppard' },
       { name: 'Josh Okogie' },
       { name: 'Aaron Holiday' },
@@ -278,27 +256,24 @@ export const manualRosterOverrides: ManualRosterOverrides = {
     bigs: [
       { name: 'Alperen Sengun', status: 'core' },
       { name: 'Steven Adams', status: 'core' },
+      { name: 'Clint Capela' },
     ],
   },
   IND: {
     guards: [
+      { name: 'Tyrese Haliburton', status: 'core' },
       { name: 'Andrew Nembhard', status: 'core' },
-      { name: 'Aaron Nesmith', status: 'core' },
       { name: 'T.J. McConnell' },
       { name: 'Quenton Jackson' },
-      { name: 'Ethan Thompson' },
-      { name: 'Ben Sheppard' },
       { name: 'Johnny Furphy' },
       { name: 'Kam Jones' },
-      { name: 'Garrison Mathews' },
-      { name: 'Taelon Peter' },
-      { name: 'Tyrese Haliburton', status: 'injured', note: 'Contextual core / lesao' },
     ],
     wingsForwards: [
       { name: 'Pascal Siakam', status: 'core' },
+      { name: 'Aaron Nesmith', status: 'core' },
+      { name: 'Ben Sheppard' },
       { name: 'Jarace Walker' },
       { name: 'Obi Toppin' },
-      { name: 'Kobe Brown' },
     ],
     bigs: [
       { name: 'Ivica Zubac', status: 'core' },
@@ -309,21 +284,19 @@ export const manualRosterOverrides: ManualRosterOverrides = {
   LAC: {
     guards: [
       { name: 'Darius Garland', status: 'core' },
-      { name: 'Bennedict Mathurin', status: 'core' },
+      { name: 'Bennedict Mathurin' },
       { name: 'Kris Dunn' },
       { name: 'Jordan Miller' },
       { name: 'Bogdan Bogdanović' },
       { name: 'Kobe Sanders' },
-      { name: 'Chris Paul' },
     ],
     wingsForwards: [
-      { name: 'Kawhi Leonard', status: 'core' },
+      { name: 'Kawhi Leonard', status: 'uncertain' },
       { name: 'Derrick Jones Jr.' },
       { name: 'Isaiah Jackson' },
       { name: 'Nicolas Batum' },
     ],
     bigs: [
-      { name: 'John Collins' },
       { name: 'Brook Lopez' },
     ],
   },
@@ -331,47 +304,44 @@ export const manualRosterOverrides: ManualRosterOverrides = {
     guards: [
       { name: 'Luka Dončić', status: 'core' },
       { name: 'Austin Reaves', status: 'core' },
-      { name: 'Marcus Smart', status: 'core' },
-      { name: 'Luke Kennard' },
+      { name: 'Marcus Smart' },
     ],
     wingsForwards: [
-      { name: 'LeBron James', status: 'core' },
-      { name: 'Rui Hachimura', status: 'core' },
+      { name: 'LeBron James', status: 'uncertain' },
+      { name: 'Rui Hachimura', status: 'uncertain' },
       { name: 'Jake LaRavia' },
       { name: 'Jarred Vanderbilt' },
     ],
     bigs: [
       { name: 'Deandre Ayton' },
-      { name: 'Jaxson Hayes' },
     ],
   },
   MEM: {
     guards: [
-      { name: 'Ty Jerome', status: 'core' },
+      { name: 'Ja Morant', status: 'uncertain' },
+      { name: 'Ty Jerome' },
       { name: 'Cedric Coward', status: 'core' },
-      { name: 'Cam Spencer', status: 'core' },
+      { name: 'Cam Spencer' },
       { name: 'Javon Small' },
       { name: 'Kentavious Caldwell-Pope' },
       { name: 'Walter Clayton Jr.' },
-      { name: 'Jahmai Mashack' },
     ],
     wingsForwards: [
       { name: 'Jaylen Wells', status: 'core' },
       { name: 'GG Jackson' },
       { name: 'Olivier-Maxence Prosper' },
       { name: 'Taylor Hendricks' },
-      { name: 'Rayan Rupert' },
+      { name: 'Santi Aldama' },
     ],
     bigs: [
-      { name: 'Santi Aldama' },
-      { name: 'Zach Edey', status: 'injured', note: 'Contextual core / lesao' },
+      { name: 'Brandon Clarke' },
+      { name: 'Zach Edey', status: 'core' },
     ],
   },
   MIA: {
     guards: [
       { name: 'Tyler Herro', status: 'core' },
-      { name: 'Norman Powell', status: 'core' },
-      { name: 'Jaime Jaquez Jr.', status: 'core' },
+      { name: 'Norman Powell', status: 'uncertain' },
       { name: 'Davion Mitchell', status: 'core' },
       { name: 'Pelle Larsson' },
       { name: 'Kasparas Jakučionis' },
@@ -379,8 +349,8 @@ export const manualRosterOverrides: ManualRosterOverrides = {
     ],
     wingsForwards: [
       { name: 'Andrew Wiggins', status: 'core' },
+      { name: 'Jaime Jaquez Jr' },
       { name: 'Nikola Jović' },
-      { name: 'Simone Fontecchio' },
     ],
     bigs: [
       { name: 'Bam Adebayo', status: 'core' },
@@ -389,21 +359,18 @@ export const manualRosterOverrides: ManualRosterOverrides = {
   },
   MIL: {
     guards: [
-      { name: 'Kevin Porter Jr.', status: 'core' },
+      { name: 'Kevin Porter Jr.' },
       { name: 'Ryan Rollins', status: 'core' },
-      { name: 'Cam Thomas', status: 'core' },
-      { name: 'AJ Green', status: 'core' },
-      { name: 'Cole Anthony' },
+      { name: 'AJ Green'},
       { name: 'Gary Trent Jr.' },
       { name: 'Gary Harris' },
     ],
     wingsForwards: [
-      { name: 'Giannis Antetokounmpo', status: 'core' },
+      { name: 'Giannis Antetokounmpo', status: 'uncertain' },
       { name: 'Kyle Kuzma' },
       { name: 'Bobby Portis' },
       { name: 'Taurean Prince' },
       { name: 'Ousmane Dieng' },
-      { name: 'Pete Nance' },
     ],
     bigs: [
       { name: 'Myles Turner' },
@@ -413,20 +380,19 @@ export const manualRosterOverrides: ManualRosterOverrides = {
   MIN: {
     guards: [
       { name: 'Anthony Edwards', status: 'core' },
-      { name: 'Donte DiVincenzo', status: 'core' },
-      { name: 'Ayo Dosunmu' },
-      { name: 'Bones Hyland' },
-      { name: 'Kyle Anderson' },
-      { name: 'Mike Conley' },
+      { name: 'Donte DiVincenzo', status: 'injured' },
+      { name: 'Ayo Dosunmu', status: 'uncertain' },
+      { name: 'Terrence Shannon Jr.' },
       { name: 'Jaylen Clark' },
     ],
     wingsForwards: [
       { name: 'Jaden McDaniels', status: 'core' },
+      { name: 'Julius Randle', status: 'core' },
     ],
     bigs: [
-      { name: 'Julius Randle', status: 'core' },
       { name: 'Rudy Gobert', status: 'core' },
       { name: 'Naz Reid' },
+      { name: 'Joan Beringer' },
     ],
   },
   NOP: {
@@ -434,60 +400,56 @@ export const manualRosterOverrides: ManualRosterOverrides = {
       { name: 'Dejounte Murray', status: 'core' },
       { name: 'Jeremiah Fears' },
       { name: 'Jordan Poole' },
-      { name: 'Bryce McGowens' },
       { name: 'Jordan Hawkins' },
     ],
     wingsForwards: [
       { name: 'Trey Murphy III', status: 'core' },
       { name: 'Zion Williamson', status: 'core' },
-      { name: 'Saddiq Bey', status: 'core' },
+      { name: 'Saddiq Bey' },
       { name: 'Herbert Jones', status: 'core' },
       { name: 'Micah Peavy' },
-      { name: 'Kevon Looney' },
     ],
     bigs: [
-      { name: 'Derik Queen' },
+      { name: 'Derik Queen', status: 'core' },
       { name: 'Yves Missi' },
-      { name: 'Karlo Matković' },
+      { name: 'Kevon Looney' },
     ],
   },
   NYK: {
     guards: [
       { name: 'Jalen Brunson', status: 'core' },
-      { name: 'OG Anunoby', status: 'core' },
       { name: 'Josh Hart', status: 'core' },
       { name: 'Miles McBride' },
-      { name: 'Landry Shamet' },
       { name: 'Jose Alvarado' },
-      { name: 'Jordan Clarkson' },
     ],
     wingsForwards: [
       { name: 'Mikal Bridges', status: 'core' },
+      { name: 'OG Anunoby', status: 'core' },
     ],
     bigs: [
       { name: 'Karl-Anthony Towns', status: 'core' },
-      { name: 'Mitchell Robinson', status: 'core' },
+      { name: 'Mitchell Robinson', status: 'uncertain' },
     ],
   },
   OKC: {
     guards: [
       { name: 'Shai Gilgeous-Alexander', status: 'core' },
-      { name: 'Jalen Williams', status: 'core' },
       { name: 'Ajay Mitchell' },
       { name: 'Cason Wallace' },
-      { name: 'Luguentz Dort' },
       { name: 'Isaiah Joe' },
       { name: 'Aaron Wiggins' },
-      { name: 'Alex Caruso' },
+      { name: 'Alex Caruso', status: 'core' },
       { name: 'Jared McCain' },
     ],
     wingsForwards: [
-      { name: 'Jaylin Williams' },
+      { name: 'Jalen Williams', status: 'core' },
       { name: 'Kenrich Williams' },
+      { name: 'Luguentz Dort' },
     ],
     bigs: [
       { name: 'Chet Holmgren', status: 'core' },
       { name: 'Isaiah Hartenstein', status: 'core' },
+      { name: 'Jaylin Williams' },
     ],
   },
   ORL: {
@@ -495,12 +457,14 @@ export const manualRosterOverrides: ManualRosterOverrides = {
       { name: 'Desmond Bane', status: 'core' },
       { name: 'Jalen Suggs', status: 'core' },
       { name: 'Anthony Black', status: 'core' },
-      { name: 'Jevon Carter' },
+      { name: 'Jase Richardson' },
     ],
     wingsForwards: [
       { name: 'Paolo Banchero', status: 'core' },
       { name: 'Franz Wagner', status: 'core' },
       { name: 'Tristan da Silva' },
+      { name: 'Jonathan Isaac' },
+      { name: 'Noah Penda' },
     ],
     bigs: [
       { name: 'Wendell Carter Jr.', status: 'core' },
@@ -511,21 +475,18 @@ export const manualRosterOverrides: ManualRosterOverrides = {
     guards: [
       { name: 'Tyrese Maxey', status: 'core' },
       { name: 'VJ Edgecombe', status: 'core' },
-      { name: 'Quentin Grimes', status: 'core' },
-      { name: 'Kelly Oubre Jr.', status: 'core' },
-      { name: 'Cameron Payne' },
+      { name: 'Quentin Grimes', status: 'uncertain' },
     ],
     wingsForwards: [
       { name: 'Paul George', status: 'core' },
+      { name: 'Kelly Oubre Jr.', status: 'uncertain' },
       { name: 'Dominick Barlow' },
       { name: 'Trendon Watford' },
-      { name: 'Tyrese Martin' },
-      { name: 'MarJon Beauchamp' },
-      { name: 'Adem Bona' },
       { name: 'Justin Edwards' },
     ],
     bigs: [
       { name: 'Joel Embiid', status: 'core' },
+      { name: 'Adem Bona' },
       { name: 'Andre Drummond' },
     ],
   },
@@ -533,64 +494,60 @@ export const manualRosterOverrides: ManualRosterOverrides = {
     guards: [
       { name: 'Devin Booker', status: 'core' },
       { name: 'Jalen Green', status: 'core' },
-      { name: 'Grayson Allen', status: 'core' },
-      { name: 'Collin Gillespie', status: 'core' },
-      { name: 'Jordan Goodwin' },
-      { name: 'Jamaree Bouyea' },
+      { name: 'Grayson Allen' },
+      { name: 'Collin Gillespie', status: 'uncertain' },
     ],
     wingsForwards: [
       { name: 'Dillon Brooks', status: 'core' },
-      { name: 'Royce O\'Neale', status: 'core' },
+      { name: 'Royce O\'Neale' },
       { name: 'Oso Ighodaro' },
       { name: 'Ryan Dunn' },
+      { name: 'Rasheer Fleming' }
     ],
     bigs: [
       { name: 'Mark Williams' },
+      { name: 'Khaman Maluach' },
     ],
   },
   POR: {
     guards: [
       { name: 'Jrue Holiday', status: 'core' },
-      { name: 'Shaedon Sharpe', status: 'core' },
+      { name: 'Damian Lillard', status: 'core' },
+      { name: 'Shaedon Sharpe' },
       { name: 'Scoot Henderson' },
-      { name: 'Caleb Love' },
       { name: 'Vít Krejčí' },
-      { name: 'Matisse Thybulle' },
       { name: 'Sidy Cissoko' },
     ],
     wingsForwards: [
       { name: 'Deni Avdija', status: 'core' },
-      { name: 'Jerami Grant', status: 'core' },
+      { name: 'Jerami Grant' },
       { name: 'Toumani Camara', status: 'core' },
       { name: 'Kris Murray' },
     ],
     bigs: [
       { name: 'Donovan Clingan', status: 'core' },
       { name: 'Robert Williams III' },
+      { name: 'Yang Hansen' },
     ],
   },
   SAC: {
     guards: [
-      { name: 'Russell Westbrook', status: 'core' },
-      { name: 'Zach LaVine', status: 'core' },
-      { name: 'De\'Andre Hunter' },
+      { name: 'Russell Westbrook' },
+      { name: 'Zach LaVine' },
       { name: 'Malik Monk' },
       { name: 'Nique Clifford' },
-      { name: 'Daeqwon Plowden' },
       { name: 'Devin Carter' },
       { name: 'Killian Hayes' },
     ],
     wingsForwards: [
-      { name: 'DeMar DeRozan', status: 'core' },
+      { name: 'DeMar DeRozan' },
       { name: 'Keegan Murray', status: 'core' },
-      { name: 'Precious Achiuwa' },
-      { name: 'Doug McDermott' },
+      { name: 'De\'Andre Hunter' },
     ],
     bigs: [
       { name: 'Domantas Sabonis', status: 'core' },
       { name: 'Maxime Raynaud' },
       { name: 'Dylan Cardwell' },
-      { name: 'Drew Eubanks' },
     ],
   },
   SAS: {
@@ -598,12 +555,12 @@ export const manualRosterOverrides: ManualRosterOverrides = {
       { name: 'Stephon Castle', status: 'core' },
       { name: 'De\'Aaron Fox', status: 'core' },
       { name: 'Devin Vassell', status: 'core' },
-      { name: 'Dylan Harper' },
-      { name: 'Keldon Johnson' },
+      { name: 'Dylan Harper', status: 'core' },
     ],
     wingsForwards: [
       { name: 'Julian Champagnie' },
       { name: 'Harrison Barnes' },
+      { name: 'Keldon Johnson' },
     ],
     bigs: [
       { name: 'Victor Wembanyama', status: 'core' },
@@ -612,16 +569,16 @@ export const manualRosterOverrides: ManualRosterOverrides = {
   },
   TOR: {
     guards: [
-      { name: 'Scottie Barnes', status: 'core' },
       { name: 'Immanuel Quickley', status: 'core' },
       { name: 'RJ Barrett', status: 'core' },
       { name: 'Jamal Shead' },
       { name: 'Ja\'Kobe Walter' },
+      { name: 'Gradey Dick' },
     ],
     wingsForwards: [
       { name: 'Brandon Ingram', status: 'core' },
+      { name: 'Scottie Barnes', status: 'core' },
       { name: 'Collin Murray-Boyles' },
-      { name: 'Gradey Dick' },
     ],
     bigs: [
       { name: 'Jakob Poeltl' },
@@ -632,67 +589,53 @@ export const manualRosterOverrides: ManualRosterOverrides = {
     guards: [
       { name: 'Keyonte George', status: 'core' },
       { name: 'Isaiah Collier', status: 'core' },
-      { name: 'Bez Mbeng', status: 'core' },
       { name: 'Vince Williams Jr.' },
-      { name: 'Elijah Harkless' },
       { name: 'John Konchar' },
     ],
     wingsForwards: [
+      { name: 'Lauri Markkanen', status: 'core' },
+      { name: 'Jaren Jackson Jr.', status: 'core' },
       { name: 'Ace Bailey' },
       { name: 'Brice Sensabaugh' },
-      { name: 'Blake Hinson' },
       { name: 'Svi Mykhailiuk' },
       { name: 'Cody Williams' },
     ],
     bigs: [
-      { name: 'Lauri Markkanen', status: 'core' },
-      { name: 'Jaren Jackson Jr.', status: 'core' },
-      { name: 'Jusuf Nurkić', status: 'core' },
+      { name: 'Jusuf Nurkić', status: 'uncertain' },
+      { name: 'Walker Kessler', status: 'core' },
       { name: 'Kyle Filipowski' },
-      { name: 'Kevin Love' },
-      { name: 'Oscar Tshiebwe' },
     ],
   },
   WAS: {
     guards: [
       { name: 'Trae Young', status: 'core' },
-      { name: 'Bub Carrington', status: 'core' },
-      { name: 'Tre Johnson', status: 'core' },
-      { name: 'Bilal Coulibaly' },
-      { name: 'Sharife Cooper' },
-      { name: 'Jaden Hardy' },
+      { name: 'Bub Carrington' },
+      { name: 'Tre Johnson' },
       { name: 'D\'Angelo Russell', status: 'uncertain', note: 'Futuro incerto' },
     ],
     wingsForwards: [
-      { name: 'Anthony Davis', status: 'core' },
+      { name: 'Bilal Coulibaly', status: 'core' },
       { name: 'Kyshawn George', status: 'core' },
       { name: 'Will Riley' },
       { name: 'Cam Whitmore' },
       { name: 'Jamir Watkins' },
-      { name: 'Leaky Black' },
       { name: 'Justin Champagnie' },
-      { name: 'Anthony Gill' },
-      { name: 'Tristan Vukcevic' },
     ],
     bigs: [
       { name: 'Alex Sarr', status: 'core' },
+      { name: 'Anthony Davis', status: 'core' },
+      { name: 'Tristan Vukcevic' },
     ],
   },
 };
 
 export function getManualRosterOverride(teamId?: string | null) {
   if (!teamId) return null;
-  return manualRosterOverrides[String(teamId).toUpperCase()] || null;
+  return manualRosterOverrides[String(teamId).trim().toUpperCase()] || null;
 }
 
 export function hasManualRosterOverride(teamId?: string | null) {
-  const override = getManualRosterOverride(teamId);
-  if (!override) return false;
-  return Boolean(
-    override.guards.length ||
-    override.wingsForwards.length ||
-    override.bigs.length
-  );
+  return Boolean(getManualRosterOverride(teamId));
 }
 
 export function normalizeManualRosterOverride(override?: ManualRosterOverride | null) {
@@ -700,22 +643,23 @@ export function normalizeManualRosterOverride(override?: ManualRosterOverride | 
 
   const seen = new Set<string>();
   const take = (players: ManualRosterPlayer[] = []) => {
-    const deduped = players.filter(player => {
-      const key = player.name.trim().toLowerCase();
+    const deduped = (players || []).filter(player => {
+      const key = player?.name?.trim().toLowerCase();
       if (!key || seen.has(key)) return false;
       seen.add(key);
       return true;
     }).map(player => ({
       ...player,
-      status: player.status || 'normal',
+      name: player.name.trim(),
+      status: rosterStatusPriority[player.status || 'normal'] === undefined ? 'normal' : player.status || 'normal',
     }));
 
     return sortRosterPlayersByStatus(deduped);
   };
 
   return {
-    guards: take(override.guards),
-    wingsForwards: take(override.wingsForwards),
-    bigs: take(override.bigs),
+    guards: take(override.guards || []),
+    wingsForwards: take(override.wingsForwards || []),
+    bigs: take(override.bigs || []),
   };
 }

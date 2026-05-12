@@ -133,9 +133,9 @@ export function validateRankTierConsistency(enriched: EnrichedProspectData): Pro
     rank <= 14 ? 'LOTTERY' :
     rank <= 30 ? 'MID_1ST' :
     'SLEEPER';
-  if (rank <= 5 && !['ELITE', 'LOTTERY'].includes(String(tier))) {
+  if (rank <= 5 && !['CORNERSTONE', 'ELITE', 'LOTTERY'].includes(String(tier))) {
     issues.push(issue('rank_tier', 'critical', 'Rank alto com tier baixo.', 'tier', [`Rank #${rank}`, `Tier ${tier}`], `Considerar ${expected}.`));
-  } else if (rank > 30 && ['ELITE', 'LOTTERY'].includes(String(tier))) {
+  } else if (rank > 30 && ['CORNERSTONE', 'ELITE', 'LOTTERY'].includes(String(tier))) {
     issues.push(issue('rank_tier', 'warning', 'Tier alto para rank fora da primeira rodada alta.', 'tier', [`Rank #${rank}`, `Tier ${tier}`], `Considerar ${expected}.`));
   }
   return issues;

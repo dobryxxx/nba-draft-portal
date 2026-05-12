@@ -172,8 +172,8 @@ export function applyRealismCaps(score: number, input: ProspectProjectionInput, 
   const rank = safeNumber(prospect?.rank, 45)
   const tier = String(prospect?.tier || '').toUpperCase()
   const starException = hasStarPathException(prospect, input)
-  const hasEliteTier = ['ELITE'].includes(tier)
-  const hasLotteryTier = ['ELITE', 'LOTTERY', 'ALL_STAR'].includes(tier)
+  const hasEliteTier = ['CORNERSTONE', 'ELITE'].includes(tier)
+  const hasLotteryTier = ['CORNERSTONE', 'ELITE', 'LOTTERY', 'ALL_STAR'].includes(tier)
   const highRisk = input.riskPenalty >= 68
   const extremeRisk = input.riskPenalty >= 82
 
@@ -313,13 +313,14 @@ export function buildProjectionInputFromProspect(prospect: any, overrides: { flo
   const floor = safeNumber(overrides.floor, safeNumber(manualFloorScore, safeNumber(evaluation?.floor?.score, rank <= 3 ? 64 : rank <= 14 ? 54 : rank <= 30 ? 46 : 38)))
 
   const tierBoost = {
+    CORNERSTONE: 94,
     ELITE: 88,
     LOTTERY: 70,
     MID_1ST: 58,
+    FRINGE: 52,
     SLEEPER: 43,
     ALL_STAR: 70,
     STARTER: 58,
-    FRINGE: 52,
   }[String(prospect?.tier || '').toUpperCase()] || 48
 
   const baseTalent = average([

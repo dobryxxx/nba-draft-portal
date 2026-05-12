@@ -135,7 +135,7 @@ function mapDraftballrPlayerToProspect(player, id, fallbackRank) {
     scouting: {
       strengths: [],
       weaknesses: [],
-      notes: 'Imported from DraftBallr basic data. Needs manual scouting review.',
+      notes: 'Descrição em andamento',
       attributes: {
         Athleticism: null,
         Shooting: null,

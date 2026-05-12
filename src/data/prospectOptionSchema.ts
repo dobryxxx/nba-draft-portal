@@ -17,9 +17,11 @@ export const PROSPECT_POSITIONS = [
 export type ProspectPosition = typeof PROSPECT_POSITIONS[number];
 
 export const PROSPECT_TIERS = [
+  'CORNERSTONE',
   'ELITE',
   'LOTTERY',
   'FIRST_ROUND',
+  'FRINGE',
   'FRINGE_FIRST',
   'SECOND_ROUND',
   'SLEEPER',
@@ -172,9 +174,11 @@ export const PROSPECT_POSITION_LABELS: Record<ProspectPosition, string> = {
 };
 
 export const PROSPECT_TIER_LABELS: Record<ProspectTier, string> = {
+  CORNERSTONE: 'Cornerstone',
   ELITE: 'Elite',
-  LOTTERY: 'Lottery',
+  LOTTERY: 'Loteria',
   FIRST_ROUND: 'Primeira rodada',
+  FRINGE: 'Fringe',
   FRINGE_FIRST: 'Fim de primeira rodada',
   SECOND_ROUND: 'Segunda rodada',
   SLEEPER: 'Sleeper',

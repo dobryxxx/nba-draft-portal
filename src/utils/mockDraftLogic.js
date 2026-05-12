@@ -2,6 +2,7 @@ import { LOTTERY_TEAMS, PICKS_15_30 } from '../data/prospects'
 import { calculateDraftFit, getPlayerDraftAttributes } from './draftFitAlgorithm.js'
 import { getTeamProfile } from '../data/teamProfiles.js'
 import { mergeProspectWithManualIntelligence } from '../data/prospectDraftIntelligence.ts'
+import { formatStat, normalizeProspectStats } from './prospectStats.js'
 
 export const TRADE_MAP = {
   NOP: () => ({ ownerAbbr: 'ATL', ownerName: 'Atlanta Hawks', ownerColor: '#C8102E', viaAbbr: 'NOP', viaName: 'New Orleans Pelicans' }),
@@ -20,13 +21,15 @@ export const TOTAL_PICKS = 30
 export const TRADE_MAP_LABELS = { IND: 'PROT. 1-4 / 11-14', NOP: 'via ATL', LAC: 'via OKC' }
 
 export const TIER_STYLES = {
-  ELITE: { label: 'ELITE', color: '#7c5ccf', bg: '#eee9fb', text: '#5d46a3', glow: 'rgba(124,92,207,.26)' },
-  LOTTERY: { label: 'LOTTERY', color: '#5aaed6', bg: '#edf7fd', text: '#3f7fa0', glow: 'rgba(90,174,214,.24)' },
-  MID_1ST: { label: 'MID 1ST', color: '#c9a941', bg: '#fbf4d2', text: '#8a7023', glow: 'rgba(201,169,65,.24)' },
-  SLEEPER: { label: 'SLEEPER', color: '#e6a06f', bg: '#faeee5', text: '#a8663b', glow: 'rgba(230,160,111,.22)' },
+  CORNERSTONE: { label: 'CORNERSTONE', color: '#7c3aed', bg: '#eee9fb', text: '#5b21b6', glow: 'rgba(124,58,237,.26)', wash: 'rgba(124,58,237,.13)', accent: 'rgba(196,181,253,.28)' },
+  ELITE: { label: 'ELITE', color: '#d4af37', bg: '#fff4c2', text: '#8a6a00', glow: 'rgba(212,175,55,.25)', wash: 'rgba(212,175,55,.14)', accent: 'rgba(255,231,128,.34)' },
+  LOTTERY: { label: 'LOTERIA', color: '#10b981', bg: '#dff8ed', text: '#047857', glow: 'rgba(16,185,129,.22)', wash: 'rgba(16,185,129,.13)', accent: 'rgba(167,243,208,.34)' },
+  MID_1ST: { label: 'MID 1ST', color: '#3b82f6', bg: '#e0efff', text: '#1d4ed8', glow: 'rgba(59,130,246,.22)', wash: 'rgba(59,130,246,.13)', accent: 'rgba(191,219,254,.38)' },
+  FRINGE: { label: 'FRINGE', color: '#f97316', bg: '#ffedd5', text: '#c2410c', glow: 'rgba(249,115,22,.23)', wash: 'rgba(249,115,22,.14)', accent: 'rgba(254,215,170,.36)' },
+  SLEEPER: { label: 'SLEEPER', color: '#8b5e34', bg: '#f4eadc', text: '#5f3f20', glow: 'rgba(139,94,52,.22)', wash: 'rgba(139,94,52,.14)', accent: 'rgba(222,184,135,.34)' },
 }
 
-export const normalizeTierKey = tier => ({ ALL_STAR: 'LOTTERY', STARTER: 'MID_1ST', FRINGE: 'MID_1ST', ROLE_PLAYER: 'SLEEPER' }[tier] || tier)
+export const normalizeTierKey = tier => ({ ALL_STAR: 'LOTTERY', STARTER: 'MID_1ST', FRINGE_FIRST: 'FRINGE', ROLE_PLAYER: 'SLEEPER' }[tier] || tier)
 
 export const FILTERS = [
   ['best', 'Best Available'],
@@ -138,7 +141,7 @@ export function getTeamPriorityLabel(teamId) {
   return labels[priority] || 'Prioridade: melhor valor'
 }
 export const clamp = value => Math.min(100, Math.max(0, value))
-export const num = value => (typeof value === 'number' ? value.toFixed(1) : '-')
+export const num = value => formatStat(value)
 export const getTierStyles = tier => TIER_STYLES[normalizeTierKey(tier)] || TIER_STYLES.SLEEPER
 export const initials = name => String(name || '').split(' ').filter(Boolean).slice(0, 2).map(x => x[0]).join('').toUpperCase()
 
@@ -159,7 +162,7 @@ export function getBiggestDrop(results) {
 }
 
 export function getProspectArchetype(p) {
-  const s = p.stats || {}
+  const s = normalizeProspectStats(p)
   if ((s.threep || 0) >= 37) return 'Movement Shooter'
   if ((s.apg || 0) >= 4 || (s.astTo || 0) >= 2) return 'Creator / Connector'
   if ((s.rpg || 0) >= 8 || (s.blkPct || 0) >= 4) return 'Interior Anchor'
@@ -168,7 +171,7 @@ export function getProspectArchetype(p) {
 }
 
 export function getProspectAttributes(p) {
-  const s = p.stats || {}
+  const s = normalizeProspectStats(p)
   const attrs = p.scouting?.attributes || {}
   return [
     ['Scoring', clamp(((s.ppg || 0) / 28) * 100)],
@@ -206,7 +209,7 @@ function resolvedBarValue(manualTraits, key, derivedValue, fallbackValue = 55) {
 export function getResolvedArchetypeBars(p) {
   const resolved = mergeProspectWithManualIntelligence(p || {})
   const manualTraits = resolved?.resolvedIntelligence?.manualTraits || {}
-  const s = p?.stats || {}
+  const s = normalizeProspectStats(p)
   const attrs = p?.scouting?.attributes || {}
   const scoringDerived = Math.max(
     ((s.ppg || 0) / 28) * 100,
@@ -239,11 +242,11 @@ export function getResolvedArchetypeBars(p) {
 }
 
 export function getTopMetrics(p) {
-  const s = p?.stats || {}
+  const s = normalizeProspectStats(p)
   return [
     ['PPG', num(s.ppg)],
-    ['TS%', typeof s.ts === 'number' ? s.ts.toFixed(1) : '-'],
-    ['3P%', typeof s.threep === 'number' ? s.threep.toFixed(1) : '-'],
+    ['TS%', formatStat(s.ts)],
+    ['3P%', formatStat(s.threep)],
     ['AST', num(s.apg)],
   ]
 }
@@ -356,9 +359,9 @@ export function filterProspects(list, filter) {
   if (filter === 'guards') return list.filter(p => /PG|SG/.test(p.position))
   if (filter === 'wings') return list.filter(p => /SG|SF|PF/.test(p.position))
   if (filter === 'bigs') return list.filter(p => /PF|C/.test(p.position))
-  if (filter === 'shooters') return list.filter(p => (p.stats?.threep || 0) >= 35)
-  if (filter === 'defenders') return list.filter(p => (p.stats?.stlPct || 0) >= 1.8 || (p.stats?.blkPct || 0) >= 2.5)
-  if (filter === 'upside') return list.filter(p => p.tier === 'ELITE' || p.age <= 19)
-  if (filter === 'safe') return list.filter(p => (p.stats?.ts || 0) >= 57 || (p.stats?.per || 0) >= 22)
+  if (filter === 'shooters') return list.filter(p => (normalizeProspectStats(p).threep || 0) >= 35)
+  if (filter === 'defenders') return list.filter(p => (normalizeProspectStats(p).stlPct || 0) >= 1.8 || (normalizeProspectStats(p).blkPct || 0) >= 2.5)
+  if (filter === 'upside') return list.filter(p => ['CORNERSTONE', 'ELITE'].includes(p.tier) || p.age <= 19)
+  if (filter === 'safe') return list.filter(p => (normalizeProspectStats(p).ts || 0) >= 57 || (normalizeProspectStats(p).per || 0) >= 22)
   return list
 }

@@ -6,15 +6,18 @@ import { CSS } from '@dnd-kit/utilities'
 import { ArrowDown, ArrowUp, BarChart3, Download, Eye, GripVertical, Plus, RotateCcw, Search, Sparkles, X } from 'lucide-react'
 import { toPng } from 'html-to-image'
 import { getPlayerCutoutImage } from '../utils/playerImages'
+import { rookiesBoards } from '../data/rookiesBoards'
 
 const BOARD_TIERS = [
-  { id: 'ELITE', label: 'Elite', range: 'Top 1-5', color: '#7c5ccf', bg: '#eee9fb', text: '#5d46a3', glass: 'rgba(238,233,251,.72)' },
-  { id: 'LOTTERY', label: 'Lottery', range: 'Top 6-14', color: '#5aaed6', bg: '#edf7fd', text: '#3f7fa0', glass: 'rgba(237,247,253,.68)' },
-  { id: 'MID_1ST', label: 'Mid 1st', range: '15-30', color: '#c9a941', bg: '#fbf4d2', text: '#8a7023', glass: 'rgba(251,244,210,.68)' },
-  { id: 'SLEEPER', label: 'Sleeper', range: 'Value plays', color: '#e6a06f', bg: '#faeee5', text: '#a8663b', glass: 'rgba(250,238,229,.70)' },
+  { id: 'CORNERSTONE', label: 'Cornerstone', range: 'Top 1-3', color: '#7c3aed', bg: '#eee9fb', text: '#5b21b6', glass: 'rgba(238,233,251,.72)' },
+  { id: 'ELITE', label: 'Elite', range: 'Top 4-6', color: '#d4af37', bg: '#fff4c2', text: '#8a6a00', glass: 'rgba(255,244,194,.72)' },
+  { id: 'LOTTERY', label: 'Loteria', range: 'Top 7-14', color: '#10b981', bg: '#dff8ed', text: '#047857', glass: 'rgba(223,248,237,.70)' },
+  { id: 'MID_1ST', label: 'Mid 1st', range: '15-24', color: '#3b82f6', bg: '#e0efff', text: '#1d4ed8', glass: 'rgba(224,239,255,.70)' },
+  { id: 'FRINGE', label: 'Fringe', range: '25-32', color: '#f97316', bg: '#ffedd5', text: '#c2410c', glass: 'rgba(255,237,213,.70)' },
+  { id: 'SLEEPER', label: 'Sleeper', range: 'Value plays', color: '#8b5e34', bg: '#f4eadc', text: '#5f3f20', glass: 'rgba(244,234,220,.70)' },
 ]
 
-const normalizeTier = tier => ({ ALL_STAR: 'LOTTERY', STARTER: 'MID_1ST', FRINGE: 'MID_1ST', ROLE_PLAYER: 'SLEEPER' }[tier] || tier)
+const normalizeTier = tier => ({ ALL_STAR: 'LOTTERY', STARTER: 'MID_1ST', FRINGE_FIRST: 'FRINGE', ROLE_PLAYER: 'SLEEPER' }[tier] || tier)
 const emptyBoard = () => BOARD_TIERS.reduce((acc, tier) => ({ ...acc, [tier.id]: [] }), {})
 const fmt = value => (typeof value === 'number' ? value.toFixed(1) : '-')
 const pct = value => (typeof value === 'number' ? Math.max(0, Math.min(100, value)) : 0)
@@ -65,6 +68,10 @@ function getScore(prospect) {
   const efficiency = Math.min(10, Math.max(0, (s.ts || 52) - 52) * .75)
   const play = Math.min(6, (s.apg || 0) * .75)
   return Math.round(Math.max(45, Math.min(99, rankBase * .76 + production + efficiency + play)))
+}
+
+function getTierLiquidClass(tierId = '') {
+  return `tier-${String(tierId).toLowerCase().replace(/_/g, '-')}`
 }
 
 function GlassCard({ children, className = '', style }) {
@@ -239,6 +246,8 @@ function BoardCard({ prospect, rank, tier, onMove, onRemove, onOpenProfile }) {
   })
   const stats = prospect.stats || {}
   const score = getScore(prospect)
+  const tierLiquidClass = getTierLiquidClass(tier.id)
+  const isPrimeLiquid = Number(prospect.rank || rank || 99) <= 3 || (tier.id === 'CORNERSTONE' && Number(rank || 99) <= 3)
 
   return (
     <motion.article
@@ -248,9 +257,11 @@ function BoardCard({ prospect, rank, tier, onMove, onRemove, onOpenProfile }) {
       animate={{ opacity: isDragging ? 0.28 : 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -8, scale: 0.96 }}
       transition={{ type: 'spring', stiffness: 210, damping: 24 }}
-      className="big-board-card group relative min-w-0 overflow-hidden rounded-[24px] p-3"
+      className={`big-board-card ${tierLiquidClass} ${isPrimeLiquid ? 'tier-liquid-prime' : 'tier-liquid-standard'} group relative isolate min-w-0 overflow-hidden rounded-[24px] p-3`}
       style={{ transform: CSS.Transform.toString(transform), transition, zIndex: isDragging ? 60 : 'auto' }}
     >
+      <div className="tierLiquid" aria-hidden="true" />
+      <div className="tierLiquidSheen" aria-hidden="true" />
       <span className="absolute inset-y-0 left-0 w-1.5" style={{ background: 'linear-gradient(180deg,' + tier.color + ', transparent)' }} />
       <div className="flex min-w-0 items-center gap-3 pl-1">
         <button
@@ -326,6 +337,71 @@ function BoardCardOverlay({ prospect, rank, tier }) {
         </div>
       </div>
     </motion.article>
+  )
+}
+
+function RookiesBoardCard({ board, prospectsById, onOpenProfile }) {
+  const entries = (board.entries || [])
+    .map((entry, index) => ({ ...entry, rank: index + 1, prospect: prospectsById.get(entry.playerId) }))
+    .filter(entry => entry.prospect)
+
+  return (
+    <GlassCard className="flex min-h-[520px] min-w-0 flex-col overflow-hidden p-5">
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <div className="font-mono text-[8px] font-black uppercase tracking-[.24em] text-lo">{board.role}</div>
+          <h3 className="mt-2 font-headline text-3xl font-extrabold tracking-tight text-slate-800 dark:text-slate-50">{board.author}</h3>
+          <p className="mt-2 text-sm font-semibold leading-6 text-muted">{board.description}</p>
+        </div>
+        <span className="rounded-full border border-white/40 bg-white/38 px-3 py-1.5 font-mono text-[8px] font-black uppercase tracking-[.15em] text-muted dark:border-white/10 dark:bg-white/10">
+          {entries.length ? `${entries.length} nomes` : 'em breve'}
+        </span>
+      </div>
+
+      {entries.length ? (
+        <div className="mt-5 grid gap-3">
+          {entries.map(entry => {
+            const prospect = entry.prospect
+            const tier = BOARD_TIERS.find(item => item.id === normalizeTier(prospect.tier)) || BOARD_TIERS[0]
+            return (
+              <button
+                key={prospect.id}
+                type="button"
+                onClick={() => onOpenProfile?.(prospect.id)}
+                className="rounded-[22px] border border-white/40 bg-white/30 p-3 text-left backdrop-blur-md transition-transform hover:-translate-y-0.5 dark:border-white/10 dark:bg-white/5"
+              >
+                <div className="flex items-start gap-3">
+                  <span className="w-10 shrink-0 font-numeric text-2xl font-extrabold tabular-nums" style={{ color: tier.color }}>#{entry.rank}</span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-black text-slate-800 dark:text-slate-100">{prospect.name}</span>
+                    <span className="mt-0.5 block truncate font-mono text-[8px] font-black uppercase tracking-[.13em] text-muted">{prospect.position} / {prospect.team}</span>
+                    {entry.opinion ? <span className="mt-2 line-clamp-2 block text-xs font-semibold leading-5 text-muted">{entry.opinion}</span> : null}
+                  </span>
+                </div>
+              </button>
+            )
+          })}
+        </div>
+      ) : (
+        <div className="mt-6 flex flex-1 flex-col justify-center rounded-[28px] border border-dashed border-white/45 bg-white/20 p-6 text-center dark:border-white/10 dark:bg-white/5">
+          <div className="font-headline text-2xl font-extrabold text-slate-800 dark:text-slate-50">{board.headline}</div>
+          <p className="mx-auto mt-3 max-w-sm text-sm font-semibold leading-6 text-muted">
+            Este espaco ja esta pronto para receber a ordem do autor e comentarios curtos por jogador.
+          </p>
+        </div>
+      )}
+    </GlassCard>
+  )
+}
+
+function RookiesBoardsView({ prospects, onOpenProfile }) {
+  const prospectsById = useMemo(() => new Map(prospects.map(prospect => [prospect.id, prospect])), [prospects])
+  return (
+    <div className="mx-auto grid max-w-[1400px] gap-4 3xl:max-w-[1680px] uw:max-w-[1800px] lg:grid-cols-3">
+      {rookiesBoards.map(board => (
+        <RookiesBoardCard key={board.id} board={board} prospectsById={prospectsById} onOpenProfile={onOpenProfile} />
+      ))}
+    </div>
   )
 }
 
@@ -451,11 +527,12 @@ function BigBoardShareCard({ players, theme = 'dark', limit = EXPORT_LIMIT }) {
   )
 }
 
-export default function BigBoard({ prospects, onSelectProspect, onTierChange }) {
+export default function BigBoard({ prospects, onSelectProspect, onTierChange, onBoardOrderChange }) {
   const [board, setBoard] = useState(emptyBoard)
   const [activeDragId, setActiveDragId] = useState(null)
   const [exporting, setExporting] = useState(false)
   const [shareTheme, setShareTheme] = useState('dark')
+  const [activeBoardTab, setActiveBoardTab] = useState('builder')
   const shareRef = useRef(null)
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 7 } }))
 
@@ -468,8 +545,14 @@ export default function BigBoard({ prospects, onSelectProspect, onTierChange }) 
   const flatBoardIds = BOARD_TIERS.flatMap(tier => board[tier.id] || [])
   const flatBoardPlayers = flatBoardIds.map(id => prospectsById.get(id)).filter(Boolean)
   const rankMap = new Map(flatBoardIds.map((id, index) => [id, index + 1]))
+  const boardOrderKey = flatBoardIds.join('|')
   const draftedCount = flatBoardIds.length
   const topScore = flatBoardIds.length ? Math.max(...flatBoardIds.map(id => getScore(prospectsById.get(id) || {}))) : '-'
+
+  useEffect(() => {
+    if (!flatBoardIds.length) return
+    onBoardOrderChange?.(flatBoardIds)
+  }, [boardOrderKey, onBoardOrderChange])
 
   const findTier = (id, source = board) => {
     if (BOARD_TIERS.some(tier => tier.id === id)) return id
@@ -584,7 +667,25 @@ export default function BigBoard({ prospects, onSelectProspect, onTierChange }) 
               <span className="big-board-pill"><Sparkles size={13} /> Builder Mode</span>
               <span className="big-board-pill"><BarChart3 size={13} /> Custom class board</span>
             </div>
-            <h1 className="mt-3 font-brand text-5xl font-extrabold tracking-tight text-slate-800 3xl:text-5xl">Big Board Studio</h1>
+            <div className="mt-3 flex flex-wrap items-end gap-3">
+              <h1 className="font-brand text-5xl font-extrabold tracking-tight text-slate-800 3xl:text-5xl">Big Board Studio</h1>
+              <div className="mb-1 flex rounded-full border border-white/45 bg-white/24 p-1 shadow-[inset_1px_1px_0_rgba(255,255,255,.45)] backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
+                <button
+                  type="button"
+                  onClick={() => setActiveBoardTab('builder')}
+                  className={(activeBoardTab === 'builder' ? 'bg-white/70 text-slate-800 shadow-[0_8px_18px_rgba(15,23,42,.06)] dark:bg-white/12 dark:text-white ' : 'text-muted hover:bg-white/36 hover:text-slate-700 dark:hover:bg-white/8 dark:hover:text-slate-200 ') + 'rounded-full px-3 py-1.5 font-mono text-[8px] font-black uppercase tracking-[.16em] transition-all'}
+                >
+                  Meu board
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveBoardTab('rookies')}
+                  className={(activeBoardTab === 'rookies' ? 'bg-white/70 text-slate-800 shadow-[0_8px_18px_rgba(15,23,42,.06)] dark:bg-white/12 dark:text-white ' : 'text-muted hover:bg-white/36 hover:text-slate-700 dark:hover:bg-white/8 dark:hover:text-slate-200 ') + 'rounded-full px-3 py-1.5 font-mono text-[8px] font-black uppercase tracking-[.16em] transition-all'}
+                >
+                  Board da Rookies
+                </button>
+              </div>
+            </div>
             <p className="mt-2 max-w-3xl text-sm font-semibold leading-6 text-muted">
               Organize tiers, compare características e crie do zero o seu próprio Big Board. Mova os cards para as tiers desejadas ou use os controles manuais.
             </p>
@@ -601,6 +702,9 @@ export default function BigBoard({ prospects, onSelectProspect, onTierChange }) 
         </div>
       </header>
 
+      {activeBoardTab === 'rookies' ? (
+        <RookiesBoardsView prospects={prospects} onOpenProfile={onSelectProspect} />
+      ) : (
       <DndContext sensors={sensors} collisionDetection={boardCollisionDetection} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd} onDragCancel={() => setActiveDragId(null)}>
         <div className="mx-auto grid max-w-[1400px] gap-4 3xl:max-w-[1680px] uw:max-w-[1800px] xl:grid-cols-[290px_1fr] 3xl:grid-cols-[330px_1fr]">
           <ProspectPool prospects={prospects} boardIds={boardIds} onAdd={addToBoard} onOpenProfile={onSelectProspect} />
@@ -624,6 +728,7 @@ export default function BigBoard({ prospects, onSelectProspect, onTierChange }) 
           {activeDragProspect ? <BoardCardOverlay prospect={activeDragProspect} rank={rankMap.get(activeDragProspect.id) || activeDragProspect.rank || 1} tier={activeDragTier} /> : null}
         </DragOverlay>
       </DndContext>
+      )}
 
       <div className="big-board-share-capture" aria-hidden="true">
         <div ref={shareRef}>
@@ -633,4 +738,3 @@ export default function BigBoard({ prospects, onSelectProspect, onTierChange }) 
     </div>
   )
 }
-

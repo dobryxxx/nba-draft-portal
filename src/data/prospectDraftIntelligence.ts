@@ -104,7 +104,7 @@ export const prospectDraftIntelligence = {
     "playerId": "1",
     "name": "AJ Dybantsa",
     "position": "SF/PF",
-    "tier": "ELITE",
+    "tier": "CORNERSTONE",
     "archetype": "VERSATILE_FORWARD",
     "projectedRole": "SECONDARY_CREATOR",
     "projection": {
@@ -164,7 +164,7 @@ export const prospectDraftIntelligence = {
     "playerId": "2",
     "name": "Darryn Peterson",
     "position": "PG/SG",
-    "tier": "ELITE",
+    "tier": "CORNERSTONE",
     "archetype": "SCORING_GUARD",
     "projectedRole": "PRIMARY_OPTION",
     "projection": {
@@ -221,7 +221,7 @@ export const prospectDraftIntelligence = {
     "playerId": "3",
     "name": "Cameron Boozer",
     "position": "PF/C",
-    "tier": "ELITE",
+    "tier": "CORNERSTONE",
     "archetype": "STRETCH_BIG",
     "projectedRole": "SECONDARY_CREATOR",
     "projection": {
@@ -278,7 +278,7 @@ export const prospectDraftIntelligence = {
     "playerId": "4",
     "name": "Caleb Wilson",
     "position": "PF",
-    "tier": "LOTTERY",
+    "tier": "ELITE",
     "archetype": "VERSATILE_FORWARD",
     "projectedRole": "THIRD_OPTION",
     "risk": "MODERATE",
@@ -376,7 +376,7 @@ export const prospectDraftIntelligence = {
       ],
       "swingSkill": "ADVANTAGE_CREATION",
       "mainConcern": "STRENGTH",
-      "translationSummary": "Wagler é um dos atiradores mais perigosos e dinâmicos da classe, com mecanismo confiável e capacidade técnica sólida de operar no pick-and-roll. Tem tamanho posicional adequado para um guard no nível profissional, o que amplifica o problema que representa para as defesas. A principal dúvida sobre ele é física: se seu corpo será capaz de absorver as demandas de ser opção primária na NBA — mas mesmo como peça secundária, sua gravidade ofensiva é inegável.",
+      "translationSummary": "Wagler é um dos atiradores mais perigosos e dinâmicos da classe, com mecanismo confiável e capacidade técnica sólida de operar no pick-and-roll. Tem tamanho posicional adequado para um guard no nível profissional, mas uma envergadura que não anima em nada, além de um corpo ainda franzino para seu porte. A principal dúvida sobre ele é física: seu corpo será capaz de absorver as demandas de ser opção primária na NBA? Wagler emendou uma segunda metade de temporada fantástica, fazendo chover no ano de 2026, e mostrando um potencial como scorer e playmaker secundário. Mesmo não tendo um primeiro passo explosivo, combina boa técnica e equilíbrio corporal para atacar o garrafão e finalizar próximo à cesta, o que é animador considerando sua facilidade em jogar no perímetro. Se conseguir criar vantagens saindo do drible com constância na NBA, tem tudo para prosperar como pontuador secundário e eficiente. Não o vemos como o melhor, ou segundo melhor prospecto de guard [desconsiderando obviamente Darryn Peterson, que está em outro debate] desse Draft, como o consenso tem projetado sendo uma possível escolha TOP-6. Vemos Walter como uma aposta interessante, podendo ser um bom e versátil cestinha, criador coletivo disposto, mas o teto de primeira opção ofensiva tão é no momento atual, muito mais hipotético, do que provável ou possível. A falta de um atleticismo animador, também contribui para nossa visão geral de que, trata-se mais de um projeto de desenvolvimento, do que uma realidade imediata na NBA, como grande parte das projeções apontam.",
       "notes": [
         "Tomada de decisão inteligente e visão de jogo acima da média para a posição",
         "Arremesso de 3 confiável (39.7%) com boa vantagem de tamanho sobre guardas",
@@ -435,7 +435,7 @@ export const prospectDraftIntelligence = {
       ],
       "swingSkill": "TEAM_DEFENSE",
       "mainConcern": "DEFENSIVE_CONSISTENCY",
-      "translationSummary": "Acuff se destaca pela dureza mental, frieza emocional e pela leitura de jogo que permite alimentar atletas explosivos com eficiência tanto em transição quanto no half court. É um armador com identidade competitiva forte, que não depende de números para impactar a dinâmica de um grupo. Seu perfil tem tudo para escalar na loteria à medida que o processo pré-draft avança e os times compreendem melhor o valor do que ele oferece além do óbvio.",
+      "translationSummary": "Acuff se destaca pela dureza mental, frieza emocional e leitura de jogo que permite alimentar os companheiros com constância, tanto em transição quanto no half court. É um armador com identidade competitiva forte e mostrou um certo 'gosto pela decisão' em sua temporada por Arkansas, que nos chama muita atenção. É um aspecto um pouco mais intangível, mas pensamos que pode ser um diferencial importante nele como prospecto. Suas fraquezas são certamente sua altura, que é bem abaixo do ideal para a posição, e é o que mais pode dificultar sua projeção como um estrela na liga. Por outro lado, sua envergadura é bem interessante, e analisando a tape do seu jogo, ele foi capaz de finalizar próximo ao aro, com constância e eficiência durante todo o ano, em cima de defensores bem maiores e mais atléticos, ou seja, não é como se sua dieta de arremessos fosse baseada puramente no perímetro e meia distância, o que talvez pode dar uma esperança a longo prazo, mas certamente, ainda deve conviver com dúvidas defensivas por toda carreira. Em geral, foi um dos prospectos mais elusivos, com jogo ofensivo vasto e estranhamente regular para um armador 'baixinho' e calouro. Nós não temos nele um teto de franchise player, mas sim uma boa estrela na liga é onde ele deve chegar se tudo der certo.",
       "notes": [
         "SEC Player of Year + Freshman of Year — 845 pontos, recorde Arkansas",
         "Único jogador na NCAA a fazer 20+ PPG e 6+ APG com 48% FG e 44% de 3",
@@ -493,7 +493,7 @@ export const prospectDraftIntelligence = {
       ],
       "swingSkill": "SPOT_UP_SHOOTING",
       "mainConcern": "ROLE_CLARITY",
-      "translationSummary": "Flemings é frequentemente reduzido ao rótulo de scorer, mas seu perfil vai além disso: tem sensibilidade real no pick-and-roll e é possivelmente o jogador mais veloz da classe em espaço aberto. A velocidade que exibe não é apenas atlética — é combinada com leitura de jogo suficiente para transformá-la em vantagem concreta dentro das estruturas ofensivas. Um prospecto com esse perfil de transição e desequilíbrio em espaço aberto tende a encontrar papel imediato em qualquer sistema de jogo moderno.",
+      "translationSummary": "Flemings é frequentemente reduzido ao rótulo de scorer, mas seu perfil vai além disso: tem alguma sensibilidade no pick-and-roll para achar passes, e é possivelmente o jogador mais veloz da classe em espaços. A velocidade que exibe não é apenas atlética — é combinada com leitura de jogo suficiente para transformá-la em vantagem concreta dentro das estruturas ofensivas. Um prospecto com esse perfil de transição, e capaz de desequilibrar com poucos toques na meia quadra, tende a encontrar papel imediato em qualquer sistema de jogo moderno. Não acreditamos que ele é, como a média das análises projeta, um prospecto superior a caras como Mikel Brown Jr, por exemplo, mas ainda assim, trata-se de um dos jogadores mais sólidos e prontos pra impactar do topo desse Draft.  Seu teto não nos parece ser tão alto, o que tira ele de algumas conversas nessa classe, como um talento TOP-6, mas é sólido o suficiente pra ser uma escolha de loteria segura. Assim como outros guards da classe, suas medidas são um problema. Altura bem abaixo, e principalmente, a menor envergadura entre os armadores, podem dificultar seu valor no dia do Draft. Mas cremos que mesmo assim, sua técnica refinada, QI de jogo elevado, e eficiência em vários cenários, o consolidam como uma escolha justa na loteria. Vemos suas características mais para um bom coadjuvante, do que um protagonista real, pois ele é um armador que não deve prosperar com muitos toques, controlando o ataque posse após posse, criando cestas do nada com frequência, ou sendo um maestro ofensivo criando para os companheiros como Acuff ou Mikel já são, por exemplo.",
       "notes": [
         "Playmaking de elite — comparado a Derrick Rose pela visão e explosão",
         "Arremessador confiável de 3 (40%) com alto QI ofensivo",
@@ -513,7 +513,7 @@ export const prospectDraftIntelligence = {
     "playerId": "7",
     "name": "Mikel Brown Jr.",
     "position": "PG/SG",
-    "tier": "LOTTERY",
+    "tier": "ELITE",
     "archetype": "PRIMARY_CREATOR",
     "projectedRole": "STARTING_GUARD",
     "projection": {
@@ -570,7 +570,7 @@ export const prospectDraftIntelligence = {
     "playerId": "9",
     "name": "Nate Ament",
     "position": "SF/PF",
-    "tier": "LOTTERY",
+    "tier": "FIRST_ROUND",
     "archetype": "TWO_WAY_WING",
     "projectedRole": "ROTATION_WING",
     "risk": "HIGH",
@@ -610,7 +610,7 @@ export const prospectDraftIntelligence = {
       ],
       "swingSkill": "SELF_CREATION",
       "mainConcern": "SHOOTING_CONSISTENCY",
-      "translationSummary": "Ament chegou à temporada com status de top 5-7, mas eficiências abaixo do esperado — tanto de três pontos quanto na bola parada — levantaram dúvidas sobre seu teto como espaçador. O que permanece intacto é uma coordenação motora e um equilíbrio para um jogador do seu porte que são genuinamente raros, além de contribuição defensiva acima da média. É um prospecto que exige paciência avaliativa: os números de uma temporada difícil não devem obscurecer o que ele demonstra ser quando em ritmo.",
+      "translationSummary": "Ament chegou à temporada com status de top 5-7, mas eficiência abaixo do esperado, dificuldades para criar vantagens, arremessos limpos e criação coletiva, nos fazem pôr em cheque seu valor como prospecto. O que ficou, foram alguns flashes como pontuador que alimentam certa esperança, além de contribuição defensiva acima da média. Existe um mundo onde ele vira algo a mais, mas existem muitos mais onde ele não passa de um bom role player. E existem chances reais de sua irregularidade e dificuldades técnicas o levarem ao esquecimento após alguns anos. Alto risco, pra talvez uma grande recompensa. Ou provavelmente, uma recompensa sólida, mas nada especial.",
       "notes": [
         "Tamanho wing de 6'10\" com tiro de médio alcance suave — modelo Kevin Durant",
         "Potencial defensivo imenso com comprimento e instintos naturais",
@@ -630,7 +630,7 @@ export const prospectDraftIntelligence = {
     "playerId": "25",
     "name": "Aday Mara",
     "position": "C",
-    "tier": "LOTTERY",
+    "tier": "ELITE",
     "archetype": "PLAYMAKING_BIG",
     "projectedRole": "THIRD_OPTION",
     "risk": "MODERATE",
@@ -668,7 +668,7 @@ export const prospectDraftIntelligence = {
       ],
       "swingSkill": "REBOUNDING",
       "mainConcern": "SHOOTING_CONSISTENCY",
-      "translationSummary": "Mara é um pivô de 7'3\" com presença defensiva que distorce a geometria do ataque adversário só pela sua posição na quadra. Foi peça central de uma das defesas mais dominantes do basquete universitário na temporada, com percentual de tocos entre os mais altos da divisão. Soma a isso uma capacidade de passe subestimada para um jogador do seu porte, o que o torna mais do que uma simples âncora defensiva — é um pivô com mãos e visão de jogo que transcendem o estereótipo da posição.",
+      "translationSummary": "Mara é um pivô de 7'3 com presença defensiva que distorce a geometria do ataque adversário só pela sua posição na quadra. Foi peça central de uma da defesa mais dominantes do basquete universitário na temporada, com percentual de tocos entre os mais altos da divisão. Soma a isso uma capacidade de passe rara para um jogador do seu porte, o que o torna mais do que uma simples âncora defensiva — é um pivô com mãos e visão de jogo que transcendem o estereótipo da posição. Com um trabalho de pés absurdo, e toque super refinado, ele domina no post scoring, elevando sua capacidade de pontuar próximo ao aro, e dando no todo, uma margem de crescimento das mais animadoras da classe, junto a um piso também bom.",
       "notes": [
         "Dimensões de rim protector de elite (7' + envergadura 7'5\")",
         "26 pontos contra Arizona no Final Four — desempenho assinatura em 2026",
@@ -726,7 +726,7 @@ export const prospectDraftIntelligence = {
       ],
       "swingSkill": "SPOT_UP_SHOOTING",
       "mainConcern": "DEFENSIVE_CONSISTENCY",
-      "translationSummary": "Philon é um armador com inteligência de jogo fora do comum para a idade, combinando moxie competitivo com um conjunto de habilidades que sugere adaptação rápida ao ritmo profissional. Sua leitura defensiva e capacidade de encaixe em sistemas já estabelecidos o tornam um prospecto que agrega sem precisar de protagonismo imediato. Há também uma dimensão de potencial ainda não totalmente revelado — alguém que pode começar cumprindo papel definido e gradualmente assumir as chaves do carro.",
+      "translationSummary": "Philon é um armador com inteligência de jogo fora do comum para a idade, combinando competitividade com um conjunto de habilidades que sugere adaptação rápida ao ritmo profissional. Sua leitura defensiva e capacidade de encaixe em sistemas já estabelecidos o tornam um prospecto que agrega sem precisar de protagonismo imediato. Há também uma dimensão de potencial ainda não totalmente revelado — alguém que pode começar cumprindo papel definido e gradualmente assumir as chaves do carro. Um dos prospectos mais subestimados da classe hoje, pois trata-se de um legítimo TOP-10 com poucas falhas muito notórias em seu jogo.",
       "notes": [
         "Tiro de 3 elite (40.2%) com 2.3 cestas por jogo — spacer e criador simultâneo",
         "Segundo ano transformado: liderança, eficiência e produção escalaram juntas",
@@ -746,7 +746,7 @@ export const prospectDraftIntelligence = {
     "playerId": "10",
     "name": "Yaxel Lendeborg",
     "position": "PF",
-    "tier": "LOTTERY",
+    "tier": "FIRST_ROUND",
     "archetype": "VERSATILE_FORWARD",
     "projectedRole": "ROTATION_WING",
     "projection": {
@@ -783,7 +783,7 @@ export const prospectDraftIntelligence = {
       ],
       "swingSkill": "SPOT_UP_SHOOTING",
       "mainConcern": "DEFENSIVE_CONSISTENCY",
-      "translationSummary": "Lendeborg ? um forward de 6'9\" e 240 libras com capacidade de espaçamento, senso de passe e versatilidade defensiva funcionando em conjunto. Seu perfil ? menos chamativo do que outros nessa faixa, mas a soma das partes o torna confi?vel para m?ltiplas fun??es dentro de uma estrutura ofensiva. Times experientes tendem a reconhecer esse tipo de jogador como pe?a de alto aproveitamento em contexto coletivo.",
+      "translationSummary": "Lendenborg é um dos prospectos mais prontos da classe. Promete impactar rapidamente onde quer que chegue, como um ala versátil, capaz de defender e atacar. Porém, sua idade avançada - terá 24 anos no íncio da temporada da NBA -, e o fato de não ser, para nós, um grande talento nem defensivo nem ofensivo, não nos passa o conforto que gostaríamos de ter em uma escolha de loteria, que é onde o consenso tem colocado seu nome. Bom jogador para o nível do college, mas nada animador pensando em desenvolvimento de médio e longo prazo em nível de NBA.",
       "notes": [
         "Eficiência de elite para função complementar: 64.6% TS e 60.2% eFG.",
         "Playmaking muito forte para forward: 3.2 APG e AST/TO 3.1.",
@@ -803,7 +803,7 @@ export const prospectDraftIntelligence = {
     "playerId": "12",
     "name": "Allen Graves",
     "position": "SF/PF",
-    "tier": "LOTTERY",
+    "tier": "FIRST_ROUND",
     "archetype": "BIG_WING",
     "projectedRole": "ROTATION_WING",
     "projection": {
@@ -918,7 +918,7 @@ export const prospectDraftIntelligence = {
     "playerId": "17",
     "name": "Tounde Yessoufou",
     "position": "SF",
-    "tier": "FRINGE_FIRST",
+    "tier": "FRINGE",
     "archetype": "DEFENSIVE_WING",
     "projectedRole": "ROTATION_WING",
     "risk": "HIGH",
@@ -957,7 +957,7 @@ export const prospectDraftIntelligence = {
       ],
       "swingSkill": "SELF_CREATION",
       "mainConcern": "SHOOTING_CONSISTENCY",
-      "translationSummary": "Yessoufou é um prospecto com volume ofensivo real, habilidade incomum na meia distância e instinto defensivo legítimo pelo número de roubos. As limitações centrais são o arremesso de três pontos — que precisa melhorar para que defesas na NBA o respeitem no perímetro — e o impacto defensivo coletivo, que não acompanha os números individuais de roubos. O perfil físico sem grande margem de envergadura também reduz o teto como defensor de múltiplas posições. O desenvolvimento do arremesso de longa distância será o fator que determinará se ele se torna jogador de rotação ou apenas um complemento pontual.",
+      "translationSummary": "Yessoufou é um prospecto de instintos defensivos legítimos. Extremamente agressivo no ponto de ataque, é dono de um motor fantástico que resulta em muitos roubos de bola e highlights defensivos. As limitações principais são o arremesso de três pontos, criação individual e jogo na meia quadra. Não se enganem com os números brutos, porque por mais que tenha tido um bom número de pontos por jogo em Baylor, seu jogo ofensivo ainda se baseia em cortes sem a bola, rebotes ofensivos e pontuar na quadra aberta. Chega na NBA como um defensor inveterado, e um operário ofensivo. O desenvolvimento de sua criação individual deve ser o fator que determinará se ele será um jogador de rotação, ou uma peça fundamental de uma equipe vencedora.",
       "notes": [
         "Tamanho e comprimento de wing para defesa versátil na NBA",
         "Arremessador ainda fraco de 3 (29.6%), mas com potencial off-ball",
@@ -977,7 +977,7 @@ export const prospectDraftIntelligence = {
     "playerId": "18",
     "name": "Cameron Carr",
     "position": "SG/SF",
-    "tier": "FIRST_ROUND",
+    "tier": "LOTTERY",
     "archetype": "THREE_AND_D_WING",
     "projectedRole": "STARTING_WING",
     "projection": {
@@ -1019,7 +1019,7 @@ export const prospectDraftIntelligence = {
       ],
       "swingSkill": "SPOT_UP_SHOOTING",
       "mainConcern": "SHOOTING_CONSISTENCY",
-      "translationSummary": "Carr é um guard atlético com perfil predominantemente off-ball, cujo valor está na movimentação sem a bola, no arremesso em catch-and-shoot e na finalização explosiva na bola parada. Registrou 41,7% em catch-and-shoot de três pontos na temporada — número que indica consistência real como ameaça de perímetro, não apenas volume. Defensivamente, contribui com contestações de weakside que o mantêm relevante nos dois lados da quadra.",
+      "translationSummary": "Carr é um guard atlético com perfil predominantemente off-ball, cujo valor está versatilidade que ele entrega em mixar: movimentação sem a bola, arremesso em catch-and-shoot, finalização explosiva, talento pra de acertar arremessos difíceis [shotmaking], e ainda ser capaz de criar por conta própria de forma secundária. Registrou 41,7% em catch-and-shoot de três pontos na temporada — número que indica consistência real como ameaça de perímetro, não apenas volume. Defensivamente, contribui com seu porte físico avantajado, fisicalidade e esforços, o que faz dele um prospecto relevante nos dois lados da quadra. Para nós, talvez ele não tenha uma curva de desenvolvimento tão sexy quanto outros armadores, mas é um dos guards, pontuadores e chutadores mais confiáveis da classe, com ótimas chances de ser um jogador fundamental a curto, médio e longo prazo onde quer que chegue na NBA.",
       "notes": [
         "Breakout season em Baylor — scorer versátil com tiro de 3 confiável (37.4%)",
         "Tamanho e atletismo para jogar 2/3 na NBA",
@@ -1039,7 +1039,7 @@ export const prospectDraftIntelligence = {
     "playerId": "16",
     "name": "Bennett Stirtz",
     "position": "PG/SG",
-    "tier": "FIRST_ROUND",
+    "tier": "FRINGE",
     "archetype": "SCORING_GUARD",
     "projectedRole": "ROTATION_GUARD",
     "projection": {
@@ -1077,13 +1077,13 @@ export const prospectDraftIntelligence = {
       ],
       "swingSkill": "SELF_CREATION",
       "mainConcern": "SHOOTING_CONSISTENCY",
-      "translationSummary": "Stirtz ? um armador tecnicamente s?lido, com tamanho posicional adequado, tomada de decis?o consistente e cria??o eficiente no pick-and-roll. O mecanismo de arremesso ? profissional na execu??o e confi?vel sob press?o ? um dos mais bem constru?dos da classe. Compensa a aus?ncia de atletismo explosivo com intelig?ncia, efici?ncia e uma mentalidade competitiva que facilita processos de desenvolvimento em ambientes exigentes.",
+      "translationSummary": "Stirtz é um armador dinâmico que consegue impactar o jogo em mais de uma área, tendo uma boa capacidade de envolver os companheiros e pontuar. Porém, seu jogo em Iowa é muito maximizado por um volume altíssimo, que na NBA não deve se reproduzir, e então, seu impacto também deve ser muito menor. Juntando isso, com sua idade avançada - 23 anos no começo da temporada da NBA -, temos Stirtz como um prospecto que já está bem próximo do seu teto, considerando um estilo de jogo que não deve se traduzir tão bem como o consenso aponta.",
       "notes": [
-        "Produ??o ofensiva alta: 19.8 PPG com 60.7% TS em carga grande.",
+        "Produção ofensiva alta: 19.8 PPG com 60.7% TS em carga grande.",
         "Criador eficiente no pick-and-roll: 4.4 APG e AST/TO 2.4.",
-        "Toque confi?vel: 84.8% FT e 56.5% eFG no perfil DraftBallr.",
+        "Toque confiável: 84.8% FT e 56.5% eFG",
         "Senior de 22.7 anos, com menor margem de upside puro.",
-        "Limita??es atl?ticas e envergadura estimada em 6'6\" podem pesar defensivamente."
+        "Limitações atléticas e envergadura estimada em 6'6\" podem pesar defensivamente."
       ]
     },
     "dataConfidence": {
@@ -1097,7 +1097,7 @@ export const prospectDraftIntelligence = {
     "playerId": "8",
     "name": "Jayden Quaintance",
     "position": "PF/C",
-    "tier": "FIRST_ROUND",
+    "tier": "LOTTERY",
     "archetype": "RIM_PROTECTOR",
     "projectedRole": "DEFENSIVE_SPECIALIST",
     "projection": {
@@ -1210,7 +1210,7 @@ export const prospectDraftIntelligence = {
     "playerId": "21",
     "name": "Malachi Moreno",
     "position": "PF/C",
-    "tier": "SECOND_ROUND",
+    "tier": "SLEEPER",
     "archetype": "ENERGY_BIG",
     "projectedRole": "ROTATION_BIG",
     "risk": "HIGH",
@@ -1322,7 +1322,7 @@ export const prospectDraftIntelligence = {
     "playerId": "24",
     "name": "Isaiah Evans",
     "position": "SG",
-    "tier": "FRINGE_FIRST",
+    "tier": "FRINGE",
     "archetype": "MOVEMENT_SHOOTER",
     "projectedRole": "ROTATION_GUARD",
     "projection": {
@@ -1379,7 +1379,7 @@ export const prospectDraftIntelligence = {
     "playerId": "26",
     "name": "Christian Anderson",
     "position": "PG",
-    "tier": "FRINGE_FIRST",
+    "tier": "LOTTERY",
     "archetype": "SCORING_GUARD",
     "projectedRole": "ROTATION_GUARD",
     "risk": "HIGH",
@@ -1418,7 +1418,7 @@ export const prospectDraftIntelligence = {
       ],
       "swingSkill": "SPOT_UP_SHOOTING",
       "mainConcern": "SHOOTING_CONSISTENCY",
-      "translationSummary": "Anderson é o prospecto com o perfil ofensivo mais completo desta série: eficiência excepcional, criação real para companheiros, arremesso de três com volume e autonomia, e trajetória de evolução clara entre as duas temporadas universitárias. As limitações estão no físico — envergadura e peso abaixo da média para a posição — e no impacto defensivo, que provavelmente o define como jogador de contribuição ofensiva prioritária na NBA. Se a eficiência se mantiver em alto nível, o teto como criador e arremessador é genuinamente elevado.",
+      "translationSummary": "Anderson é um dos prospectos de armadores com perfil ofensivo mais amplo desta classe: eficiência excepcional, criação real para companheiros [playmaking], criação individual excelente e em várias áreas da quadra, arremesso de três com volume/eficiência invejáveis, e uma trajetória de evolução clara entre as duas temporadas universitárias. As limitações estão no físico — altura e peso abaixo do ideal para a posição — e no impacto defensivo. Entretanto, analisando seu jogo em quadra, mesmo tendo 1.85m de altura [sem tênis], ele demonstra um atleticismo suficiente pra superar esses asteriscos. Sua tape mostra um ótimo controle corporal para infiltrar, absorver contato e finalizar com constância próximo ao aro. Se a eficiência se mantiver em bom nível, seu teto como criador individual/coletivo, e arremessador é genuinamente elevado. Um dos talentos mais subestimados do Draft.",
       "notes": [
         "Arremessador de elite (42.5% de 3 com 3.4 cestas por jogo)",
         "Salta de 10.6 para 18.9 PPG no segundo ano — explosão de produção",
@@ -1438,7 +1438,7 @@ export const prospectDraftIntelligence = {
     "playerId": "27",
     "name": "Koa Peat",
     "position": "PF",
-    "tier": "FIRST_ROUND",
+    "tier": "FRINGE",
     "archetype": "VERSATILE_FORWARD",
     "projectedRole": "ROTATION_BIG",
     "risk": "MODERATE",
@@ -1475,7 +1475,7 @@ export const prospectDraftIntelligence = {
       ],
       "swingSkill": "REBOUNDING",
       "mainConcern": "SHOOTING_CONSISTENCY",
-      "translationSummary": "Peat explodiu no início da temporada a ponto de levantar comparações com Cam Boozer, mas a exposição prolongada revelou uma dieta ofensiva quase exclusivamente dentro do arco aos 6'8\" — dependência de jumpers em fade no garrafão quando não finaliza direto no aro. A aposta em Peat é sobre intangibles e sensibilidade de jogo: ele acumula pontos dentro das brechas do ataque sem precisar ter a bola nas mãos e é um passador excepcional para seu perfil de jogador. O prospecto que emerge dessa avaliação é alguém que impacta mais do que os números indicam, mas que depende de desenvolvimento do arsenal ofensivo externo para desbloquear seu verdadeiro teto.",
+      "translationSummary": "Peat começou o processo - de forma inexplicável para nós -, como um candidato ao topo do Draft, mas a exposição prolongada revelou uma dieta de arremessos quase exclusivamente na área pintada, baseada em cortes e dependente muitas vezes de passes dos outros. A aposta em Peat é sobre seu QI, prontidão e físico de veterano: ele acumula pontos dentro das brechas do ataque sem precisar ter a bola nas mãos, e é um passador sólido para seu perfil de jogador. Mas o fato de pontuar em cortes pra cesta, sem precisar estar com a bola nas mãos, revela nesse caso, toda a dificuldade que ele possui criando pra si no jogo on-ball. Seu físico é certamente mais que pronto pra NBA, mas seu jogo mostra carências e brechas que na nossa avaliação, encurtam muito sua curva de desenvolvimento e teto como jogador. Dependerá de um sistema ofensivo muito peculiar, e disposto a comprar suas particularidades. Precisará de um repentino, surpreendente e improvável desenvolvimento do arsenal ofensivo individual para desbloquear um potencial que hoje é consideravelmente baixo, apesar do piso, e possível no curto prazo ser interessante.",
       "notes": [
         "Físico de \"Mack truck\" — usa força para dominar rebote e defesa de pós",
         "Finalizador explosivo no aro com atletismo para sua estatura (53.6% FG)",
@@ -1495,7 +1495,7 @@ export const prospectDraftIntelligence = {
     "playerId": "28",
     "name": "Brayden Burries",
     "position": "SG",
-    "tier": "FIRST_ROUND",
+    "tier": "LOTTERY",
     "archetype": "THREE_AND_D_WING",
     "projectedRole": "ROTATION_GUARD",
     "projection": {
@@ -1552,7 +1552,7 @@ export const prospectDraftIntelligence = {
     "playerId": "31",
     "name": "Joshua Jefferson",
     "position": "PF/C",
-    "tier": "FRINGE_FIRST",
+    "tier": "FRINGE",
     "archetype": "STRETCH_BIG",
     "projectedRole": "ROTATION_WING",
     "risk": "LOW",
@@ -1610,7 +1610,7 @@ export const prospectDraftIntelligence = {
     "playerId": "15",
     "name": "Chris Cenac Jr.",
     "position": "PF",
-    "tier": "FIRST_ROUND",
+    "tier": "FRINGE",
     "archetype": "VERSATILE_FORWARD",
     "projectedRole": "ROTATION_BIG",
     "projection": {
@@ -1645,7 +1645,7 @@ export const prospectDraftIntelligence = {
       ],
       "swingSkill": "REBOUNDING",
       "mainConcern": "SHOOTING_CONSISTENCY",
-      "translationSummary": "Cenac Jr. é um prospecto com base física diferenciada e eficiência real perto do aro. As limitações centrais estão na criação de jogo próprio, na frequência e no aproveitamento nos lances livres, e na consistência do arremesso de média e longa distância. O desenvolvimento dessas áreas, especialmente a autonomia ofensiva, será o fator determinante para definir se ele se consolida como jogador de rotação ou alcança um papel mais relevante na liga.",
+      "translationSummary": "Cenac Jr. é uma das grandes e mais arriscadas apostas desse Draft. Um big com medidas físicas impressionantes [2,08m de altura e 2,26m de envergadura], atleticismo claro e um teto animador. Porém, ainda carece de muito desenvolvimento, portanto não há como definir muito bem seu papel em quadra, especialmente no ataque, porque ele ainda faz poucas coisas chamativas pra entendermos o que ele é realmente. Se desenvolver sua criação individual e jogo de costas para cesta, poderá alcançar um nível além como jogador. Mas ele ainda tem muito mais 'se', em seu jogo, e pouquíssimos 'é' atualmente. Típico jogador que faz sentido apostar, a depender de quem esteja disponível, do fim de primeiro round em diante.",
       "notes": [
         "Forward versátil em sistema de defesa de alto nível de Houston",
         "Arremessador de 3 capaz (34.2%) com envergadura 7'2\"",
@@ -1720,7 +1720,7 @@ export const prospectDraftIntelligence = {
     "playerId": "30",
     "name": "Milan Momcilovic",
     "position": "PF",
-    "tier": "FIRST_ROUND",
+    "tier": "FRINGE",
     "archetype": "STRETCH_BIG",
     "projectedRole": "ROTATION_BIG",
     "risk": "MODERATE",
@@ -1775,7 +1775,7 @@ export const prospectDraftIntelligence = {
     "playerId": "32",
     "name": "Ebuka Okorie",
     "position": "SG/SF",
-    "tier": "SLEEPER",
+    "tier": "FRINGE",
     "archetype": "SCORING_GUARD",
     "projectedRole": "ROTATION_GUARD",
     "risk": "MODERATE",
@@ -1945,7 +1945,7 @@ export const prospectDraftIntelligence = {
     "playerId": "35",
     "name": "Henri Veesaar",
     "position": "PF/C",
-    "tier": "SLEEPER",
+    "tier": "FRINGE",
     "archetype": "RIM_PROTECTOR",
     "projectedRole": "ROTATION_BIG",
     "projection": {
@@ -1999,7 +1999,7 @@ export const prospectDraftIntelligence = {
     "playerId": "37",
     "name": "Dailyn Swain",
     "position": "SF/PF",
-    "tier": "SLEEPER",
+    "tier": "FIRST_ROUND",
     "archetype": "DEFENSIVE_WING",
     "projectedRole": "ROTATION_WING",
     "projection": {
@@ -2222,7 +2222,7 @@ export const prospectDraftIntelligence = {
     "playerId": "49",
     "name": "Morez Johnson Jr.",
     "position": "PF/C",
-    "tier": "SLEEPER",
+    "tier": "FIRST_ROUND",
     "archetype": "ENERGY_BIG",
     "projectedRole": "ROTATION_BIG",
     "projection": {
@@ -2638,13 +2638,13 @@ export const prospectDraftIntelligence = {
         "DEFENSIVE_CONSISTENCY"
       ],
       "mainConcern": "SHOOTING_CONSISTENCY",
-      "translationSummary": "Suigo e uma aposta internacional de tamanho extremo, com 7'3\" e producao profissional em Mega Basket. O pacote chama atencao pela combinacao de finalizacao, rebote e algum toque, mas a traducao depende de mobilidade defensiva, forca e paciencia de desenvolvimento.",
+      "translationSummary": "Suigo é uma aposta internacional de tamanho extremo, com 7'3 (2,20m), e experiência profissional vindo do Mega Basket. O seu jogo nos chama muita atenção pela combinação de finalização, rebote e algum toque refinado próximo ao aro. Também com certa leitura de jogo, capacidade de correr quadra com fluidez - mesmo com seu tamanho -, e chance de ser uma bela arma trabalhando em pick-and-roll. Mas a tradução e evolução do seu jogo também dependerá do ganho de força e paciência para uma transição de saída do jogo europeu. É um legítimo projeto, mas para nós, um dos ótimos projetos de desenvolvimento dessa classe.",
       "notes": [
-        "Medidas raras: 7'3\" com presenca real no garrafao.",
+        "Medidas raras: 7'3\" com presenca real no garrafão.",
         "Produz 8.1 PPG e 5.3 RPG em Mega Basket aos 19 anos.",
-        "Mostra toque de lance livre e flashes de espacamento para o tamanho.",
-        "Mobilidade e velocidade defensiva ainda precisam ser testadas em nivel NBA.",
-        "Arremesso de tres existe, mas ainda nao e confiavel."
+        "Mostra toque de lance livre e flashes de espaçamento para o tamanho.",
+        "Mobilidade e velocidade defensiva ainda precisam ser testadas em nível NBA.",
+        "Arremesso de três existe, mas ainda não é confiável."
       ]
     },
     "dataConfidence": {
@@ -2758,6 +2758,7 @@ export function mergeProspectWithManualIntelligence<T extends Record<string, any
 
   const override = getProspectDraftIntelligence(String(prospect?.id || prospect?.slug || prospect?.name || ''));
   const traits = resolvedIntelligence.manualTraits;
+  const manualScouting = resolvedIntelligence.scouting;
   return {
     ...prospect,
     position: resolvedIntelligence.position ?? prospect.position,
@@ -2774,10 +2775,11 @@ export function mergeProspectWithManualIntelligence<T extends Record<string, any
     },
     scouting: {
       ...(prospect.scouting || {}),
+      translationSummary: manualScouting?.translationSummary ?? prospect.scouting?.translationSummary,
       archetype: resolvedIntelligence.archetype ?? prospect.scouting?.archetype,
       projectedRole: resolvedIntelligence.projectedRole ?? prospect.scouting?.projectedRole,
       risk: resolvedIntelligence.risk ?? prospect.scouting?.risk,
-      manualTags: resolvedIntelligence.scouting ?? prospect.scouting?.manualTags,
+      manualTags: manualScouting ?? prospect.scouting?.manualTags,
     },
   };
 }

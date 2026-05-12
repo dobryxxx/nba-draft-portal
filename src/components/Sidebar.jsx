@@ -7,6 +7,7 @@ const NAV_SECTIONS = [
     items: [
       { id: 'prospects', fallbackLabel: 'Prospect Database', icon: Database, hint: 'Base completa de jogadores' },
       { id: 'bigboard', fallbackLabel: 'Big Board', icon: BarChart3, hint: 'Board customizavel' },
+      { id: 'statsroom', fallbackLabel: 'Stats Room', icon: Activity, hint: 'Tabela completa de stats' },
     ],
   },
   {

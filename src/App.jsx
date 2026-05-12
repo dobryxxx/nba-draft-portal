@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Menu, Moon, PanelLeftClose, Sun } from 'lucide-react'
 import Sidebar from './components/Sidebar'
@@ -8,16 +8,40 @@ import BigBoard from './views/BigBoard'
 import MockDraft from './views/MockDraft'
 import DataQualityReview from './views/DataQualityReview'
 import PlayerProfile from './views/PlayerProfile'
+import StatsRoom from './views/StatsRoom'
 import { prospects as baseProspects } from './data/prospects'
 
 const VIEWS = {
   prospects: { id: 'prospects', label: 'Prospect DB', icon: 'DB' },
   bigboard: { id: 'bigboard', label: 'Big Board', icon: 'BB' },
+  statsroom: { id: 'statsroom', label: 'Stats Room', icon: 'SR' },
   mockdraft: { id: 'mockdraft', label: 'Mock Draft Sim', icon: 'MD' },
   dataquality: { id: 'dataquality', label: 'Data Quality', icon: 'DQ' },
 }
 
-const STORAGE_KEY = 'nba-draft-2026-custom-board-v2'
+const VIEW_PATHS = {
+  home: '/',
+  prospects: '/prospects',
+  bigboard: '/big-board',
+  statsroom: '/stats-room',
+  mockdraft: '/mock-draft',
+}
+
+const getViewFromPath = () => {
+  if (typeof window === 'undefined') return 'home'
+  const path = window.location.pathname.replace(/\/+$/, '') || '/'
+  const match = Object.entries(VIEW_PATHS).find(([, viewPath]) => viewPath === path)
+  return match?.[0] || 'home'
+}
+
+const STORAGE_KEY = 'nba-draft-2026-custom-board-v5'
+const BOARD_SCHEMA_KEY = 'nba-draft-2026-board-schema-version'
+const BOARD_SCHEMA_VERSION = 'tiers-cornerstone-v1'
+const LEGACY_BOARD_KEYS = [
+  'nba-draft-2026-custom-board-v2',
+  'nba-draft-2026-custom-board-v3',
+  'nba-draft-2026-custom-board-v4',
+]
 const THEME_KEY = 'nba-draft-2026-theme'
 
 const withRanks = (items) =>
@@ -28,7 +52,7 @@ const baseById = new Map(baseProspects.map(prospect => [prospect.id, prospect]))
 const normalizeTier = (tier) => ({
   ALL_STAR: 'LOTTERY',
   STARTER: 'MID_1ST',
-  FRINGE: 'MID_1ST',
+  FRINGE_FIRST: 'FRINGE',
   ROLE_PLAYER: 'SLEEPER',
 }[tier] || tier)
 
@@ -46,6 +70,14 @@ const loadProspects = () => {
   if (typeof window === 'undefined') return baseProspects
 
   try {
+    const savedSchema = window.localStorage.getItem(BOARD_SCHEMA_KEY)
+    if (savedSchema !== BOARD_SCHEMA_VERSION) {
+      LEGACY_BOARD_KEYS.forEach(key => window.localStorage.removeItem(key))
+      window.localStorage.removeItem(STORAGE_KEY)
+      window.localStorage.setItem(BOARD_SCHEMA_KEY, BOARD_SCHEMA_VERSION)
+      return baseProspects
+    }
+
     const saved = JSON.parse(window.localStorage.getItem(STORAGE_KEY))
     if (!saved?.order || !saved?.tiers) return baseProspects
 
@@ -66,11 +98,15 @@ const loadProspects = () => {
 }
 
 export default function App() {
-  const [activeView, setActiveView] = useState('home')
+  const [activeView, setActiveView] = useState(getViewFromPath)
   const [time, setTime] = useState(() => new Date().toLocaleTimeString('pt-BR'))
-  const [prospects, setProspects] = useState(loadProspects)
+  const [prospects, setProspects] = useState(() => withRanks(baseProspects.map(hydrateProspect)))
+  const [mockDraftProspects, setMockDraftProspects] = useState(loadProspects)
   const [selectedPlayerId, setSelectedPlayerId] = useState(null)
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
+    if (typeof window === 'undefined') return true
+    return window.innerWidth >= 1024
+  })
   const contentRef = useRef(null)
   const [theme, setTheme] = useState(() => {
     if (typeof window === 'undefined') return 'light'
@@ -83,7 +119,30 @@ export default function App() {
   }, [])
 
   useEffect(() => {
+    const handlePopState = () => {
+      setSelectedPlayerId(null)
+      setActiveView(getViewFromPath())
+    }
+
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [])
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024) {
+        setIsSidebarOpen(false)
+      }
+    }
+
+    handleResize()
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  useEffect(() => {
     setProspects(current => withRanks(current.map(hydrateProspect)))
+    setMockDraftProspects(current => withRanks(current.map(hydrateProspect)))
   }, [])
 
   useEffect(() => {
@@ -111,7 +170,7 @@ export default function App() {
   }, [selectedPlayerId, activeView])
 
   useEffect(() => {
-    const tiers = prospects.reduce((acc, prospect) => {
+    const tiers = mockDraftProspects.reduce((acc, prospect) => {
       acc[prospect.id] = prospect.tier
       return acc
     }, {})
@@ -119,11 +178,11 @@ export default function App() {
     window.localStorage.setItem(
       STORAGE_KEY,
       JSON.stringify({
-        order: prospects.map(p => p.id),
+        order: mockDraftProspects.map(p => p.id),
         tiers,
       })
     )
-  }, [prospects])
+  }, [mockDraftProspects])
 
   const moveProspect = (activeId, overId) => {
     if (!overId || activeId === overId) return
@@ -140,6 +199,37 @@ export default function App() {
     })
   }
 
+  const applyBoardOrder = useCallback((orderedIds = []) => {
+    setMockDraftProspects(current => {
+      const byId = new Map(current.map(prospect => [prospect.id, prospect]))
+      const used = new Set()
+      const ordered = orderedIds
+        .map(id => byId.get(id))
+        .filter(Boolean)
+        .filter(prospect => {
+          if (used.has(prospect.id)) return false
+          used.add(prospect.id)
+          return true
+        })
+
+      if (!ordered.length) return current
+
+      const remaining = current.filter(prospect => !used.has(prospect.id))
+      const next = [...ordered, ...remaining]
+      const sameOrder = next.length === current.length && next.every((prospect, index) => prospect.id === current[index]?.id)
+
+      return sameOrder ? current : withRanks(next)
+    })
+  }, [])
+
+  const updateMockDraftTier = useCallback((prospectId, tier) => {
+    setMockDraftProspects(current =>
+      current.map(prospect =>
+        prospect.id === prospectId ? { ...prospect, tier } : prospect
+      )
+    )
+  }, [])
+
   const updateTier = (prospectId, tier) => {
     setProspects(current =>
       current.map(prospect =>
@@ -147,6 +237,15 @@ export default function App() {
       )
     )
   }
+
+  const navigateTo = useCallback((view) => {
+    setSelectedPlayerId(null)
+    setActiveView(view)
+    const nextPath = VIEW_PATHS[view] || '/'
+    if (typeof window !== 'undefined' && window.location.pathname !== nextPath) {
+      window.history.pushState({}, '', nextPath)
+    }
+  }, [])
 
   const selectedPlayer = prospects.find(p => p.id === selectedPlayerId)
   const pageKey = selectedPlayer ? `player-${selectedPlayer.id}` : activeView
@@ -186,17 +285,19 @@ export default function App() {
 
     switch (activeView) {
       case 'home':
-        return <Home onNavigate={setActiveView} prospectCount={prospects.length} prospects={prospects} />
+        return <Home onNavigate={navigateTo} prospectCount={prospects.length} prospects={prospects} />
       case 'prospects':
-        return <ProspectList prospects={prospects} onReorder={moveProspect} onTierChange={updateTier} onSelectProspect={setSelectedPlayerId} onOpenBoard={() => setActiveView('bigboard')} time={time} isDark={isDark} onToggleTheme={() => setTheme(isDark ? 'light' : 'dark')} />
+        return <ProspectList prospects={prospects} onReorder={moveProspect} onTierChange={updateTier} onSelectProspect={setSelectedPlayerId} onOpenBoard={() => navigateTo('bigboard')} time={time} isDark={isDark} onToggleTheme={() => setTheme(isDark ? 'light' : 'dark')} />
       case 'bigboard':
-        return <BigBoard prospects={prospects} onReorder={moveProspect} onTierChange={updateTier} onSelectProspect={setSelectedPlayerId} />
+        return <BigBoard prospects={mockDraftProspects} onReorder={moveProspect} onBoardOrderChange={applyBoardOrder} onTierChange={updateMockDraftTier} onSelectProspect={setSelectedPlayerId} />
+      case 'statsroom':
+        return <StatsRoom prospects={prospects} onSelectProspect={setSelectedPlayerId} />
       case 'mockdraft':
-        return <MockDraft />
+        return <MockDraft prospects={mockDraftProspects} />
       case 'dataquality':
         return <DataQualityReview prospects={prospects} />
       default:
-        return <ProspectList prospects={prospects} onReorder={moveProspect} onTierChange={updateTier} onSelectProspect={setSelectedPlayerId} onOpenBoard={() => setActiveView('bigboard')} time={time} isDark={isDark} onToggleTheme={() => setTheme(isDark ? 'light' : 'dark')} />
+        return <ProspectList prospects={prospects} onReorder={moveProspect} onTierChange={updateTier} onSelectProspect={setSelectedPlayerId} onOpenBoard={() => navigateTo('bigboard')} time={time} isDark={isDark} onToggleTheme={() => setTheme(isDark ? 'light' : 'dark')} />
     }
   }
 
@@ -210,10 +311,19 @@ export default function App() {
         isOpen={isSidebarOpen}
         onToggle={() => setIsSidebarOpen(open => !open)}
         onNavigate={(view) => {
-          setActiveView(view)
+          navigateTo(view)
           if (window.innerWidth < 1024) setIsSidebarOpen(false)
         }}
       />
+
+      {isSidebarOpen && (
+        <button
+          type="button"
+          className="mobile-sidebar-scrim fixed inset-0 z-[60] bg-slate-950/35 backdrop-blur-sm lg:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+          aria-label="Fechar menu lateral"
+        />
+      )}
 
       {!isSidebarOpen && (
         <motion.button

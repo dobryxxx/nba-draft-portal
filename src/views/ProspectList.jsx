@@ -18,13 +18,14 @@ import { TIER_CONFIG } from '../data/prospects'
 import ProspectCard from '../components/ProspectCard'
 import { Eye, LayoutGrid, List as ListIcon, Moon, Plus, Search, SlidersHorizontal, Sun } from 'lucide-react'
 import { getPlayerCutoutImage } from '../utils/playerImages'
+import { formatPercent, formatStat, getNormalizedStat, normalizeProspectStats } from '../utils/prospectStats'
 
 const SORT_OPTIONS = [
   { value: 'rank', label: 'Rank' },
   { value: 'ppg', label: 'PPG' },
   { value: 'rpg', label: 'RPG' },
   { value: 'apg', label: 'APG' },
-  { value: 'per', label: 'PER' },
+  { value: 'collegeRts', label: 'College RTS' },
   { value: 'ts', label: 'TS%' },
 ]
 
@@ -32,11 +33,11 @@ const LIST_STATS = [
   { key: 'ppg', label: 'PPG', min: 8, max: 26 },
   { key: 'rpg', label: 'RPG', min: 1, max: 12 },
   { key: 'apg', label: 'APG', min: 0, max: 8 },
-  { key: 'per', label: 'PER', min: 10, max: 32 },
+  { key: 'collegeRts', label: 'C-RTS', min: -12, max: 14 },
   { key: 'ts', label: 'TS%', min: 48, max: 70 },
 ]
 
-const formatNumber = value => (typeof value === 'number' ? value.toFixed(1) : '-')
+const formatNumber = value => formatStat(value)
 const normalize = (value, min, max) => {
   if (typeof value !== 'number') return 0
   return Math.min(100, Math.max(0, ((value - min) / (max - min)) * 100))
@@ -44,13 +45,15 @@ const normalize = (value, min, max) => {
 
 
 const TIER_STYLES = {
-  ELITE: { label: 'ELITE', color: '#7c5ccf', bg: '#eee9fb', text: '#5d46a3', glow: 'rgba(124,92,207,.24)', wash: 'rgba(124,92,207,.13)', accent: 'rgba(183,166,232,.26)' },
-  LOTTERY: { label: 'LOTTERY', color: '#5aaed6', bg: '#edf7fd', text: '#3f7fa0', glow: 'rgba(90,174,214,.22)', wash: 'rgba(139,191,232,.16)', accent: 'rgba(213,239,252,.46)' },
-  MID_1ST: { label: 'MID 1ST', color: '#c9a941', bg: '#fbf4d2', text: '#8a7023', glow: 'rgba(201,169,65,.24)', wash: 'rgba(246,222,126,.18)', accent: 'rgba(255,246,198,.45)' },
-  SLEEPER: { label: 'SLEEPER', color: '#e6a06f', bg: '#faeee5', text: '#a8663b', glow: 'rgba(230,160,111,.22)', wash: 'rgba(242,191,160,.18)', accent: 'rgba(250,238,229,.54)' },
+  CORNERSTONE: { label: 'CORNERSTONE', color: '#7c3aed', bg: '#eee9fb', text: '#5b21b6', glow: 'rgba(124,58,237,.26)', wash: 'rgba(124,58,237,.13)', accent: 'rgba(196,181,253,.28)' },
+  ELITE: { label: 'ELITE', color: '#d4af37', bg: '#fff4c2', text: '#8a6a00', glow: 'rgba(212,175,55,.25)', wash: 'rgba(212,175,55,.14)', accent: 'rgba(255,231,128,.34)' },
+  LOTTERY: { label: 'LOTERIA', color: '#10b981', bg: '#dff8ed', text: '#047857', glow: 'rgba(16,185,129,.22)', wash: 'rgba(16,185,129,.13)', accent: 'rgba(167,243,208,.34)' },
+  MID_1ST: { label: 'MID 1ST', color: '#3b82f6', bg: '#e0efff', text: '#1d4ed8', glow: 'rgba(59,130,246,.22)', wash: 'rgba(59,130,246,.13)', accent: 'rgba(191,219,254,.38)' },
+  FRINGE: { label: 'FRINGE', color: '#f97316', bg: '#ffedd5', text: '#c2410c', glow: 'rgba(249,115,22,.23)', wash: 'rgba(249,115,22,.14)', accent: 'rgba(254,215,170,.36)' },
+  SLEEPER: { label: 'SLEEPER', color: '#8b5e34', bg: '#f4eadc', text: '#5f3f20', glow: 'rgba(139,94,52,.22)', wash: 'rgba(139,94,52,.14)', accent: 'rgba(222,184,135,.34)' },
 }
 
-const normalizeTierKey = tier => ({ ALL_STAR: 'LOTTERY', STARTER: 'MID_1ST', FRINGE: 'MID_1ST', ROLE_PLAYER: 'SLEEPER' }[tier] || tier)
+const normalizeTierKey = tier => ({ ALL_STAR: 'LOTTERY', STARTER: 'MID_1ST', FRINGE_FIRST: 'FRINGE', ROLE_PLAYER: 'SLEEPER' }[tier] || tier)
 
 const LIST_CORE_STATS = [
   { key: 'ppg', label: 'PPG' },
@@ -61,7 +64,7 @@ const LIST_CORE_STATS = [
 
 const LIST_ADVANCED_STATS = [
   { key: 'ts', label: 'TS%', min: 45, max: 70, suffix: '%' },
-  { key: 'per', label: 'PER', min: 10, max: 35 },
+  { key: 'collegeRts', label: 'C-RTS', min: -12, max: 14 },
   { key: 'usg', label: 'USG%', min: 12, max: 38, suffix: '%' },
 ]
 
@@ -205,22 +208,24 @@ function PhysicalMini({ label, value, color }) {
 }
 
 function CoreMini({ label, value, suffix = '' }) {
+  const shown = suffix === '%' ? formatPercent(value) : formatStat(value)
   return (
     <div className="rounded-2xl bg-white/36 px-2.5 py-2 text-center backdrop-blur-sm">
       <div className="font-mono text-[8px] font-bold uppercase tracking-[.16em] text-lo">{label}</div>
       <div className="mt-0.5 font-mono text-[13px] font-black tabular-nums text-slate-800">
-        {formatNumber(value)}{typeof value === 'number' ? suffix : ''}
+        {shown}
       </div>
     </div>
   )
 }
 
 function AdvancedMini({ stat, value, color }) {
+  const shown = stat.suffix === '%' ? formatPercent(value) : formatStat(value)
   return (
     <div className="min-w-0">
       <div className="mb-1 flex items-center justify-between gap-2">
         <span className="font-mono text-[8px] font-bold uppercase tracking-[.14em] text-lo">{stat.label}</span>
-        <span className="font-mono text-[10px] font-black text-slate-800">{typeof value === 'number' ? formatNumber(value) + (stat.suffix || '') : '-'}</span>
+        <span className="font-mono text-[10px] font-black text-slate-800">{shown}</span>
       </div>
       <MiniBar value={value} min={stat.min} max={stat.max} color={color} />
     </div>
@@ -231,8 +236,8 @@ function SortableListRow({ prospect, index, introActive, onTierChange, onSelectP
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: prospect.id })
   const tier = getTierStyles(prospect.tier)
   const tierKey = normalizeTierKey(prospect.tier)
-  const stats = prospect.stats || {}
-  const rowBackground = prospect.tier === 'ELITE'
+  const stats = normalizeProspectStats(prospect)
+  const rowBackground = prospect.tier === 'CORNERSTONE'
     ? 'radial-gradient(circle at 3% 18%, rgba(124,92,207,.16), transparent 22%), radial-gradient(circle at 72% 120%, rgba(183,166,232,.18), transparent 28%), linear-gradient(145deg, rgba(255,255,255,.58), ' + tier.bg + 'cf)'
     : 'radial-gradient(circle at 4% 16%, ' + tier.wash + ', transparent 24%), linear-gradient(145deg, rgba(255,255,255,.58), ' + tier.bg + 'bb)'
 
@@ -360,8 +365,8 @@ export default function ProspectList({ prospects, onReorder, onTierChange, onSel
       })
       .sort((a, b) => {
         if (sortBy === 'rank') return a.rank - b.rank
-        if (['ppg', 'rpg', 'apg', 'per', 'ts'].includes(sortBy)) {
-          return (b.stats?.[sortBy] ?? 0) - (a.stats?.[sortBy] ?? 0)
+        if (['ppg', 'rpg', 'apg', 'collegeRts', 'ts'].includes(sortBy)) {
+          return (getNormalizedStat(b, sortBy) ?? 0) - (getNormalizedStat(a, sortBy) ?? 0)
         }
         return 0
       })

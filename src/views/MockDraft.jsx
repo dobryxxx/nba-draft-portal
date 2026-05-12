@@ -1,10 +1,11 @@
 ﻿import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { toPng } from 'html-to-image'
-import { prospects, PICKS_15_30 } from '../data/prospects'
+import { prospects, prospects as baseProspects, PICKS_15_30 } from '../data/prospects'
 import { getPlayerCutoutImage } from '../utils/playerImages'
+import { formatPercent as formatProspectPercent, formatStat as formatProspectStat, normalizeProspectStats } from '../utils/prospectStats'
 import TeamLogoGlass from '../components/TeamLogoGlass'
-import { getTeamLogo } from '../utils/teamAssets.js'
+import { getTeamColors, getTeamLogo } from '../utils/teamAssets.js'
 import { getDraftFitStatus } from '../components/DraftFitBreakdown'
 import { AttributeBar, GlassPanel, InfoLine, MovementBadge, PremiumButton, Skeleton, StatusPill } from '../components/mockDraft/MockDraftPrimitives.jsx'
 import { getTeamProfile } from '../data/teamProfiles.js'
@@ -16,7 +17,6 @@ import { analyzeRosterContext } from '../utils/rosterContextAlgorithm.ts'
 import {
   FILTERS,
   PHASE,
-  TOTAL_PICKS,
   TRADE_MAP_LABELS,
   applyTradeRules,
   buildProjectedLotteryPicks,
@@ -44,7 +44,62 @@ import {
   sortProspectsForMode,
   teamById,
 } from '../utils/mockDraftLogic.js'
-export default function MockDraft() {
+
+const DRAFT_MODES = {
+  lottery: { id: 'lottery', label: 'Loteria', shortLabel: '14 picks', totalPicks: 14, description: 'Simule apenas as 14 escolhas da loteria.' },
+  first: { id: 'first', label: 'Primeiro round', shortLabel: '30 picks', totalPicks: 30, description: 'Fluxo atual com todo o primeiro round.' },
+  full: { id: 'full', label: 'Completo', shortLabel: '60 picks', totalPicks: 60, description: 'Mock completo com primeiro e segundo round.' },
+}
+
+const SECOND_ROUND_PICKS = [
+  [31, 'New York Knicks', 'NYK', 'Washington Wizards', 'WAS'],
+  [32, 'Memphis Grizzlies', 'MEM', 'Indiana Pacers', 'IND'],
+  [33, 'Brooklyn Nets', 'BKN', null, null],
+  [34, 'Sacramento Kings', 'SAC', null, null],
+  [35, 'San Antonio Spurs', 'SAS', 'Utah Jazz', 'UTA'],
+  [36, 'LA Clippers', 'LAC', 'Memphis Grizzlies', 'MEM'],
+  [37, 'Oklahoma City Thunder', 'OKC', 'Dallas Mavericks', 'DAL'],
+  [38, 'Chicago Bulls', 'CHI', 'New Orleans Pelicans', 'NOP'],
+  [39, 'Houston Rockets', 'HOU', 'Chicago Bulls', 'CHI'],
+  [40, 'Boston Celtics', 'BOS', 'Milwaukee Bucks', 'MIL'],
+  [41, 'Miami Heat', 'MIA', 'Golden State Warriors', 'GSW'],
+  [42, 'San Antonio Spurs', 'SAS', 'Portland Trail Blazers', 'POR'],
+  [43, 'Brooklyn Nets', 'BKN', 'LA Clippers', 'LAC'],
+  [44, 'San Antonio Spurs', 'SAS', 'Miami Heat', 'MIA'],
+  [45, 'Sacramento Kings', 'SAC', 'Charlotte Hornets', 'CHA'],
+  [46, 'Orlando Magic', 'ORL', null, null],
+  [47, 'Phoenix Suns', 'PHX', 'Philadelphia 76ers', 'PHI'],
+  [48, 'Dallas Mavericks', 'DAL', 'Phoenix Suns', 'PHX'],
+  [49, 'Denver Nuggets', 'DEN', 'Atlanta Hawks', 'ATL'],
+  [50, 'Toronto Raptors', 'TOR', null, null],
+  [51, 'Washington Wizards', 'WAS', 'Minnesota Timberwolves', 'MIN'],
+  [52, 'LA Clippers', 'LAC', 'Cleveland Cavaliers', 'CLE'],
+  [53, 'Houston Rockets', 'HOU', null, null],
+  [54, 'Golden State Warriors', 'GSW', 'Los Angeles Lakers', 'LAL'],
+  [55, 'New York Knicks', 'NYK', null, null],
+  [56, 'Chicago Bulls', 'CHI', 'Denver Nuggets', 'DEN'],
+  [57, 'Atlanta Hawks', 'ATL', 'Boston Celtics', 'BOS'],
+  [58, 'New Orleans Pelicans', 'NOP', 'Detroit Pistons', 'DET'],
+  [59, 'Minnesota Timberwolves', 'MIN', 'San Antonio Spurs', 'SAS'],
+  [60, 'Washington Wizards', 'WAS', 'Oklahoma City Thunder', 'OKC'],
+].map(([pick, ownerName, ownerAbbr, viaName, viaAbbr]) => ({
+  pick,
+  isLottery: false,
+  isTop4: false,
+  isSecondRound: true,
+  originalTeam: null,
+  ownerAbbr,
+  ownerName,
+  ownerColor: getTeamColors(ownerAbbr).primary,
+  viaAbbr,
+  viaName,
+}))
+
+export default function MockDraft({ prospects: orderedProspects }) {
+  const prospects = useMemo(
+    () => orderedProspects?.length ? orderedProspects : baseProspects,
+    [orderedProspects],
+  )
   const [phase, setPhase] = useState(PHASE.IDLE)
   const [lotteryOrder, setLotteryOrder] = useState([])
   const [resolvedPicks, setResolved] = useState([])
@@ -59,14 +114,24 @@ export default function MockDraft() {
   const [pickOverlay, setPickOverlay] = useState(null)
   const [pickNotes, setPickNotes] = useState({})
   const [selectedLotteryPick, setSelectedLotteryPick] = useState(1)
+  const [draftMode, setDraftMode] = useState('first')
   const lotteryTimersRef = useRef([])
+  const pickTimersRef = useRef([])
+  const draftModeConfig = DRAFT_MODES[draftMode] || DRAFT_MODES.first
+  const draftPickLimit = draftModeConfig.totalPicks
 
   const clearLotteryTimers = useCallback(() => {
     lotteryTimersRef.current.forEach(timer => clearTimeout(timer))
     lotteryTimersRef.current = []
   }, [])
 
+  const clearPickTimers = useCallback(() => {
+    pickTimersRef.current.forEach(timer => clearTimeout(timer))
+    pickTimersRef.current = []
+  }, [])
+
   useEffect(() => clearLotteryTimers, [clearLotteryTimers])
+  useEffect(() => clearPickTimers, [clearPickTimers])
 
   const buildAllPicks = useCallback((lotteryResult) => {
     const lottery14 = lotteryResult.map((teamId, idx) => {
@@ -76,11 +141,12 @@ export default function MockDraft() {
       return { pick: finalPos, isLottery: true, isTop4: finalPos <= 4, originalTeam: team, ...trade }
     })
     const fixed16 = PICKS_15_30.map(p => ({ pick: p.pick, isLottery: false, isTop4: false, originalTeam: null, ownerAbbr: p.ownerAbbr, ownerName: p.owner, ownerColor: p.color, viaAbbr: p.viaAbbr, viaName: p.via }))
-    return [...lottery14, ...fixed16]
-  }, [])
+    return [...lottery14, ...fixed16, ...SECOND_ROUND_PICKS].slice(0, draftPickLimit)
+  }, [draftPickLimit])
 
   const runSimulation = useCallback(() => {
     clearLotteryTimers()
+    clearPickTimers()
     setRevealed([])
     setPicks({})
     setPickNotes({})
@@ -98,7 +164,7 @@ export default function MockDraft() {
     setResolved(all)
     setRevealed(Array.from({ length: 14 }, (_, i) => i))
     setPhase(PHASE.DONE)
-  }, [buildAllPicks, clearLotteryTimers])
+  }, [buildAllPicks, clearLotteryTimers, clearPickTimers])
 
   const startDrafting = () => {
     setPhase(PHASE.DRAFTING)
@@ -111,25 +177,27 @@ export default function MockDraft() {
   }
 
   const assignPick = (pickIdx, prospectId) => {
+    if (pickIdx == null || isSelecting) return
+    clearPickTimers()
     const picked = prospects.find(p => p.id === prospectId)
     const selectedPick = resolvedPicks[pickIdx]
     const nextPick = resolvedPicks[pickIdx + 1]
     const next = pickIdx + 1
-    const displayMs = next < TOTAL_PICKS ? 1720 : 1820
+    const displayMs = next < draftPickLimit ? 1720 : 1820
 
     setIsSelecting(true)
     setPreviewId(null)
     setPickOverlay({ stage: 'confirm', pickNo: pickIdx + 1, team: selectedPick, nextTeam: nextPick, prospect: picked })
     setToast(null)
 
-    setTimeout(() => {
+    const overlayTimer = setTimeout(() => {
       setPickOverlay(null)
     }, displayMs)
 
-    setTimeout(() => {
+    const commitTimer = setTimeout(() => {
       setPicks(prev => ({ ...prev, [pickIdx]: prospectId }))
       setIsSelecting(false)
-      if (next < TOTAL_PICKS) {
+      if (next < draftPickLimit) {
         setSelecting(next)
         setPreviewId(null)
       } else {
@@ -138,10 +206,52 @@ export default function MockDraft() {
         setDraftFinished(true)
       }
     }, displayMs + 260)
+
+    pickTimersRef.current = [overlayTimer, commitTimer]
   }
+
+  const undoLastPick = useCallback(() => {
+    if (phase !== PHASE.DRAFTING && !draftFinished) return
+
+    if (isSelecting && pickOverlay?.pickNo) {
+      clearPickTimers()
+      setPickOverlay(null)
+      setIsSelecting(false)
+      setSelecting(Math.max(0, pickOverlay.pickNo - 1))
+      setDraftFinished(false)
+      return
+    }
+
+    const pickedIndexes = Object.keys(picks)
+      .map(Number)
+      .filter(Number.isFinite)
+      .sort((a, b) => b - a)
+    const lastIndex = pickedIndexes[0]
+    if (lastIndex == null) return
+
+    const restoredProspectId = picks[lastIndex]
+    clearPickTimers()
+    setPicks(prev => {
+      const next = { ...prev }
+      delete next[lastIndex]
+      return next
+    })
+    setPickNotes(prev => {
+      const next = { ...prev }
+      delete next[lastIndex]
+      return next
+    })
+    setSelecting(lastIndex)
+    setPreviewId(restoredProspectId || null)
+    setPickOverlay(null)
+    setIsSelecting(false)
+    setDraftFinished(false)
+    setPhase(PHASE.DRAFTING)
+  }, [clearPickTimers, draftFinished, isSelecting, phase, pickOverlay, picks])
 
   const resetAll = () => {
     clearLotteryTimers()
+    clearPickTimers()
     setPhase(PHASE.IDLE)
     setLotteryOrder([])
     setResolved([])
@@ -189,6 +299,7 @@ export default function MockDraft() {
   }, [available, previewId])
   const activeScene = getSceneFromState(phase, draftFinished)
   const backdropTeam = pickOverlay?.team || currentOwner || resolvedPicks[0] || null
+  const canUndoPick = (phase === PHASE.DRAFTING || draftFinished) && (isSelecting || Object.keys(picks).length > 0)
 
   return (
     <div className="mock-draft-root relative min-h-full overflow-hidden bg-[#edeae4]">
@@ -201,10 +312,10 @@ export default function MockDraft() {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {phase !== PHASE.IDLE && <PremiumButton onClick={resetAll} color="#a09891">Reset</PremiumButton>}
-            {phase === PHASE.IDLE && <PremiumButton onClick={runSimulation} color="#7c5ccf" strong>Carregar ordem oficial</PremiumButton>}
+            {canUndoPick && <PremiumButton onClick={undoLastPick} color="#d88754">Voltar escolha</PremiumButton>}
             {phase === PHASE.DONE && <PremiumButton onClick={startDrafting} color="#4f9577" strong>Seguir para o Draft</PremiumButton>}
             {draftFinished && <StatusPill>Draft finalizado</StatusPill>}
-            {!draftFinished && phase === PHASE.DRAFTING && <StatusPill>{selecting !== null ? 'Pick ' + (selecting + 1) + ' / ' + TOTAL_PICKS : 'Draft concluido'}</StatusPill>}
+            {!draftFinished && phase === PHASE.DRAFTING && <StatusPill>{selecting !== null ? 'Pick ' + (selecting + 1) + ' / ' + draftPickLimit : 'Draft concluido'}</StatusPill>}
             {!draftFinished && phase === PHASE.DRAFTING && <StatusPill>Decision Window</StatusPill>}
           </div>
         </div>
@@ -214,10 +325,10 @@ export default function MockDraft() {
         <AnimatePresence mode="wait">
           <motion.div key={activeScene} {...motionPresets.page}>
             {draftFinished ? (
-              <DraftResultsScreen picks={picks} resolvedPicks={resolvedPicks} pickNotes={pickNotes} onReset={resetAll} onHome={resetAll} />
+              <DraftResultsScreen picks={picks} resolvedPicks={resolvedPicks} pickNotes={pickNotes} onReset={resetAll} onHome={resetAll} draftMode={draftMode} />
             ) : (
               <>
-                {phase === PHASE.IDLE && <LotteryPanel onRun={runSimulation} selectedPick={selectedLotteryPick} onSelectPick={setSelectedLotteryPick} />}
+                {phase === PHASE.IDLE && <LotteryPanel onRun={runSimulation} selectedPick={selectedLotteryPick} onSelectPick={setSelectedLotteryPick} draftMode={draftMode} onDraftModeChange={setDraftMode} />}
                 {phase === PHASE.ANIMATING && <LotteryReveal picks={resolvedPicks} revealed={revealed} topProspects={prospects.slice(0, 5)} />}
                 {phase === PHASE.DONE && <LotteryResultSummary picks={resolvedPicks} revealed={revealed} onDraft={startDrafting} />}
                 {phase === PHASE.DRAFTING && (
@@ -249,8 +360,7 @@ export default function MockDraft() {
   )
 }
 
-function LotteryPanel({ onRun, selectedPick = 1, onSelectPick = () => {} }) {
-  const topProspects = prospects.slice(0, 5)
+function LotteryPanel({ onRun, selectedPick = 1, onSelectPick = () => {}, draftMode = 'first', onDraftModeChange = () => {} }) {
   const projectedOrder = buildProjectedLotteryPicks()
   const selected = projectedOrder.find(p => p.pick === selectedPick) || projectedOrder[0]
   return (
@@ -265,8 +375,7 @@ function LotteryPanel({ onRun, selectedPick = 1, onSelectPick = () => {} }) {
               <h2 className="mt-3 max-w-3xl font-display text-4xl font-black 2xl:text-5xl 3xl:text-6xl leading-[.94] tracking-tight text-slate-800">A loteria está definida. Agora começa a War Room.</h2>
               <p className="mt-5 max-w-2xl text-base font-semibold leading-7 text-muted">A ordem oficial das 14 primeiras escolhas já está travada, incluindo Clippers via Pacers, Hawks via Pelicans e Thunder via Clippers.</p>
               <div className="mt-8 flex flex-wrap items-center gap-3">
-                <PremiumButton onClick={onRun} color="#7c5ccf" strong>Carregar ordem oficial</PremiumButton>
-                <span className="rounded-full border border-white/35 bg-white/30 px-4 py-2 font-mono text-[9px] font-black uppercase tracking-[.16em] text-muted backdrop-blur-md">14 picks definidas</span>
+                <span className="rounded-full border border-white/35 bg-white/30 px-4 py-2 font-mono text-[9px] font-black uppercase tracking-[.16em] text-muted backdrop-blur-md">{DRAFT_MODES[draftMode]?.totalPicks || 30} picks definidas</span>
               </div>
             </motion.div>
             <motion.div variants={motionPresets.cardStagger} initial="hidden" animate="show" className="mt-9 grid grid-cols-4 gap-3 sm:grid-cols-7">
@@ -296,7 +405,7 @@ function LotteryPanel({ onRun, selectedPick = 1, onSelectPick = () => {} }) {
           <div className="flex w-full items-stretch"><ProjectedPickHero pick={selected} onRun={onRun} /></div>
         </div>
       </GlassPanel>
-      <SideIntel prospects={topProspects} activePick={selectedPick} />
+      <DraftModePanel mode={draftMode} onChange={onDraftModeChange} />
     </section>
   )
 }
@@ -304,7 +413,7 @@ function ProjectedPickHero({ pick, onRun }) {
   return (
     <motion.div whileHover={{ y: -3, scale: 1.01 }} className="relative flex min-h-[340px] w-full flex-col justify-center overflow-hidden rounded-[32px] border border-white/45 bg-white/30 p-5 text-center backdrop-blur-xl" style={{ boxShadow: '0 18px 48px ' + (pick?.ownerColor || '#7c5ccf') + '20' }}>
       <span className="pointer-events-none absolute -right-10 -top-12 h-32 w-32 rounded-full blur-3xl" style={{ background: pick?.ownerColor || '#7c5ccf', opacity: .18 }} />
-      <div className="relative font-mono text-[8px] font-black uppercase tracking-[.24em] text-lo">Official #1 Pick</div>
+      <div className="relative font-mono text-[8px] font-black uppercase tracking-[.24em] text-lo"></div>
       <div className="relative mt-3 flex justify-center"><TeamLogoGlass teamId={pick?.ownerAbbr} size="xl" showGlow /></div>
       <div className="relative mt-3 font-display text-3xl font-black 3xl:text-4xl leading-none" style={{ color: pick?.ownerColor || '#7c5ccf' }}>#{pick?.pick}</div>
       <div className="relative mx-auto mt-2 flex h-16 max-w-[300px] items-center justify-center text-balance font-display text-2xl font-black leading-tight text-slate-800">{pick?.ownerName}</div>
@@ -312,7 +421,7 @@ function ProjectedPickHero({ pick, onRun }) {
         <span className="rounded-full border border-white/35 bg-white/35 px-3 py-1 font-mono text-[8px] font-black uppercase tracking-[.14em] text-muted">{getTeamTimelineLabel(pick?.ownerAbbr)}</span>
         <span className="rounded-full border border-white/35 bg-white/35 px-3 py-1 font-mono text-[8px] font-black uppercase tracking-[.14em] text-muted">{getTeamPriorityLabel(pick?.ownerAbbr)}</span>
       </div>
-      <button type="button" onClick={onRun} className="relative mt-4 rounded-full px-5 py-2.5 font-mono text-[9px] font-black uppercase tracking-[.18em] text-white transition-transform hover:-translate-y-0.5 active:scale-95" style={{ background: pick?.ownerColor || '#7c5ccf', boxShadow: '0 14px 30px ' + (pick?.ownerColor || '#7c5ccf') + '30' }}>Ver ordem oficial</button>
+      <button type="button" onClick={onRun} className="relative mt-6 rounded-full px-8 py-4 font-mono text-[10px] font-black uppercase tracking-[.2em] text-white transition-transform hover:-translate-y-0.5 active:scale-95 3xl:px-10 3xl:py-5 3xl:text-[11px]" style={{ background: pick?.ownerColor || '#7c5ccf', boxShadow: '0 18px 40px ' + (pick?.ownerColor || '#7c5ccf') + '36' }}>Iniciar o Draft</button>
     </motion.div>
   )
 }
@@ -548,7 +657,7 @@ function getWarRoomBestFit(owner, prospect, resolvedPicks) {
 function getWarRoomRecommendations(owner, available, resolvedPicks, limit = 3) {
   if (!owner?.ownerAbbr || !available?.length) return []
   const pickNo = Number(owner.pick || 30)
-  const tierValue = player => ({ ELITE: 100, LOTTERY: 86, ALL_STAR: 82, MID_1ST: 68, STARTER: 64, FRINGE: 56, SLEEPER: 42 }[player?.tier] || 50)
+    const tierValue = player => ({ CORNERSTONE: 100, ELITE: 94, LOTTERY: 84, ALL_STAR: 82, MID_1ST: 68, STARTER: 64, FRINGE: 56, SLEEPER: 42 }[player?.tier] || 50)
   const boardValue = player => {
     const rank = Number(player?.rank || 60)
     const rankScore = Math.max(0, 100 - Math.max(0, rank - pickNo) * (pickNo <= 4 ? 13 : pickNo <= 10 ? 8 : 4))
@@ -567,8 +676,8 @@ function getWarRoomRecommendations(owner, available, resolvedPicks, limit = 3) {
     })
   const realistic = rows.filter(item => {
     if (!item.fit.isRealistic) return false
-    if (pickNo <= 4) return item.player.rank <= 8 || ['ELITE', 'LOTTERY', 'ALL_STAR'].includes(item.player.tier)
-    if (pickNo <= 10) return item.player.rank <= 16 || ['ELITE', 'LOTTERY', 'ALL_STAR'].includes(item.player.tier)
+    if (pickNo <= 4) return item.player.rank <= 8 || ['CORNERSTONE', 'ELITE', 'LOTTERY', 'ALL_STAR'].includes(item.player.tier)
+    if (pickNo <= 10) return item.player.rank <= 16 || ['CORNERSTONE', 'ELITE', 'LOTTERY', 'ALL_STAR'].includes(item.player.tier)
     return true
   })
   return (realistic.length >= limit ? realistic : rows).slice(0, limit)
@@ -610,6 +719,54 @@ function getWarRoomDecisionRecommendations(owner, available, limit = 3) {
   } catch {
     return getFallbackRecommendations(owner, available, limit)
   }
+}
+
+function DraftModePanel({ mode, onChange }) {
+  return (
+    <GlassPanel className="relative flex min-h-[500px] flex-col justify-center overflow-hidden p-5 3xl:min-h-[620px] 3xl:p-6">
+      <span className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-violet-200/35 blur-3xl dark:bg-violet-400/10" />
+      <span className="pointer-events-none absolute -bottom-16 left-4 h-44 w-44 rounded-full bg-cyan-100/50 blur-3xl dark:bg-cyan-400/10" />
+      <div className="relative">
+        <div className="font-mono text-[9px] font-black uppercase tracking-[.28em] text-[#7c5ccf]">Escopo da simulacao</div>
+        <h3 className="mt-3 font-display text-3xl font-black leading-[.95] tracking-tight text-slate-800 dark:text-white 3xl:text-4xl">Escolha o tamanho do seu Mock</h3>
+        <p className="mt-3 text-sm font-semibold leading-6 text-muted">Defina se a War Room vai simular só a loteria, o primeiro round ou o draft completo com segundo round.</p>
+        <div className="mt-5">
+          <DraftModeSelector mode={mode} onChange={onChange} vertical />
+        </div>
+      </div>
+    </GlassPanel>
+  )
+}
+
+function DraftModeSelector({ mode, onChange, vertical = false }) {
+  return (
+    <div className={vertical ? 'grid gap-2 rounded-[26px] border border-white/45 bg-white/28 p-2 shadow-[inset_1px_1px_0_rgba(255,255,255,.65)] backdrop-blur-xl dark:border-white/10 dark:bg-white/8' : 'flex rounded-full border border-white/45 bg-white/38 p-1 shadow-[inset_1px_1px_0_rgba(255,255,255,.65)] backdrop-blur-xl dark:border-white/10 dark:bg-white/8'}>
+      {Object.values(DRAFT_MODES).map(item => (
+        <button
+          key={item.id}
+          type="button"
+          onClick={() => onChange(item.id)}
+          title={item.description}
+          className={(mode === item.id ? 'bg-white/82 text-slate-900 shadow-[0_12px_26px_rgba(15,23,42,.10)] ring-1 ring-white/70 dark:bg-white/16 dark:text-white dark:ring-white/10 ' : 'text-muted hover:bg-white/35 hover:text-slate-700 dark:hover:bg-white/10 dark:hover:text-slate-200 ') + (vertical ? 'flex w-full items-center justify-between gap-3 rounded-[20px] px-4 py-3 text-left transition-all' : 'rounded-full px-3 py-2 transition-all')}
+        >
+          {vertical ? (
+            <>
+              <span>
+                <span className="block font-mono text-[9px] font-black uppercase tracking-[.16em]">{item.label}</span>
+                <span className="mt-1 block text-xs font-semibold leading-5 normal-case tracking-normal text-muted">{item.description}</span>
+              </span>
+              <span className="shrink-0 rounded-full border border-white/45 bg-white/35 px-3 py-1.5 font-mono text-[8px] font-black uppercase tracking-[.12em] text-lo dark:border-white/10 dark:bg-white/10">{item.totalPicks} picks</span>
+            </>
+          ) : (
+            <span className="font-mono text-[8px] font-black uppercase tracking-[.14em]">
+              <span className="hidden sm:inline">{item.label}</span>
+              <span className="sm:hidden">{item.shortLabel}</span>
+            </span>
+          )}
+        </button>
+      ))}
+    </div>
+  )
 }
 
 function getDecisionBoardWindow(available, pickNo, limit = 3) {
@@ -703,8 +860,8 @@ function ProspectSelectionScreen({ currentOwner, selecting, available, rawAvaila
     return new Map(ranked.map(item => [item.player.id, item.decision]))
   }, [currentOwner, available])
   const madePicks = useMemo(
-    () => getDraftRows(picks, resolvedPicks).filter(row => row.prospect),
-    [picks, resolvedPicks],
+    () => getDraftRows(picks, resolvedPicks, pickNotes, resolvedPicks.length).filter(row => row.prospect),
+    [pickNotes, picks, resolvedPicks],
   )
   const nextPicks = useMemo(
     () => resolvedPicks.slice(selecting + 1, selecting + 9),
@@ -736,6 +893,7 @@ function ProspectSelectionScreen({ currentOwner, selecting, available, rawAvaila
               selectedProspect={selectedProspect}
               selectedDecision={selectedDecision}
               recommendations={recommendations}
+              madePicks={madePicks}
               selecting={selecting}
               picks={picks}
               resolvedPicks={resolvedPicks}
@@ -786,7 +944,7 @@ function DraftProgressRail({ picks, selections, activePick = 1 }) {
         <span className="rounded-full border border-white/35 bg-white/32 px-3 py-1.5 font-mono text-[8px] font-black uppercase tracking-[.15em] text-muted">Pick #{activePick}</span>
       </div>
       <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:thin]">
-        {picks.slice(0, TOTAL_PICKS).map((pick, index) => {
+        {picks.map((pick, index) => {
           const no = index + 1
           const active = no === activePick
           const done = Boolean(selections[index])
@@ -1403,11 +1561,15 @@ function DecisionChip({ label, value, color }) {
   return <div className="rounded-[18px] border border-white/30 bg-white/20 px-3 py-2 backdrop-blur-md"><div className="font-mono text-[8px] font-black uppercase tracking-[.18em] text-lo">{label}</div><div className="mt-1 truncate text-xs font-black text-slate-800" style={{ color }}>{value || '-'}</div></div>
 }
 
-function TeamCommandCenter({ owner, rosterContext, recommendations = [], nextPicks = [], onPreview }) {
+function TeamCommandCenter({ owner, rosterContext, recommendations = [], nextPicks = [], madePicks = [], onPreview }) {
   const needs = getTeamNeedChips(owner?.ownerAbbr)
   const ctx = getTeamDecisionContext(owner)
   const glow = owner?.ownerColor || '#7c5ccf'
   const strategy = ctx?.strategy || getTeamPriorityLabel(owner?.ownerAbbr) || getTeamTimelineLabel(owner?.ownerAbbr)
+  const previousTeamPicks = useMemo(
+    () => madePicks.filter(row => row.pick?.ownerAbbr === owner?.ownerAbbr),
+    [madePicks, owner?.ownerAbbr],
+  )
 
   return (
     <GlassPanel className="mock-team-clock relative flex h-full min-h-0 flex-col overflow-hidden p-3" style={{ background: owner?.ownerColor ? 'radial-gradient(circle at 50% 0%, ' + owner.ownerColor + '20, transparent 42%), rgba(255,255,255,.52)' : undefined }}>
@@ -1436,10 +1598,32 @@ function TeamCommandCenter({ owner, rosterContext, recommendations = [], nextPic
         </div>
       </div>
 
+      <TeamPreviousPicksCompact rows={previousTeamPicks} color={glow} />
       <RosterShelves rosterContext={rosterContext} teamId={owner?.ownerAbbr} accent={glow} />
       <MinimalBestFits recommendations={recommendations} onPreview={onPreview} />
       <NextPicksStrip picks={nextPicks} />
     </GlassPanel>
+  )
+}
+
+function TeamPreviousPicksCompact({ rows = [], color }) {
+  if (!rows.length) return null
+  return (
+    <div className="mt-2 shrink-0 rounded-[20px] border border-white/45 bg-white/24 px-3 py-2 backdrop-blur-md dark:border-white/10 dark:bg-white/5">
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <div className="font-mono text-[8px] font-black uppercase tracking-[.18em] text-lo">Escolhas anteriores do time</div>
+        <span className="rounded-full bg-white/35 px-2.5 py-1 font-mono text-[7px] font-black uppercase tracking-[.13em] text-muted dark:bg-white/10">{rows.length}</span>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {rows.map(row => (
+          <div key={row.pickNo} className="flex min-w-0 items-center gap-2 rounded-full border border-white/35 bg-white/38 px-2.5 py-1.5 dark:border-white/10 dark:bg-white/8">
+            <span className="font-numeric text-[12px] font-extrabold leading-none tabular-nums" style={{ color }}>#{row.pickNo}</span>
+            <span className="max-w-[150px] truncate text-[11px] font-black text-slate-700 dark:text-slate-100">{row.prospect?.name}</span>
+            <span className="font-mono text-[7px] font-black uppercase tracking-[.12em] text-muted">{row.prospect?.position}</span>
+          </div>
+        ))}
+      </div>
+    </div>
   )
 }
 
@@ -1459,13 +1643,14 @@ function getMinimalFitReason(item) {
 }
 
 function formatStat(value, suffix = '') {
+  if (suffix === '%') return formatProspectPercent(value)
   const number = Number(value)
-  if (!Number.isFinite(number)) return '-'
-  return `${number.toFixed(number % 1 ? 1 : 0)}${suffix}`
+  if (!Number.isFinite(number)) return '—'
+  return number % 1 ? formatProspectStat(number) : String(number)
 }
 
 function getBasicFitStats(player) {
-  const stats = player?.stats || {}
+  const stats = normalizeProspectStats(player)
   return [
     ['PPG', formatStat(stats.ppg)],
     ['RPG', formatStat(stats.rpg)],
@@ -1517,8 +1702,9 @@ function MinimalBestFits({ recommendations = [], onPreview }) {
 }
 
 function getManualRosterShelfRows(teamId) {
-  if (!hasManualRosterOverride(teamId)) return null
-  const manual = normalizeManualRosterOverride(getManualRosterOverride(teamId))
+  const override = getManualRosterOverride(teamId)
+  if (!override) return null
+  const manual = normalizeManualRosterOverride(override)
   if (!manual) return null
   return [
     ['Guards', manual.guards],
@@ -1586,6 +1772,10 @@ function getRosterPlayerStatusMeta(status, accent) {
 function RosterShelves({ rosterContext, teamId, accent }) {
   const rows = getRosterShelfRows(rosterContext, teamId)
   const manualActive = hasManualRosterOverride(teamId)
+  const maxColumnCount = Math.max(0, ...rows.map(([, players]) => players?.length || 0))
+  const rosterHeight = manualActive
+    ? `clamp(${Math.max(300, Math.min(340, 230 + maxColumnCount * 16))}px, 38vh, 430px)`
+    : 'clamp(280px,35vh,390px)'
   const coreNames = new Set((rosterContext?.corePlayers || []).map(p => p.name))
   const contextByLabel = {
     Guards: 'Need: criação secundária e defesa no ponto de ataque',
@@ -1594,7 +1784,7 @@ function RosterShelves({ rosterContext, teamId, accent }) {
   }
   if (!rosterContext && !manualActive) return null
   return (
-    <div className="relative mt-2 flex h-[clamp(280px,35vh,390px)] shrink-0 flex-col overflow-visible rounded-[24px] border border-white/50 bg-white/28 p-3 backdrop-blur-md dark:border-white/10 dark:bg-white/5">
+    <div className="relative mt-2 flex shrink-0 flex-col overflow-visible rounded-[24px] border border-white/50 bg-white/28 p-3 backdrop-blur-md dark:border-white/10 dark:bg-white/5" style={{ height: rosterHeight }}>
       <div className="mb-2 flex shrink-0 flex-wrap items-center justify-between gap-2">
         <div className="font-mono text-[9px] font-black uppercase tracking-[.22em] text-lo">Roster Shelves</div>
         <span className="rounded-full bg-white/40 px-3 py-1 font-mono text-[8px] font-black uppercase tracking-[.14em] text-muted dark:bg-white/10">{manualActive ? 'manual' : `${rosterContext?.rotationPlayers?.length || 0} rotation`}</span>
@@ -2108,8 +2298,8 @@ function PickConfirmationToast({ toast }) {
   </motion.div>}</AnimatePresence>
 }
 
-function getDraftRows(picks, resolvedPicks, pickNotes = {}) {
-  return resolvedPicks.slice(0, TOTAL_PICKS).map((pick, idx) => {
+function getDraftRows(picks, resolvedPicks, pickNotes = {}, limit = resolvedPicks.length) {
+  return resolvedPicks.slice(0, limit).map((pick, idx) => {
     const prospect = prospects.find(p => p.id === picks[idx]) || null
     return { pickNo: idx + 1, pick, prospect, note: String(pickNotes[idx] || '').trim() }
   })
@@ -2181,33 +2371,45 @@ function groupDraftByTeam(rows) {
   return Array.from(map.values()).sort((a, b) => a.rows[0].pickNo - b.rows[0].pickNo)
 }
 
-function DraftResultsScreen({ picks, resolvedPicks, pickNotes = {}, onReset, onHome }) {
-  const rows = getDraftRows(picks, resolvedPicks, pickNotes)
+function DraftResultsScreen({ picks, resolvedPicks, pickNotes = {}, onReset, onHome, draftMode = 'first' }) {
+  const modeConfig = DRAFT_MODES[draftMode] || DRAFT_MODES.first
+  const rows = getDraftRows(picks, resolvedPicks, pickNotes, modeConfig.totalPicks)
+  const firstRoundRows = rows.filter(row => row.pickNo <= 30)
+  const secondRoundRows = rows.filter(row => row.pickNo > 30)
   const first = rows[0]
   const firstTier = getTierStyles(first?.prospect?.tier)
   const insights = getDraftInsights(rows)
-  const shareRef = useRef(null)
+  const firstShareRef = useRef(null)
+  const secondShareRef = useRef(null)
   const [exporting, setExporting] = useState(false)
 
+  const exportNode = async (node, fileName) => {
+    const dataUrl = await toPng(node, {
+      cacheBust: true,
+      pixelRatio: 2,
+      width: 1080,
+      height: 1350,
+      canvasWidth: 1080,
+      canvasHeight: 1350,
+      backgroundColor: document.documentElement.classList.contains('theme-dark') ? '#101722' : '#edeae4',
+    })
+    const link = document.createElement('a')
+    link.download = fileName
+    link.href = dataUrl
+    link.click()
+  }
+
   const exportImage = async () => {
-    if (!shareRef.current || exporting) return
+    if (!firstShareRef.current || exporting) return
     setExporting(true)
     await new Promise(resolve => window.requestAnimationFrame(() => window.requestAnimationFrame(resolve)))
     try {
       if (document.fonts?.ready) await document.fonts.ready
-      const dataUrl = await toPng(shareRef.current, {
-        cacheBust: true,
-        pixelRatio: 2,
-        width: 1080,
-        height: 1350,
-        canvasWidth: 1080,
-        canvasHeight: 1350,
-        backgroundColor: document.documentElement.classList.contains('theme-dark') ? '#101722' : '#edeae4',
-      })
-      const link = document.createElement('a')
-      link.download = 'nba-draft-2026-mock-draft.png'
-      link.href = dataUrl
-      link.click()
+      await exportNode(firstShareRef.current, draftMode === 'lottery' ? 'nba-draft-2026-mock-draft-lottery.png' : 'nba-draft-2026-mock-draft-round-1.png')
+      if (draftMode === 'full' && secondShareRef.current) {
+        await new Promise(resolve => setTimeout(resolve, 220))
+        await exportNode(secondShareRef.current, 'nba-draft-2026-mock-draft-round-2.png')
+      }
     } finally {
       setExporting(false)
     }
@@ -2216,7 +2418,7 @@ function DraftResultsScreen({ picks, resolvedPicks, pickNotes = {}, onReset, onH
   return (
     <motion.section initial={{ opacity: 0, y: 22 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .55, ease: 'easeOut' }} className="mx-auto max-w-[1480px] space-y-5 3xl:max-w-7xl 3xl:space-y-6">
       <GlassPanel className="mock-results-hero relative overflow-hidden p-5 text-center 3xl:p-8" style={{ background: 'radial-gradient(circle at 50% 0%, rgba(124,92,207,.18), transparent 36%), linear-gradient(145deg, rgba(255,255,255,.66), rgba(238,233,251,.52))' }}>
-        <div className="absolute left-8 top-8 rounded-full bg-white/45 px-4 py-2 font-mono text-[9px] font-black uppercase tracking-[.2em] text-muted">Draft Results</div>
+        <div className="absolute left-8 top-8 rounded-full bg-white/45 px-4 py-2 font-mono text-[9px] font-black uppercase tracking-[.2em] text-muted">{modeConfig.label}</div>
         <div className="font-mono text-[10px] font-black uppercase tracking-[.28em]" style={{ color: firstTier.color }}>Pick #1</div>
         <h1 className="mt-3 font-display text-4xl font-black 3xl:text-5xl tracking-tight text-slate-800 3xl:text-7xl">Draft Finalizado</h1>
         <div className="mx-auto mt-6 max-w-2xl rounded-[30px] 3xl:max-w-3xl 3xl:rounded-[34px] border border-white/65 bg-white/45 p-5 3xl:p-6 shadow-[0_18px_50px_rgb(0,0,0,0.05)] backdrop-blur-xl">
@@ -2235,7 +2437,7 @@ function DraftResultsScreen({ picks, resolvedPicks, pickNotes = {}, onReset, onH
       </motion.div>
 
       <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .2, duration: .45 }}>
-        <DraftPickList rows={rows} />
+        <DraftPickList rows={rows} splitRounds={draftMode === 'full'} />
       </motion.div>
 
       <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .28, duration: .45 }}>
@@ -2244,22 +2446,28 @@ function DraftResultsScreen({ picks, resolvedPicks, pickNotes = {}, onReset, onH
           <div className="grid gap-3 sm:grid-cols-3">
             <PremiumButton onClick={onReset} color="#7c5ccf" strong>Simular novamente</PremiumButton>
             <PremiumButton onClick={onHome} color="#5aaed6">Voltar ao inicio</PremiumButton>
-            <button type="button" onClick={exportImage} className="rounded-full bg-white/44 px-6 py-3 font-mono text-[10px] font-black uppercase tracking-[.18em] text-muted transition-transform hover:-translate-y-0.5">{exporting ? 'Gerando imagem...' : 'Exportar imagem'}</button>
+            <button type="button" onClick={exportImage} className="rounded-full bg-white/44 px-6 py-3 font-mono text-[10px] font-black uppercase tracking-[.18em] text-muted transition-transform hover:-translate-y-0.5">{exporting ? 'Gerando imagem...' : draftMode === 'full' ? 'Exportar 2 imagens' : 'Exportar imagem'}</button>
           </div>
         </GlassPanel>
       </motion.div>
       <div className="mock-draft-share-capture" aria-hidden="true">
-        <div ref={shareRef}>
-          <MockDraftShareCard rows={rows} insights={insights} />
+        <div ref={firstShareRef}>
+          <MockDraftShareCard rows={firstRoundRows} insights={insights} roundLabel={draftMode === 'lottery' ? 'Lottery' : 'Round 01'} subtitle={draftMode === 'lottery' ? 'Lottery Draft / 14 picks / War Room Board' : '1st Round Draft / 30 picks / War Room Board'} />
         </div>
+        {draftMode === 'full' && (
+          <div ref={secondShareRef}>
+            <MockDraftShareCard rows={secondRoundRows} insights={insights} roundLabel="Round 02" subtitle="2nd Round Draft / picks 31-60 / War Room Board" />
+          </div>
+        )}
       </div>
     </motion.section>
   )
 }
 
-function MockDraftShareCard({ rows, insights }) {
+function MockDraftShareCard({ rows, insights, roundLabel = 'Round 01', subtitle = '1st Round Draft / 30 picks / War Room Board' }) {
   const top = rows.slice(0, 30)
-  const columns = [top.slice(0, 10), top.slice(10, 20), top.slice(20, 30)]
+  const columnSize = top.length <= 14 ? 7 : 10
+  const columns = [top.slice(0, columnSize), top.slice(columnSize, columnSize * 2), top.slice(columnSize * 2, columnSize * 3)].filter(column => column.length)
   const date = new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date())
   const headlinePick = top.find(row => row.prospect) || top[0]
   return (
@@ -2268,11 +2476,11 @@ function MockDraftShareCard({ rows, insights }) {
         <div>
           <div className="mock-share-kicker">Rookies Brasil / Mock Draft Simulator</div>
           <h1>2026 NBA Mock Draft</h1>
-          <p>1st Round Draft / 30 picks / War Room Board</p>
+          <p>{subtitle}</p>
         </div>
         <div className="mock-share-badge">
           <span>Round</span>
-          <strong>01</strong>
+          <strong>{roundLabel.replace(/[^0-9]/g, '') || '14'}</strong>
           <small>{date}</small>
         </div>
       </header>
@@ -2327,45 +2535,64 @@ function MockDraftShareCard({ rows, insights }) {
   )
 }
 
-function DraftPickList({ rows }) {
+function DraftPickList({ rows, splitRounds = false }) {
   const teamGrades = groupDraftByTeam(rows.filter(row => row.prospect)).reduce((acc, team) => {
     acc[team.key] = getTeamDraftGrade(team.rows)
     return acc
   }, {})
 
+  const sections = splitRounds
+    ? [
+        { title: 'Primeiro round', badge: '30 picks', rows: rows.filter(row => row.pickNo <= 30) },
+        { title: 'Segundo round', badge: 'picks 31-60', rows: rows.filter(row => row.pickNo > 30) },
+      ].filter(section => section.rows.length)
+    : [{ title: 'Lista completa do draft', badge: rows.length + ' picks', rows }]
+
   return (
     <GlassPanel className="mock-draft-results p-5">
       <div className="mb-4 flex items-center justify-between gap-3">
         <div>
-          <div className="font-mono text-[9px] font-black uppercase tracking-[.24em] text-lo">Lista completa do draft</div>
+          <div className="font-mono text-[9px] font-black uppercase tracking-[.24em] text-lo">{splitRounds ? 'Resultado por rounds' : 'Lista completa do draft'}</div>
           <div className="mt-1 text-sm font-semibold text-muted">Cada escolha ja traz a nota simples do time baseada no valor do board.</div>
         </div>
-        <div className="rounded-full bg-white/45 px-3 py-1 font-mono text-[8px] font-black uppercase tracking-[.14em] text-muted">30 picks</div>
+        <div className="rounded-full bg-white/45 px-3 py-1 font-mono text-[8px] font-black uppercase tracking-[.14em] text-muted">{rows.length} picks</div>
       </div>
-      <div className="space-y-2">
-        {rows.map(row => {
-          const tier = getTierStyles(row.prospect?.tier)
-          const band = row.pickNo <= 5 ? 'rgba(124,92,207,.12)' : row.pickNo <= 14 ? 'rgba(90,174,214,.10)' : 'rgba(255,255,255,.28)'
-          const grade = teamGrades[row.pick.ownerAbbr || row.pick.ownerName] || 'C'
-          return (
-            <motion.div key={row.pickNo} whileHover={{ x: 4, scale: 1.006 }} className="mock-draft-result-row rounded-[24px] border border-white/45 px-4 py-3 transition-all" style={{ '--pick-color': row.pickNo <= 5 ? '#7c5ccf' : '#4f86ad', background: band }}>
-              <div className="grid items-center gap-3 md:grid-cols-[64px_48px_1fr_1.15fr_92px_76px]">
-                <div className="font-numeric text-2xl font-extrabold tracking-tight" style={{ color: row.pickNo <= 5 ? '#7c5ccf' : '#4f86ad' }}>#{row.pickNo}</div>
-                <TeamLogoGlass teamId={row.pick.ownerAbbr} size="md" showGlow={row.pickNo <= 14} />
-                <div className="min-w-0"><div className="truncate text-sm font-black text-slate-800">{row.pick.ownerName}</div><div className="mt-0.5 font-mono text-[8px] font-bold uppercase tracking-[.16em] text-muted">{row.pick.viaAbbr ? 'via ' + row.pick.viaAbbr : row.pick.originalTeam?.record || 'First round'}</div></div>
-                <div className="min-w-0"><div className="truncate text-sm font-black text-slate-800">{row.prospect?.name || 'Sem escolha'}</div><div className="mt-0.5 font-mono text-[8px] font-bold uppercase tracking-[.16em] text-muted">{row.prospect?.position || '-'} / rank #{row.prospect?.rank || '-'}</div></div>
-                <div className="justify-self-start rounded-full px-3 py-1 font-mono text-[8px] font-black uppercase tracking-[.13em] md:justify-self-end" style={{ background: tier.bg, color: tier.text }}>{tier.label}</div>
-                <div className="justify-self-start rounded-full bg-white/50 px-3 py-1 font-mono text-[8px] font-black uppercase tracking-[.13em] text-slate-700 md:justify-self-end">Nota {grade}</div>
+      <div className="space-y-5">
+        {sections.map(section => (
+          <section key={section.title}>
+            {splitRounds && (
+              <div className="mb-3 flex items-center justify-between rounded-[22px] border border-white/35 bg-white/26 px-4 py-3 backdrop-blur-md">
+                <div className="font-display text-2xl font-black text-slate-800">{section.title}</div>
+                <span className="rounded-full bg-white/45 px-3 py-1 font-mono text-[8px] font-black uppercase tracking-[.14em] text-muted">{section.badge}</span>
               </div>
-              {row.note && (
-                <div className="mt-3 rounded-[18px] border border-white/40 bg-white/38 px-4 py-3 text-xs font-semibold leading-5 text-slate-600 shadow-[inset_1px_1px_0_rgba(255,255,255,.48)]">
-                  <span className="mr-2 font-mono text-[8px] font-black uppercase tracking-[.16em] text-lo">Sua nota</span>
-                  {row.note}
-                </div>
-              )}
-            </motion.div>
-          )
-        })}
+            )}
+            <div className="space-y-2">
+              {section.rows.map(row => {
+                const tier = getTierStyles(row.prospect?.tier)
+                const band = row.pickNo <= 5 ? 'rgba(124,92,207,.12)' : row.pickNo <= 14 ? 'rgba(90,174,214,.10)' : row.pickNo <= 30 ? 'rgba(255,255,255,.28)' : 'rgba(255,255,255,.22)'
+                const grade = teamGrades[row.pick.ownerAbbr || row.pick.ownerName] || 'C'
+                return (
+                  <motion.div key={row.pickNo} whileHover={{ x: 4, scale: 1.006 }} className="mock-draft-result-row rounded-[24px] border border-white/45 px-4 py-3 transition-all" style={{ '--pick-color': row.pickNo <= 5 ? '#7c5ccf' : row.pickNo <= 14 ? '#4f86ad' : row.pickNo <= 30 ? '#8b5e34' : '#64748b', background: band }}>
+                    <div className="grid items-center gap-3 md:grid-cols-[64px_48px_1fr_1.15fr_92px_76px]">
+                      <div className="font-numeric text-2xl font-extrabold tracking-tight" style={{ color: row.pickNo <= 5 ? '#7c5ccf' : row.pickNo <= 14 ? '#4f86ad' : row.pickNo <= 30 ? '#8b5e34' : '#64748b' }}>#{row.pickNo}</div>
+                      <TeamLogoGlass teamId={row.pick.ownerAbbr} size="md" showGlow={row.pickNo <= 14} />
+                      <div className="min-w-0"><div className="truncate text-sm font-black text-slate-800">{row.pick.ownerName}</div><div className="mt-0.5 font-mono text-[8px] font-bold uppercase tracking-[.16em] text-muted">{row.pick.viaAbbr ? 'via ' + row.pick.viaAbbr : row.pick.originalTeam?.record || (row.pickNo > 30 ? 'Second round' : 'First round')}</div></div>
+                      <div className="min-w-0"><div className="truncate text-sm font-black text-slate-800">{row.prospect?.name || 'Sem escolha'}</div><div className="mt-0.5 font-mono text-[8px] font-bold uppercase tracking-[.16em] text-muted">{row.prospect?.position || '-'} / rank #{row.prospect?.rank || '-'}</div></div>
+                      <div className="justify-self-start rounded-full px-3 py-1 font-mono text-[8px] font-black uppercase tracking-[.13em] md:justify-self-end" style={{ background: tier.bg, color: tier.text }}>{tier.label}</div>
+                      <div className="justify-self-start rounded-full bg-white/50 px-3 py-1 font-mono text-[8px] font-black uppercase tracking-[.13em] text-slate-700 md:justify-self-end">Nota {grade}</div>
+                    </div>
+                    {row.note && (
+                      <div className="mt-3 rounded-[18px] border border-white/40 bg-white/38 px-4 py-3 text-xs font-semibold leading-5 text-slate-600 shadow-[inset_1px_1px_0_rgba(255,255,255,.48)]">
+                        <span className="mr-2 font-mono text-[8px] font-black uppercase tracking-[.16em] text-lo">Sua nota</span>
+                        {row.note}
+                      </div>
+                    )}
+                  </motion.div>
+                )
+              })}
+            </div>
+          </section>
+        ))}
       </div>
     </GlassPanel>
   )

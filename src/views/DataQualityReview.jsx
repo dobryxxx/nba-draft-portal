@@ -55,7 +55,7 @@ const FILTERS = [
 ]
 
 const POSITION_PRESETS = ['PG', 'PG/SG', 'SG', 'SG/SF', 'SF', 'SF/PF', 'PF', 'PF/C', 'C']
-const TIER_PRESETS = ['ELITE', 'LOTTERY', 'MID_1ST', 'SLEEPER']
+const TIER_PRESETS = ['CORNERSTONE', 'ELITE', 'LOTTERY', 'MID_1ST', 'FRINGE', 'SLEEPER']
 const OUTCOME_LABELS = ['G-League / two-way', 'Deep bench', 'Rotation', 'Starter', 'All-Star', 'Franchise player', 'MVP / franchise outlier']
 const RISK_LEVELS = ['Low', 'Moderate', 'High']
 const RISK_REASONS = ['Shooting consistency', 'Decision making', 'Frame/physicality', 'Defense translation', 'Medical/context', 'Age/upside', 'Role clarity']

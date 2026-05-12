@@ -41,6 +41,7 @@ import {
   num,
   resolveOutcomeScores,
 } from '../../utils/playerProfileLogic'
+import { normalizeProspectStats } from '../../utils/prospectStats'
 
 const EASE = [0.22, 1, 0.36, 1]
 const OUTCOME_LABELS = [
@@ -98,7 +99,7 @@ function outcomeRelationCopy(floor, ceiling) {
 }
 
 function getStyleTags(player) {
-  const s = player.stats || {}
+  const s = normalizeProspectStats(player)
   const tags = [getPlayerArchetype(player)]
   if ((s.ppg || 0) >= 18) tags.push('Advantage scorer')
   if ((s.threep || 0) >= 37) tags.push('Spacing value')
@@ -109,19 +110,18 @@ function getStyleTags(player) {
 }
 
 function executiveBullets(player) {
-  const copy = getOverviewCopy(player)
   const strengths = player.scouting?.strengths || []
-  const stats = player.stats || {}
+  const stats = normalizeProspectStats(player)
   const generated = [
     typeof stats.ppg === 'number' ? `${num(stats.ppg)} PPG define volume e responsabilidade ofensiva.` : null,
     typeof stats.ts === 'number' ? `${num(stats.ts)}% TS coloca eficiencia dentro do contexto.` : null,
     typeof stats.threep === 'number' ? `${num(stats.threep)}% de 3PT e o termometro de spacing.` : null,
   ].filter(Boolean)
-  return [...strengths, ...generated, copy.body].slice(0, 3)
+  return [...strengths, ...generated].slice(0, 3)
 }
 
 function getDNA(player) {
-  const stats = player.stats || {}
+  const stats = normalizeProspectStats(player)
   const attrs = player.scouting?.attributes || {}
   return [
     ['Scoring', attrValue(player, 'Scorer'), typeof stats.ppg === 'number' ? `${num(stats.ppg)} PPG como base de volume.` : 'Volume e pressao no aro definem o pacote.', Zap],
@@ -770,5 +770,3 @@ export default function PlayerOverviewV2({ p, badges, accent, tier }) {
     </motion.div>
   )
 }
-
-

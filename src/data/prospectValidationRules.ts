@@ -5,7 +5,7 @@
 // These rules are editorial heuristics, not automatic truth.
 // ============================================================
 
-export type ProspectTier = 'ELITE' | 'LOTTERY' | 'MID_1ST' | 'SLEEPER';
+export type ProspectTier = 'CORNERSTONE' | 'ELITE' | 'LOTTERY' | 'MID_1ST' | 'FRINGE' | 'SLEEPER';
 export type ProspectRole = 'guard' | 'wing' | 'big';
 export type Confidence = 'low' | 'medium' | 'high';
 export type Severity = 'info' | 'warning' | 'critical';
@@ -55,14 +55,16 @@ export function roleFromPosition(position = ''): ProspectRole {
 
 export function recommendedTierForRank(rank?: number): ProspectTier {
   if (!rank || !Number.isFinite(rank)) return 'SLEEPER';
-  if (rank <= 3) return 'ELITE';
+  if (rank <= 3) return 'CORNERSTONE';
+  if (rank <= 6) return 'ELITE';
   if (rank <= 14) return 'LOTTERY';
-  if (rank <= 30) return 'MID_1ST';
+  if (rank <= 24) return 'MID_1ST';
+  if (rank <= 32) return 'FRINGE';
   return 'SLEEPER';
 }
 
 export function tierDistanceScore(current?: string, expected?: string): number {
-  const order: ProspectTier[] = ['ELITE', 'LOTTERY', 'MID_1ST', 'SLEEPER'];
+  const order: ProspectTier[] = ['CORNERSTONE', 'ELITE', 'LOTTERY', 'MID_1ST', 'FRINGE', 'SLEEPER'];
   const a = order.indexOf(String(current || '').toUpperCase() as ProspectTier);
   const b = order.indexOf(String(expected || '').toUpperCase() as ProspectTier);
   if (a < 0 || b < 0) return 0;

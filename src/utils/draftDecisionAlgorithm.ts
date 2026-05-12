@@ -310,9 +310,11 @@ const toolScore = (player: any, key: string, fallback = 55): number => {
 
 const tierScore = (tier: unknown): number => {
   const value = String(tier || '').toUpperCase();
+  if (value.includes('CORNERSTONE')) return 96;
   if (value.includes('ELITE')) return 92;
   if (value.includes('LOTTERY')) return 78;
   if (value.includes('MID_1ST') || value.includes('MID 1ST')) return 66;
+  if (value.includes('FRINGE')) return 60;
   if (value.includes('SLEEPER')) return 58;
   return 55;
 };

@@ -1,18 +1,23 @@
 import { motion } from 'framer-motion'
 import { getPlayerCutoutImage } from '../utils/playerImages'
+import { normalizeProspectStats, formatStat, formatPercent } from '../utils/prospectStats'
+import { mergeProspectWithManualIntelligence } from '../data/prospectDraftIntelligence.ts'
 
 const TIER_STYLES = {
-  ELITE: { label: 'ELITE', color: '#7c5ccf', bg: '#eee9fb', text: '#5d46a3', glow: 'rgba(124,92,207,.24)', wash: 'rgba(124,92,207,.13)', accent: 'rgba(183,166,232,.26)' },
-  LOTTERY: { label: 'LOTTERY', color: '#5aaed6', bg: '#edf7fd', text: '#3f7fa0', glow: 'rgba(90,174,214,.22)', wash: 'rgba(139,191,232,.16)', accent: 'rgba(213,239,252,.46)' },
-  MID_1ST: { label: 'MID 1ST', color: '#c9a941', bg: '#fbf4d2', text: '#8a7023', glow: 'rgba(201,169,65,.24)', wash: 'rgba(246,222,126,.18)', accent: 'rgba(255,246,198,.45)' },
-  SLEEPER: { label: 'SLEEPER', color: '#e6a06f', bg: '#faeee5', text: '#a8663b', glow: 'rgba(230,160,111,.22)', wash: 'rgba(242,191,160,.18)', accent: 'rgba(250,238,229,.54)' },
+  CORNERSTONE: { label: 'CORNERSTONE', color: '#7c3aed', bg: '#eee9fb', text: '#5b21b6', glow: 'rgba(124,58,237,.26)', wash: 'rgba(124,58,237,.13)', accent: 'rgba(196,181,253,.28)' },
+  ELITE: { label: 'ELITE', color: '#d4af37', bg: '#fff4c2', text: '#8a6a00', glow: 'rgba(212,175,55,.25)', wash: 'rgba(212,175,55,.14)', accent: 'rgba(255,231,128,.34)' },
+  LOTTERY: { label: 'LOTERIA', color: '#10b981', bg: '#dff8ed', text: '#047857', glow: 'rgba(16,185,129,.22)', wash: 'rgba(16,185,129,.13)', accent: 'rgba(167,243,208,.34)' },
+  MID_1ST: { label: 'MID 1ST', color: '#3b82f6', bg: '#e0efff', text: '#1d4ed8', glow: 'rgba(59,130,246,.22)', wash: 'rgba(59,130,246,.13)', accent: 'rgba(191,219,254,.38)' },
+  FRINGE: { label: 'FRINGE', color: '#f97316', bg: '#ffedd5', text: '#c2410c', glow: 'rgba(249,115,22,.23)', wash: 'rgba(249,115,22,.14)', accent: 'rgba(254,215,170,.36)' },
+  SLEEPER: { label: 'SLEEPER', color: '#8b5e34', bg: '#f4eadc', text: '#5f3f20', glow: 'rgba(139,94,52,.22)', wash: 'rgba(139,94,52,.14)', accent: 'rgba(222,184,135,.34)' },
 }
 
-const normalizeTierKey = tier => ({ ALL_STAR: 'LOTTERY', STARTER: 'MID_1ST', FRINGE: 'MID_1ST', ROLE_PLAYER: 'SLEEPER' }[tier] || tier)
+const normalizeTierKey = tier => ({ ALL_STAR: 'LOTTERY', STARTER: 'MID_1ST', FRINGE_FIRST: 'FRINGE', ROLE_PLAYER: 'SLEEPER' }[tier] || tier)
+const getTierLiquidClass = tier => `tier-${String(normalizeTierKey(tier)).toLowerCase().replace(/_/g, '-')}`
 
 const ADVANCED_SNAPSHOT = [
   { key: 'ts', label: 'TS%', min: 45, max: 70, suffix: '%' },
-  { key: 'per', label: 'PER', min: 10, max: 35 },
+  { key: 'collegeRts', label: 'C-RTS', min: -12, max: 14 },
   { key: 'usg', label: 'USG%', min: 12, max: 38, suffix: '%' },
   { key: 'threep', label: '3P%', min: 24, max: 45, suffix: '%' },
   { key: 'ftp', label: 'FT%', min: 55, max: 92, suffix: '%' },
@@ -20,7 +25,6 @@ const ADVANCED_SNAPSHOT = [
 
 const clamp = value => Math.min(100, Math.max(0, value))
 const normalize = (value, min, max) => (typeof value === 'number' ?clamp(((value - min) / (max - min)) * 100) : 0)
-const formatNumber = (value, digits = 1) => (typeof value === 'number' ?value.toFixed(digits) : '-')
 
 function getTierStyles(tier) {
   return TIER_STYLES[normalizeTierKey(tier)] || TIER_STYLES.SLEEPER
@@ -62,9 +66,19 @@ const formatWeightMetric = (value = '') => {
 const getInitials = (name = '') => name.split(' ').filter(Boolean).slice(0, 2).map(part => part[0]).join('').toUpperCase()
 
 function getScoutingTeaser(prospect) {
-  const scouting = prospect.scouting || {}
-  const text = scouting.notes || scouting.strengths?.[0] || 'Perfil completo disponível com leitura de scout, forças, riscos e contexto estatístico.'
-  return text.length > 150 ?text.slice(0, 147).trim() + '...' : text
+  const resolved = mergeProspectWithManualIntelligence(prospect || {})
+  const scouting = resolved.scouting || {}
+  const manualSummary = resolved.resolvedIntelligence?.scouting?.translationSummary
+  const notes = Array.isArray(scouting.notes) ? scouting.notes.join(' ') : scouting.notes
+  const candidates = [
+    manualSummary,
+    scouting.translationSummary,
+    notes,
+    scouting.strengths?.[0],
+    'Perfil completo disponível com leitura de scout, forças, riscos e contexto estatístico.',
+  ]
+  const text = candidates.find(value => typeof value === 'string' && value.trim() && !/[Ã�]/.test(value)) || candidates.find(value => typeof value === 'string' && value.trim()) || ''
+  return text.length > 150 ? text.slice(0, 147).trim() + '...' : text
 }
 
 function PhysicalChip({ label, value, color }) {
@@ -77,11 +91,12 @@ function PhysicalChip({ label, value, color }) {
 }
 
 function CoreStat({ label, value, suffix = '' }) {
+  const shown = suffix === '%' ? formatPercent(value) : formatStat(value)
   return (
     <div className="rounded-[20px] bg-white/42 px-3 py-3 text-center backdrop-blur-sm">
       <div className="font-mono text-[10px] font-bold uppercase tracking-[.16em] text-lo">{label}</div>
       <div className="mt-1 font-sans text-2xl font-black leading-none tabular-nums text-slate-800">
-        {formatNumber(value)}{typeof value === 'number' ?suffix : ''}
+        {shown}
       </div>
     </div>
   )
@@ -89,12 +104,12 @@ function CoreStat({ label, value, suffix = '' }) {
 
 function AdvancedMetric({ stat, value, color }) {
   const pct = getStatBarValue(stat, value)
-  const shown = typeof value === 'number' ?formatNumber(value) + (stat.suffix || '') : '-'
+  const shown = stat.suffix === '%' ? formatPercent(value) : formatStat(value)
 
   return (
     <div className="rounded-2xl bg-white/28 px-3 py-2 backdrop-blur-sm">
       <div className="mb-1.5 flex items-center justify-between gap-3">
-        <span className="font-mono text-[9px] font-bold uppercase tracking-[.14em] text-lo">{stat.label}</span>
+        <span className="font-mono text-[9px] font-bold uppercase tracking-[.14em] text-lo" title={stat.label === 'C-RTS' ? 'College Relative True Shooting' : stat.label}>{stat.label}</span>
         <span className="font-mono text-[11px] font-black tabular-nums text-slate-800">{shown}</span>
       </div>
       <div className="h-1.5 overflow-hidden rounded-full bg-white/55">
@@ -110,11 +125,13 @@ function AdvancedMetric({ stat, value, color }) {
 export default function ProspectCard({ prospect, onClick, onTierChange, dragHandleProps, isDragging = false, animateOnMount = true }) {
   const tier = getTierStyles(prospect.tier)
   const tierKey = normalizeTierKey(prospect.tier)
+  const tierLiquidClass = getTierLiquidClass(prospect.tier)
+  const isPrimeLiquid = Number(prospect.rank || 99) <= 3
   const accent = tier.color
-  const stats = prospect.stats || {}
+  const stats = normalizeProspectStats(prospect)
   const playerImage = getPlayerCutoutImage(prospect)
   const teaser = getScoutingTeaser(prospect)
-  const cardBackground = prospect.tier === 'ELITE'
+  const cardBackground = prospect.tier === 'CORNERSTONE'
     ?'radial-gradient(circle at 18% 16%, rgba(124,92,207,.20), transparent 25%), radial-gradient(circle at 82% 22%, rgba(80,62,150,.13), transparent 24%), radial-gradient(circle at 55% 84%, rgba(183,166,232,.22), transparent 31%), linear-gradient(145deg, rgba(255,255,255,.76), ' + tier.bg + 'e6)'
     : 'radial-gradient(circle at 18% 18%, ' + tier.wash + ', transparent 28%), radial-gradient(circle at 86% 80%, ' + tier.accent + ', transparent 30%), linear-gradient(145deg, rgba(255,255,255,.74), ' + tier.bg + 'dd)'
 
@@ -122,7 +139,7 @@ export default function ProspectCard({ prospect, onClick, onTierChange, dragHand
     <motion.article
       layout
       onClick={onClick ?() => onClick(prospect) : undefined}
-      className={`prospect-card-shell prospect-tier-${tierKey} group relative flex cursor-pointer flex-col overflow-hidden rounded-[32px] border border-white/60 bg-white/50 backdrop-blur-md`}
+      className={`prospect-card-shell prospect-tier-${tierKey} tier-liquid-card ${tierLiquidClass} ${isPrimeLiquid ? 'tier-liquid-prime' : 'tier-liquid-standard'} group relative isolate flex cursor-pointer flex-col overflow-hidden rounded-[32px] border border-white/60 bg-white/50 backdrop-blur-md`}
       initial={animateOnMount ?{ opacity: 0, y: 10, scale: 0.99 } : false}
       animate={{ opacity: 1, y: 0, scale: isDragging ?1.018 : 1 }}
       exit={{ opacity: 0, y: 8, scale: 0.975 }}
@@ -136,6 +153,8 @@ export default function ProspectCard({ prospect, onClick, onTierChange, dragHand
           : '0 8px 30px rgba(0,0,0,.04), inset 1px 1px 0 rgba(255,255,255,.86)',
       }}
     >
+      <div className="tierLiquid" aria-hidden="true" />
+      <div className="tierLiquidSheen" aria-hidden="true" />
       <div className="absolute left-0 top-0 h-full w-1.5" style={{ background: 'linear-gradient(180deg, ' + accent + ', transparent)' }} />
 
       <div className="flex items-start gap-4 p-5 pb-4">

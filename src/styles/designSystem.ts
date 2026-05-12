@@ -79,39 +79,53 @@ export const typography = {
 }
 
 export const tierStyles = {
-  ELITE: {
-    badge: 'bg-violet-100/70 text-violet-700 border border-violet-200/50',
-    glow: 'rgba(124,92,207,0.28)',
-    text: '#5d46a3',
+  CORNERSTONE: {
+    badge: 'bg-violet-100/70 text-violet-800 border border-violet-200/50',
+    glow: 'rgba(124,58,237,0.30)',
+    text: '#5b21b6',
     border: 'border-violet-200/50',
     background: 'rgba(238,233,251,0.72)',
   },
+  ELITE: {
+    badge: 'bg-yellow-100/75 text-yellow-800 border border-yellow-300/50',
+    glow: 'rgba(212,175,55,0.25)',
+    text: '#8a6a00',
+    border: 'border-yellow-300/50',
+    background: 'rgba(255,244,194,0.72)',
+  },
   LOTTERY: {
-    badge: 'bg-sky-100/70 text-sky-700 border border-sky-200/50',
-    glow: 'rgba(90,174,214,0.24)',
-    text: '#3f7fa0',
-    border: 'border-sky-200/50',
-    background: 'rgba(237,247,253,0.78)',
+    badge: 'bg-emerald-100/70 text-emerald-700 border border-emerald-200/50',
+    glow: 'rgba(16,185,129,0.22)',
+    text: '#047857',
+    border: 'border-emerald-200/50',
+    background: 'rgba(223,248,237,0.78)',
   },
   MID_1ST: {
-    badge: 'bg-amber-100/70 text-amber-700 border border-amber-200/50',
-    glow: 'rgba(201,169,65,0.24)',
-    text: '#8a7023',
-    border: 'border-amber-200/50',
-    background: 'rgba(251,244,210,0.76)',
+    badge: 'bg-blue-100/70 text-blue-700 border border-blue-200/50',
+    glow: 'rgba(59,130,246,0.22)',
+    text: '#1d4ed8',
+    border: 'border-blue-200/50',
+    background: 'rgba(224,239,255,0.76)',
+  },
+  FRINGE: {
+    badge: 'bg-orange-100/70 text-orange-700 border border-orange-200/50',
+    glow: 'rgba(249,115,22,0.23)',
+    text: '#c2410c',
+    border: 'border-orange-200/50',
+    background: 'rgba(255,237,213,0.76)',
   },
   SLEEPER: {
-    badge: 'bg-orange-100/70 text-orange-700 border border-orange-200/50',
-    glow: 'rgba(230,160,111,0.22)',
-    text: '#a8663b',
-    border: 'border-orange-200/50',
-    background: 'rgba(250,238,229,0.78)',
+    badge: 'bg-stone-100/80 text-stone-700 border border-stone-300/50',
+    glow: 'rgba(139,94,52,0.22)',
+    text: '#5f3f20',
+    border: 'border-stone-300/50',
+    background: 'rgba(244,234,220,0.78)',
   },
 }
 
 export function normalizeTierKey(tier) {
   const value = String(tier || 'SLEEPER').toUpperCase()
-  return { ALL_STAR: 'LOTTERY', STARTER: 'MID_1ST', FRINGE: 'MID_1ST', ROLE_PLAYER: 'SLEEPER' }[value] || value
+  return { ALL_STAR: 'LOTTERY', STARTER: 'MID_1ST', FRINGE_FIRST: 'FRINGE', ROLE_PLAYER: 'SLEEPER' }[value] || value
 }
 
 export function getTierStyle(tier) {

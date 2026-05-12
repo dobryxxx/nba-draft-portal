@@ -96,14 +96,16 @@ function roleFromPosition(position = '') {
 
 function recommendedTierForRank(rank) {
   if (!rank || !Number.isFinite(rank)) return 'SLEEPER'
-  if (rank <= 3) return 'ELITE'
+  if (rank <= 3) return 'CORNERSTONE'
+  if (rank <= 6) return 'ELITE'
   if (rank <= 14) return 'LOTTERY'
-  if (rank <= 30) return 'MID_1ST'
+  if (rank <= 24) return 'MID_1ST'
+  if (rank <= 32) return 'FRINGE'
   return 'SLEEPER'
 }
 
 function tierDistanceScore(current, expected) {
-  const order = ['ELITE', 'LOTTERY', 'MID_1ST', 'SLEEPER']
+  const order = ['CORNERSTONE', 'ELITE', 'LOTTERY', 'MID_1ST', 'FRINGE', 'SLEEPER']
   const a = order.indexOf(String(current || '').toUpperCase())
   const b = order.indexOf(String(expected || '').toUpperCase())
   if (a < 0 || b < 0) return 0

@@ -41,6 +41,7 @@ import {
   attrValue,
   getAttributeGrade,
 } from '../../utils/playerProfileLogic'
+import { normalizeProspectStats } from '../../utils/prospectStats'
 
 const glass = {
   inner: cn(
@@ -70,7 +71,7 @@ function Shell({ children, className = '' }) {
 }
 
 function scoutHeadline(p) {
-  const s = p.stats || {}
+  const s = normalizeProspectStats(p)
   const r = role(p.position)
   if ((s.ppg || 0) >= 20) return 'Criador ofensivo capaz de mudar o teto de um ataque'
   if ((s.threep || 0) >= 37) return 'Peça de spacing com tradução ofensiva clara'
@@ -80,7 +81,7 @@ function scoutHeadline(p) {
 }
 
 function scoutVerdict(p) {
-  const s = p.stats || {}
+  const s = normalizeProspectStats(p)
   if ((s.ts || 0) >= 60 && (s.ppg || 0) >= 16) {
     return 'Perfil com boa relação entre volume e eficiência, o que reduz parte do risco de tradução.'
   }
@@ -98,13 +99,13 @@ function getExecutiveSummary(p) {
   return {
     headline: scoutHeadline(p),
     verdict: scoutVerdict(p),
-    body: p.scouting?.notes || copy.body,
+    body: copy.body,
     tags: getStoryTags(p).slice(0, 4),
   }
 }
 
 function getNBAProjection(p) {
-  const s = p.stats || {}
+  const s = normalizeProspectStats(p)
   const r = role(p.position)
   const ideal = (s.ppg || 0) >= 18 ? 'Scorer secundário' : (s.apg || 0) >= 4 ? 'Conector ofensivo' : r === 'big' ? 'Big de rotação' : 'Peca de rotação'
   const context = (s.threep || 0) >= 36
@@ -134,7 +135,7 @@ function getScoutGrade(p) {
     const { floor, ceiling } = resolveOutcomeScores(p)
     return Math.round(clamp((floor + ceiling) / 2, 35, 98))
   }
-  const s = p.stats || {}
+  const s = normalizeProspectStats(p)
   const rankBonus = clamp(34 - (p.rank || 30) * .55, 0, 34)
   const production = clamp((s.ppg || 10) * .9, 0, 24)
   const efficiency = clamp(((s.ts || 54) - 48) * 1.15, 0, 18)
@@ -146,7 +147,7 @@ function getScoutGrade(p) {
 function getScoutRisk(p) {
   const manualRisk = manualEvaluation(p)?.risk?.level
   if (manualRisk) return manualRisk
-  const s = p.stats || {}
+  const s = normalizeProspectStats(p)
   if ((s.threep || 36) < 31 || (s.astTo || 2) < 1.05 || (s.ts || 60) < 52) return 'High'
   if ((s.threep || 36) < 34 || (s.ts || 60) < 55 || (p.rank || 99) > 24) return 'Moderate'
   return 'Low'
@@ -202,7 +203,7 @@ function riskSeverity(text = '', index = 0) {
 }
 
 function getScoutVerdictItems(p) {
-  const s = p.stats || {}
+  const s = normalizeProspectStats(p)
   const projection = getNBAProjection(p)
   const swing = (s.threep || 0) < 34 ? '3PT consistency' : (s.astTo || 0) < 1.3 ? 'Decision speed' : 'Role scaling'
   const concern = (p.scouting?.weaknesses || [])[0] || scoutVerdict(p)
@@ -215,7 +216,7 @@ function getScoutVerdictItems(p) {
 }
 
 function matrixScore(p, key) {
-  const s = p.stats || {}
+  const s = normalizeProspectStats(p)
   const attrs = p.scouting?.attributes || {}
   const base = {
     scoring: clamp((s.ppg || 10) * 3.2 + (s.usg || 18) * .45, 35, 96),
@@ -330,7 +331,7 @@ function ScoutingMatrix({ p, accent }) {
 
 function getTranslationPath(p) {
   const translation = getNBATranslation(p)
-  const s = p.stats || {}
+  const s = normalizeProspectStats(p)
   return [
     { label: 'Immediate NBA Skill', value: scoutItemTitle((p.scouting?.strengths || [])[0], 'strength'), Icon: BadgeCheck, color: '#62ad88' },
     { label: 'Swing Skill', value: (s.threep || 0) < 34 ? '3PT consistency' : (s.astTo || 0) < 1.3 ? 'Decision speed' : 'Role scaling', Icon: Crosshair, color: '#d6a44f' },

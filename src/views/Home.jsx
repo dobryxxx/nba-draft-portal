@@ -3,13 +3,15 @@ import { BarChart3, Database, Gauge, Layers, Sparkles, Target, TrendingDown, Tre
 import { getPlayerCutoutImage } from '../utils/playerImages'
 
 const TIER_STYLES = {
-  ELITE: { label: 'ELITE', color: '#7c5ccf', bg: 'rgba(238,233,251,.72)', glow: 'rgba(124,92,207,.22)' },
-  LOTTERY: { label: 'LOTTERY', color: '#4f86ad', bg: 'rgba(237,247,253,.78)', glow: 'rgba(90,174,214,.18)' },
-  MID_1ST: { label: 'MID 1ST', color: '#b9912f', bg: 'rgba(251,244,210,.76)', glow: 'rgba(201,169,65,.18)' },
-  SLEEPER: { label: 'SLEEPER', color: '#d47a45', bg: 'rgba(250,238,229,.78)', glow: 'rgba(230,160,111,.16)' },
+  CORNERSTONE: { label: 'CORNERSTONE', color: '#7c3aed', bg: '#eee9fb', text: '#5b21b6', glow: 'rgba(124,58,237,.26)', wash: 'rgba(124,58,237,.13)', accent: 'rgba(196,181,253,.28)' },
+  ELITE: { label: 'ELITE', color: '#d4af37', bg: '#fff4c2', text: '#8a6a00', glow: 'rgba(212,175,55,.25)', wash: 'rgba(212,175,55,.14)', accent: 'rgba(255,231,128,.34)' },
+  LOTTERY: { label: 'LOTERIA', color: '#10b981', bg: '#dff8ed', text: '#047857', glow: 'rgba(16,185,129,.22)', wash: 'rgba(16,185,129,.13)', accent: 'rgba(167,243,208,.34)' },
+  MID_1ST: { label: 'MID 1ST', color: '#3b82f6', bg: '#e0efff', text: '#1d4ed8', glow: 'rgba(59,130,246,.22)', wash: 'rgba(59,130,246,.13)', accent: 'rgba(191,219,254,.38)' },
+  FRINGE: { label: 'FRINGE', color: '#f97316', bg: '#ffedd5', text: '#c2410c', glow: 'rgba(249,115,22,.23)', wash: 'rgba(249,115,22,.14)', accent: 'rgba(254,215,170,.36)' },
+  SLEEPER: { label: 'SLEEPER', color: '#8b5e34', bg: '#f4eadc', text: '#5f3f20', glow: 'rgba(139,94,52,.22)', wash: 'rgba(139,94,52,.14)', accent: 'rgba(222,184,135,.34)' },
 }
 
-const normalizeTierKey = tier => ({ ALL_STAR: 'LOTTERY', STARTER: 'MID_1ST', FRINGE: 'MID_1ST', ROLE_PLAYER: 'SLEEPER' }[tier] || tier)
+const normalizeTierKey = tier => ({ ALL_STAR: 'LOTTERY', STARTER: 'MID_1ST', FRINGE_FIRST: 'FRINGE', ROLE_PLAYER: 'SLEEPER' }[tier] || tier)
 
 const sectionMotion = {
   hidden: { opacity: 0, y: 18, scale: .985 },
